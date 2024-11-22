@@ -3,22 +3,36 @@ import scala.scalanative.build.*
 val scala3Version = "3.6.1"
 
 ThisBuild / scalaVersion := scala3Version
-ThisBuild / organization := "it.nicolasfarabegoli"
+ThisBuild / organization := "it.unibo.field4s"
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
-ThisBuild / homepage := Some(url("https://github.com/nicolasfara/Template-for-Scala-Multiplatform-Projects"))
+ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
+ThisBuild / homepage := Some(url("https://github.com/field4s/field4s"))
 ThisBuild / licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / developers := List(
   Developer(
     "nicolasfara",
     "Nicolas Farabegoli",
-    "nicolas.farabegoli@gmail.com",
+    "nicolas.farabegoli@unibo.it",
     url("https://nicolasfarabegoli.it")
+  ),
+  Developer(
+    "cric96",
+    "Gianluca Aguzzi",
+    "gianluca.aguzzi@unibo.it",
+    url("https://github.com/cric96")
   )
 )
+ThisBuild / scalacOptions ++= Seq(
+  "-Werror",
+  "-rewrite",
+  "-indent",
+  "-unchecked",
+  "-explain",
+)
 
-lazy val root = crossProject(JSPlatform, JVMPlatform, NativePlatform)
-  .in(file("."))
+lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+  .in(file("core"))
   .configs()
     .nativeSettings(
       nativeConfig ~= {
@@ -33,30 +47,21 @@ lazy val root = crossProject(JSPlatform, JVMPlatform, NativePlatform)
       scalaJSLinkerConfig ~= { _.withOptimizer(true) }
     )
   .settings(
-    name := "Template-for-Scala-Multiplatform-Projects",
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
-    sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
+    name := "core",
     sonatypeProfileName := "it.nicolasfarabegoli",
-    scalacOptions ++= Seq(
-      "-Werror",
-      "-rewrite",
-      "-indent",
-      "-unchecked",
-      "-explain",
-    ),
     libraryDependencies ++= Seq()
   )
 
 lazy val check = taskKey[Unit]("Runs all verification tasks like tests, linters, etc.")
 check := {
-  (root.jvm / Test / test).value
-  (root.jvm / Compile / scalafmtCheck).value
+  (core.jvm / Test / test).value
+  (core.jvm / Compile / scalafmtCheck).value
 
-  (root.js / Test / test).value
-  (root.js / Compile / scalafmtCheck).value
+  (core.js / Test / test).value
+  (core.js / Compile / scalafmtCheck).value
 
-  (root.native / Test / test).value
-  (root.native / Compile / scalafmtCheck).value
+  (core.native / Test / test).value
+  (core.native / Compile / scalafmtCheck).value
 }
 
 compile := (Compile / compile dependsOn check).value
