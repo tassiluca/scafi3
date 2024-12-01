@@ -12,4 +12,4 @@
 Formerly known as [_scafi_](https://github.com/scafi/scafi), **field4s** is a Scala 3 DSL for _Aggregate Programming_. 
 
 Roots its foundations on the concept of **computational fields**:
-a _distributed data structure_ manipulated by _aggregate_ functions implementing the business logic of a **large-scale distributed system**. 
+a _distributed data structure_ manipulated by _aggregate_ functions implementing the business logic for **large-scale distributed systems**. 
