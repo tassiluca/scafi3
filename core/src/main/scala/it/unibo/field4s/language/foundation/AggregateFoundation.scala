@@ -1,6 +1,7 @@
 package it.unibo.field4s.language.foundation
 
-import it.unibo.field4s.abstractions.{ Aggregate, Liftable }
+import cats.Applicative
+import it.unibo.field4s.abstractions.{Aggregate, Liftable}
 import it.unibo.field4s.collections.SafeIterable
 
 trait AggregateFoundation:
@@ -14,4 +15,4 @@ trait AggregateFoundation:
   /**
    * Aggregate values can be composed and mapped.
    */
-  given liftable: Liftable[AggregateValue]
+  given liftable: Applicative[AggregateValue]

@@ -3,6 +3,8 @@ package it.unibo.field4s.language.foundation
 import it.unibo.field4s.abstractions.{ Aggregate, Liftable }
 import it.unibo.field4s.collections.SafeIterable
 
+import cats.syntax.all.*
+
 class AggregateFoundationMock
     extends AggregateFoundation
     with DeviceAwareAggregateFoundation
@@ -20,6 +22,9 @@ class AggregateFoundationMock
       override def onlySelf: A = a.mockedValues.head
 
   override given liftable: Liftable[MockAggregate] = new Liftable[MockAggregate]:
+
+    override def map[A, B](fa: MockAggregate[A])(f: A => B): MockAggregate[B] = MockAggregate(fa.mockedValues.map(f))
+
     override def lift[A, B](a: MockAggregate[A])(f: A => B): MockAggregate[B] = MockAggregate(a.mockedValues.map(f))
 
     override def lift[A, B, C](a: MockAggregate[A], b: MockAggregate[B])(f: (A, B) => C): MockAggregate[C] =

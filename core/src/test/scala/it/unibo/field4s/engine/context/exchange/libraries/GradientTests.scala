@@ -10,6 +10,8 @@ import it.unibo.field4s.engine.network.{ Export, Import }
 import it.unibo.field4s.language.libraries.All.{ *, given }
 import it.unibo.field4s.language.sensors.DistanceSensor
 
+import cats.syntax.all.*
+
 trait GradientTests:
   this: UnitTest & ValueTreeProbingContextMixin & BasicFactoryMixin =>
 

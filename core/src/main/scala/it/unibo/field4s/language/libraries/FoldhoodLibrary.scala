@@ -6,6 +6,8 @@ import it.unibo.field4s.language.syntax.FieldCalculusSyntax
 import it.unibo.field4s.language.sensors.DistanceSensor.senseDistance
 import it.unibo.field4s.language.sensors.DistanceSensor
 
+import cats.syntax.all.*
+
 import FieldCalculusLibrary.nbr as fcNbr
 import FoldingLibrary.nfold
 

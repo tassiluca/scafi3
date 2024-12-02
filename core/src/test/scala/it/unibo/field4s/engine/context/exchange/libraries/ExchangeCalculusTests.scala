@@ -9,6 +9,8 @@ import it.unibo.field4s.engine.context.exchange.BasicExchangeCalculusContext
 import it.unibo.field4s.engine.network.Export
 import it.unibo.field4s.language.libraries.All.{ *, given }
 
+import cats.syntax.all.*
+
 trait ExchangeCalculusTests:
   this: UnitTest & ValueTreeProbingContextMixin & BasicFactoryMixin =>
 

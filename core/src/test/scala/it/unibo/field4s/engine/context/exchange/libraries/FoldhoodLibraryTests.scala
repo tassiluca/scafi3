@@ -11,6 +11,8 @@ import it.unibo.field4s.language.libraries.CommonLibrary.self
 import it.unibo.field4s.engine.network.{ Export, Import }
 import it.unibo.field4s.language.sensors.DistanceSensor
 
+import cats.syntax.all.*
+
 trait FoldhoodLibraryTests:
   this: UnitTest & ValueTreeProbingContextMixin =>
 

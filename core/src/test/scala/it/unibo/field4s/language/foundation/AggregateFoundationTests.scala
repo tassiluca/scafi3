@@ -4,6 +4,8 @@ import it.unibo.field4s.abstractions.*
 import it.unibo.field4s.abstractions.Liftable.*
 import it.unibo.field4s.UnitTest
 
+import cats.syntax.all.*
+
 trait AggregateFoundationTests:
   this: UnitTest & AggregateTests & LiftableTests =>
 

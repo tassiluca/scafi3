@@ -15,11 +15,7 @@ trait BranchingTests:
 
   def branchingSemantics(): Unit =
     def branchingProgram(using BasicExchangeCalculusContext[Int]): Unit =
-      branch(self % 2 == 0) {
-        exchange(100)(x => x)
-      } {
-        exchange(200)(x => x)
-      }
+      branch(self % 2 == 0) { exchange(100)(x => x) } { exchange(200)(x => x) }
     val exportProbeEven: Export[Int, ExportValue] = probe(
       localId = 142,
       factory = factory,
@@ -38,13 +34,10 @@ trait BranchingTests:
     var neighboursCount = 0
     def branchingProgramWithSideEffect(using BasicExchangeCalculusContext[Int]): Unit =
       branch(self % 2 == 0) {
-        exchange(100)(x =>
+        exchange(100): x =>
           neighboursCount = device.size
-          x,
-        )
-      } {
-        exchange(200)(x => x)
-      }
+          x
+      } { exchange(200)(x => x) }
     val crossingMessagesProbe: Export[Int, ExportValue] = probe(
       localId = 0,
       factory = factory,

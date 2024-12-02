@@ -2,6 +2,8 @@ package it.unibo.field4s.abstractions
 
 import it.unibo.field4s.UnitTest
 
+import cats.syntax.all.*
+
 trait LiftableTests extends MappableTests:
   this: UnitTest =>
   override def mappable: Liftable[F]

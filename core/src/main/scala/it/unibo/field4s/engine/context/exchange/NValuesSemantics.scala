@@ -56,6 +56,10 @@ trait NValuesSemantics:
       )
 
   override given liftable: Liftable[AggregateValue] = new Liftable[AggregateValue]:
+    override def map[A, B](fa: NValues[A])(f: A => B): NValues[B] = NValues[B](
+      f(fa.default),
+      fa.unalignedValues.view.mapValues(f).toMap,
+    )
 
     override def lift[A, B](a: NValues[A])(f: A => B): NValues[B] =
       new NValues[B](f(a.default), a.unalignedValues.view.mapValues(f).toMap)

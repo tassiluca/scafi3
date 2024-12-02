@@ -1,11 +1,14 @@
 package it.unibo.field4s.abstractions
 
+import cats.Functor
+
 /**
  * A type class that provides ways to combine collections of values into new collections of values.
+ *
  * @tparam F
  *   the type of the collection
  */
-trait Liftable[F[_]] extends Mappable[F]:
+trait Liftable[F[_]] extends Functor[F]: // Mappable[F]:
   /**
    * Maps a collection of values to a new collection of values by applying a function to each value.
    */
@@ -22,7 +25,7 @@ trait Liftable[F[_]] extends Mappable[F]:
    */
   def lift[A, B, C, D](a: F[A], b: F[B], c: F[C])(f: (A, B, C) => D): F[D]
 
-  extension [A](a: F[A]) override def map[B](f: A => B): F[B] = lift(a)(f)
+  // extension [A](a: F[A]) override def map[B](f: A => B): F[B] = lift(a)(f)
 
 end Liftable
 

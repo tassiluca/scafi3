@@ -51,12 +51,12 @@ ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 ThisBuild / libraryDependencies ++= Seq(
+  "org.typelevel" %%% "cats-core" % "2.12.0",
   "org.scalatest" %%% "scalatest" % "3.2.19" % Test,
 )
 
 lazy val commonTestSettings = Seq(
   Test / scalacOptions --= Seq(
-    "-Werror",
     "-rewrite",
     "-Wunused:all",
     "-Wvalue-discard",
