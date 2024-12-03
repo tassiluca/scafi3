@@ -1,11 +1,12 @@
 package it.unibo.field4s.language.libraries
 
-import it.unibo.field4s.abstractions.Liftable.*
 import it.unibo.field4s.abstractions.boundaries.UpperBounded
 import it.unibo.field4s.language.foundation.AggregateFoundation
 import it.unibo.field4s.language.sensors.DistanceSensor.senseDistance
 import it.unibo.field4s.language.sensors.DistanceSensor
 import it.unibo.field4s.language.syntax.FieldCalculusSyntax
+
+import cats.syntax.all.*
 
 import FieldCalculusLibrary.share
 import CommonLibrary.mux
@@ -31,7 +32,7 @@ object GradientLibrary:
   def distanceEstimate[N: Numeric: UpperBounded](using language: AggregateFoundation)(
       neighboursEstimates: language.AggregateValue[N],
       distances: language.AggregateValue[N],
-  ): N = lift(neighboursEstimates, distances)(_ + _).withoutSelf.min
+  ): N = (neighboursEstimates, distances).mapN(_ + _).withoutSelf.min
 
   /**
    * This function computes the distance from a source to this node, by sharing the distance estimate with the

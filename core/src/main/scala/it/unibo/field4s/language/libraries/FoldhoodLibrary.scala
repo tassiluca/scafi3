@@ -1,6 +1,5 @@
 package it.unibo.field4s.language.libraries
 
-import it.unibo.field4s.abstractions.Liftable.lift
 import it.unibo.field4s.language.foundation.AggregateFoundation
 import it.unibo.field4s.language.syntax.FieldCalculusSyntax
 import it.unibo.field4s.language.sensors.DistanceSensor.senseDistance
@@ -110,7 +109,7 @@ object FoldhoodLibrary:
     var zippedNeighbouringValues: lang.AggregateValue[List[Any | Null]] = fcNbr(List.empty[Any | Null])
     val selfExprValue: A = expr(using initial)
     for nv <- neighbouringValues do
-      zippedNeighbouringValues = lift(zippedNeighbouringValues, nv)((list, value) => value :: list)
+      zippedNeighbouringValues = (zippedNeighbouringValues, nv).mapN((list, value) => value :: list)
     zippedNeighbouringValues.nfold(if withSelf then f(base, selfExprValue) else base): (acc, values) =>
       val iterator = values.iterator
       val context: FoldhoodContext[L] = new FoldhoodContext[L]:

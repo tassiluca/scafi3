@@ -2,9 +2,11 @@ package it.unibo.field4s.engine.context.exchange
 
 import scala.collection.MapView
 
-import it.unibo.field4s.abstractions.{ Aggregate, Liftable }
+import it.unibo.field4s.abstractions.Aggregate
 import it.unibo.field4s.collections.SafeIterable
 import it.unibo.field4s.language.semantics.exchange.{ ExchangeCalculusSemantics, NValuesOps }
+
+import cats.Applicative
 
 /**
  * Implements the foundational semantics for the NValues of the exchange calculus.
@@ -55,28 +57,19 @@ trait NValuesSemantics:
         nv.unalignedValues + (id -> value),
       )
 
-  override given liftable: Liftable[AggregateValue] = new Liftable[AggregateValue]:
+  override given liftable: Applicative[AggregateValue] = new Applicative[AggregateValue]:
+    override def pure[A](x: A): NValues[A] = NValues(x, Map.empty)
+
+    override def ap[A, B](ff: NValues[A => B])(fa: NValues[A]): NValues[B] = NValues(
+      ff.default(fa.default),
+      (ff.unalignedValues.keySet ++ fa.unalignedValues.keySet)
+        .map(deviceId => deviceId -> ff(deviceId)(fa(deviceId)))
+        .toMap,
+    )
+
     override def map[A, B](fa: NValues[A])(f: A => B): NValues[B] = NValues[B](
       f(fa.default),
       fa.unalignedValues.view.mapValues(f).toMap,
-    )
-
-    override def lift[A, B](a: NValues[A])(f: A => B): NValues[B] =
-      new NValues[B](f(a.default), a.unalignedValues.view.mapValues(f).toMap)
-
-    override def lift[A, B, C](a: NValues[A], b: NValues[B])(f: (A, B) => C): NValues[C] =
-      new NValues[C](
-        f(a.default, b.default),
-        (a.unalignedValues.keySet ++ b.unalignedValues.keySet).map(k => k -> f(a(k), b(k))).toMap,
-      )
-
-    override def lift[A, B, C, D](a: NValues[A], b: NValues[B], c: NValues[C])(
-        f: (A, B, C) => D,
-    ): NValues[D] = NValues[D](
-      f(a.default, b.default, c.default),
-      (a.unalignedValues.keySet ++ b.unalignedValues.keySet ++ c.unalignedValues.keySet)
-        .map(k => k -> f(a(k), b(k), c(k)))
-        .toMap,
     )
 
   override given aggregate: Aggregate[AggregateValue] = new Aggregate[AggregateValue]:

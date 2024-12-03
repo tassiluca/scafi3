@@ -1,8 +1,9 @@
 package it.unibo.field4s.language.foundation
 
-import cats.Applicative
-import it.unibo.field4s.abstractions.{Aggregate, Liftable}
+import it.unibo.field4s.abstractions.Aggregate
 import it.unibo.field4s.collections.SafeIterable
+
+import cats.Applicative
 
 trait AggregateFoundation:
   type AggregateValue[T] <: SafeIterable[T]

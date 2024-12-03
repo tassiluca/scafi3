@@ -1,8 +1,9 @@
 package it.unibo.field4s.language.foundation
 
-import it.unibo.field4s.abstractions.{ Aggregate, Liftable }
+import it.unibo.field4s.abstractions.Aggregate
 import it.unibo.field4s.collections.SafeIterable
 
+import cats.Applicative
 import cats.syntax.all.*
 
 class AggregateFoundationMock
@@ -16,25 +17,18 @@ class AggregateFoundationMock
     override protected def iterator: Iterator[T] = mockedValues.iterator
 
   override given aggregate: Aggregate[MockAggregate] = new Aggregate[MockAggregate]:
-
     extension [A](a: MockAggregate[A])
       override def withoutSelf: SafeIterable[A] = MockAggregate(a.mockedValues.tail)
       override def onlySelf: A = a.mockedValues.head
 
-  override given liftable: Liftable[MockAggregate] = new Liftable[MockAggregate]:
+  override given liftable: Applicative[MockAggregate] = new Applicative[MockAggregate]:
+    override def pure[A](x: A): MockAggregate[A] = MockAggregate(Seq(x))
 
-    override def map[A, B](fa: MockAggregate[A])(f: A => B): MockAggregate[B] = MockAggregate(fa.mockedValues.map(f))
+    override def ap[A, B](ff: MockAggregate[A => B])(fa: MockAggregate[A]): MockAggregate[B] =
+      MockAggregate(ff.mockedValues.zip(fa.mockedValues).map { case (f, a) => f(a) })
 
-    override def lift[A, B](a: MockAggregate[A])(f: A => B): MockAggregate[B] = MockAggregate(a.mockedValues.map(f))
-
-    override def lift[A, B, C](a: MockAggregate[A], b: MockAggregate[B])(f: (A, B) => C): MockAggregate[C] =
-      MockAggregate(a.mockedValues.zip(b.mockedValues).map(f.tupled))
-
-    override def lift[A, B, C, D](a: MockAggregate[A], b: MockAggregate[B], c: MockAggregate[C])(
-        f: (A, B, C) => D,
-    ): MockAggregate[D] = MockAggregate(
-      a.mockedValues.zip(b.mockedValues).zip(c.mockedValues).map(t => (t._1._1, t._1._2, t._2)).map(f.tupled),
-    )
+    override def map[A, B](fa: MockAggregate[A])(f: A => B): MockAggregate[B] =
+      MockAggregate(fa.mockedValues.map(f))
 
   override def mockField[T](items: Iterable[T]): MockAggregate[T] = MockAggregate(items)
 end AggregateFoundationMock
