@@ -6,6 +6,7 @@
 [![Scala](https://img.shields.io/badge/Scala-%23DC322F.svg?logo=scala&logoColor=white)](#)
 [![Apache 2.0 License](https://img.shields.io/github/license/field4s/field4s.svg?style=flat)](./LICENSE)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
+[![codecov](https://codecov.io/gh/field4s/field4s/graph/badge.svg?token=5ZT5AEMNDF)](https://codecov.io/gh/field4s/field4s)
 
 # field4s _(fiːld fɔːs)_
 
