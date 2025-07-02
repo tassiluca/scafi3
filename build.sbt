@@ -117,6 +117,20 @@ lazy val `scafi3-distributed` = crossProject(JSPlatform, JVMPlatform, NativePlat
     ),
   )
 
+lazy val `scafi3-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+  .crossType(CrossType.Full)
+  .in(file("scafi-mp-api"))
+  .dependsOn(`scafi3-core` % "compile->compile;test->test")
+  .nativeSettings(commonNativeSettings)
+  .jsSettings(commonJsSettings)
+  .settings(commonSettings)
+  .settings(
+    name := "scafi3-mp-api",
+    libraryDependencies ++= Seq(
+      "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided",
+    ),
+  )
+
 val alchemistVersion = "42.3.18"
 lazy val `alchemist-incarnation-scafi3` = project
   .settings(commonSettings)
@@ -151,7 +165,7 @@ lazy val root = project
   .in(file("."))
   .enablePlugins(ScalaUnidocPlugin)
   .aggregate(`alchemist-incarnation-scafi3`)
-  .aggregate(crossProjects(`scafi3-core`, `scafi3-distributed`).map(_.project)*)
+  .aggregate(crossProjects(`scafi3-core`, `scafi3-distributed`, `scafi3-mp-api`).map(_.project)*)
   .settings(
     name := "scafi3",
     publish / skip := true,
