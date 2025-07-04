@@ -2,7 +2,6 @@ package it.unibo.scafi.runtime.network.sockets
 
 import java.net.{ ServerSocket, Socket, SocketException }
 import java.io.{ DataInputStream, DataOutputStream }
-import java.nio.ByteBuffer
 
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.*
@@ -12,19 +11,15 @@ import it.unibo.scafi.runtime.network.Serializable
 import it.unibo.scafi.runtime.network.Serializable.*
 
 trait SocketNetworking[Message: Serializable](using ec: ExecutionContext, conf: SocketConfiguration)
-    extends Networking[Message, Message]:
+    extends NetworkingTemplate[Message]:
 
-  override def out(endpoint: (Address, Port)): () => Future[Connection] = () =>
+  override def out(endpoint: Endpoint): () => Future[Connection] = () =>
     for
-      socket <- Future.fromTry(Try(Socket(endpoint._1, endpoint._2)))
-      conn = new Connection:
+      socket <- Future(Socket(endpoint._1, endpoint._2))
+      conn = new ConnectionTemplate:
         private val sendChannel = DataOutputStream(socket.getOutputStream)
-        override def send(msg: Message): Future[Unit] = Future:
-          val serializedMsg = serialize(msg)
-          val buffer = ByteBuffer.allocate(Integer.BYTES + serializedMsg.length)
-          buffer.putInt(serializedMsg.length)
-          buffer.put(serializedMsg)
-          sendChannel.write(buffer.array())
+        override def write(buffer: Array[Byte]): Future[Unit] = Future:
+          sendChannel.write(buffer)
           sendChannel.flush()
         override def close(): Unit = (sendChannel :: socket :: Nil).foreach(_.close)
         override def isOpen: Boolean = !socket.isClosed
@@ -32,7 +27,7 @@ trait SocketNetworking[Message: Serializable](using ec: ExecutionContext, conf: 
 
   override def in(port: Port)(onReceive: Message => Unit): () => Future[ListenerRef] = () =>
     for
-      server <- Future.fromTry(Try(ServerSocket(port)))
+      server <- Future(ServerSocket(port))
       serve = (client: Socket) =>
         Using.resource(client): c =>
           c.setSoTimeout(conf.connectionTimeout.toMillis.toInt)

@@ -2,17 +2,19 @@ package it.unibo.scafi.runtime.network.sockets
 
 import java.util.concurrent.atomic.AtomicBoolean
 
-import scala.concurrent.{ ExecutionContext, Future, Promise }
-import scala.scalajs.js.typedarray.{ ArrayBuffer, DataView, Uint8Array }
+import scala.scalajs.js
+import scala.scalajs.js.typedarray.{ DataView, Uint8Array }
 import scala.util.boundary
 import scala.util.boundary.break
+import scala.util.chaining.scalaUtilChainingOps
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 
 import it.unibo.scafi.runtime.network.Serializable
 import it.unibo.scafi.runtime.network.Serializable.*
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait SocketNetworking[Message: Serializable](using ec: ExecutionContext, conf: SocketConfiguration)
-    extends Networking[Message, Message]:
+    extends NetworkingTemplate[Message]:
 
   object Events:
     val connect = "connect"
@@ -22,31 +24,28 @@ trait SocketNetworking[Message: Serializable](using ec: ExecutionContext, conf: 
 
   import Events.*
 
-  override def out(endpoint: (String, Int)): () => Future[Connection] = () =>
-    def createConnection(socket: Socket): Connection = new Connection:
-      override def close(): Unit = socket.destroy()
-      override def isOpen: Boolean = !socket.destroyed
-      override def send(msg: Message): Future[Unit] =
-        if !isOpen then Future.failed(IllegalStateException("Connection is closed!"))
-        else
-          val promise = Promise[Unit]()
-          val serializedMsg = serialize(msg)
-          val buffer = new ArrayBuffer(4 + serializedMsg.length)
-          val view = new DataView(buffer)
-          view.setUint32(0, serializedMsg.length)
-          val data = new Uint8Array(buffer)
-          for i <- serializedMsg.indices do data(4 + i) = serializedMsg(i)
-          socket.write(data)(Option(_).fold(promise.trySuccess(()))(err => promise.tryFailure(Exception(err))))
-          promise.future
-    val promisedConnection = Promise[Connection]()
-    val socket = Net.connect(endpoint._2, endpoint._1)
-    socket.on(connect)(_ => promisedConnection.trySuccess(createConnection(socket)): Unit)
-    socket.on(error): err =>
-      promisedConnection.tryFailure(Exception(err.asInstanceOf[scala.scalajs.js.Dynamic].message.toString)): Unit
-      socket.destroy()
-    promisedConnection.future
+  override def out(endpoint: Endpoint): () => Future[Connection] = () =>
+    for
+      socket <- createSocket(endpoint)
+      conn = new ConnectionTemplate:
+        override def write(buffer: Array[Byte]): Future[Unit] = Promise[Unit]().pipe: p =>
+          val data = new Uint8Array(buffer.length)
+          for i <- buffer.indices do data(i) = buffer(i)
+          socket.write(data)(Option(_).fold(p.trySuccess(()))(err => p.tryFailure(Exception(err))))
+          p.future
+        override def isOpen: Boolean = !socket.destroyed
+        override def close(): Unit = socket.destroy()
+    yield conn
 
-  override def in(port: Int)(onReceive: Message => Unit): () => Future[ListenerRef] = () =>
+  private def createSocket(endpoint: Endpoint) = Promise[Socket]().pipe: p =>
+    val socket = Net.connect(endpoint._2, endpoint._1)
+    socket.on(connect)(_ => p.trySuccess(socket): Unit)
+    socket.on(error): err =>
+      p.tryFailure(Exception(err.asInstanceOf[js.Dynamic].message.toString)): Unit
+      socket.destroy()
+    p.future
+
+  override def in(port: Port)(onReceive: Message => Unit): () => Future[ListenerRef] = () =>
     val connListenerPromise = Promise[Listener]()
     val acceptPromise = Promise[Unit]()
     def react(data: Uint8Array): Unit = boundary:
