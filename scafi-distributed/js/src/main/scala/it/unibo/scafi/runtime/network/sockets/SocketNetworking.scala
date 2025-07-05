@@ -1,13 +1,14 @@
 package it.unibo.scafi.runtime.network.sockets
 
 import java.util.concurrent.atomic.AtomicBoolean
+import java.nio.ByteBuffer
 
 import scala.scalajs.js
-import scala.scalajs.js.typedarray.{ DataView, Uint8Array }
+import scala.scalajs.js.typedarray.Uint8Array
 import scala.util.boundary
 import scala.util.boundary.break
-import scala.util.chaining.scalaUtilChainingOps
 import scala.concurrent.{ ExecutionContext, Future, Promise }
+import scala.collection.mutable.ArrayBuffer
 
 import it.unibo.scafi.runtime.network.Serializable
 import it.unibo.scafi.runtime.network.Serializable.*
@@ -28,7 +29,8 @@ trait SocketNetworking[Message: Serializable](using ec: ExecutionContext, conf: 
     for
       socket <- createSocket(endpoint)
       conn = new ConnectionTemplate:
-        override def write(buffer: Array[Byte]): Future[Unit] = Promise[Unit]().pipe: p =>
+        override def write(buffer: Array[Byte]): Future[Unit] =
+          val p = Promise[Unit]
           val data = new Uint8Array(buffer.length)
           for i <- buffer.indices do data(i) = buffer(i)
           socket.write(data)(Option(_).fold(p.trySuccess(()))(err => p.tryFailure(Exception(err))))
@@ -37,7 +39,8 @@ trait SocketNetworking[Message: Serializable](using ec: ExecutionContext, conf: 
         override def close(): Unit = socket.destroy()
     yield conn
 
-  private def createSocket(endpoint: Endpoint) = Promise[Socket]().pipe: p =>
+  private def createSocket(endpoint: Endpoint): Future[Socket] =
+    val p = Promise[Socket]
     val socket = Net.connect(endpoint._2, endpoint._1)
     socket.on(connect)(_ => p.trySuccess(socket): Unit)
     socket.on(error): err =>
@@ -46,20 +49,26 @@ trait SocketNetworking[Message: Serializable](using ec: ExecutionContext, conf: 
     p.future
 
   override def in(port: Port)(onReceive: Message => Unit): () => Future[ListenerRef] = () =>
-    val connListenerPromise = Promise[Listener]()
     val acceptPromise = Promise[Unit]()
-    def react(data: Uint8Array): Unit = boundary:
-      var offset = 0
-      while data.byteLength - offset >= 4 do
-        val view = new DataView(data.buffer, data.byteOffset + offset, data.byteLength - offset)
-        val msgLen = view.getUint32(0).toInt
-        if msgLen <= 0 || msgLen > data.byteLength - offset - 4 || msgLen > conf.maxMessageSize then break(())
-        val messageBytes = new Uint8Array(data.buffer, data.byteOffset + offset + 4, msgLen)
-        val bytes = new Array[Byte](msgLen)
-        for i <- 0 until msgLen do bytes(i) = messageBytes(i).toByte
-        onReceive(deserialize(bytes))
-        offset += 4 + msgLen
-    val serverSocket = Net.createServer(_.on(data)(data => react(data.asInstanceOf[Uint8Array])))
+
+    val buffer = ArrayBuffer[Byte]()
+
+    def serve(socket: Socket, chunk: Uint8Array): Unit = boundary:
+      for i <- 0 until chunk.length do buffer += chunk(i).toByte
+      while buffer.length >= 4 do
+        val msgLen = buffer.slice(0, 4).toArray
+        val length = ByteBuffer.wrap(msgLen).getInt()
+        if length > conf.maxMessageSize then
+          socket.destroy()
+          break(())
+        else if buffer.length >= 4 + length then
+          val msgBytes = buffer.slice(4, 4 + length).toArray
+          buffer.remove(0, 4 + length)
+          onReceive(deserialize(msgBytes))
+        else break(())
+
+    val serverSocket = Net.createServer(socket => socket.on(data)(data => serve(socket, data.asInstanceOf[Uint8Array])))
+
     val listener = new Listener:
       private val open = AtomicBoolean(true)
       override def boundPort: Port = serverSocket.address().port
@@ -68,6 +77,8 @@ trait SocketNetworking[Message: Serializable](using ec: ExecutionContext, conf: 
         serverSocket.close()
         acceptPromise.trySuccess(()): Unit
       override def isOpen: Boolean = open.get()
+
+    val connListenerPromise = Promise[Listener]()
     serverSocket.on(listening)(_ => connListenerPromise.trySuccess(listener): Unit)
     serverSocket.on(error): err =>
       connListenerPromise.tryFailure(Exception(err.asInstanceOf[scala.scalajs.js.Dynamic].message.toString)): Unit
