@@ -6,7 +6,7 @@ import scala.util.chaining.scalaUtilChainingOps
  * The portable library providing the exchange calculus primitive, `exchange`.
  */
 trait PortableExchangeCalculusLibrary extends PortableLibrary:
-  ctx: PortableTypes =>
+  self: PortableTypes =>
   export it.unibo.scafi.language.xc.syntax.ExchangeSyntax
   import it.unibo.scafi.language.xc.syntax.ReturnSending as RetSend
 

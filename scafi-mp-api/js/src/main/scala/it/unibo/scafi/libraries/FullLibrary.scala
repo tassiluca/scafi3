@@ -17,5 +17,4 @@ class FullLibrary(using
     lang: AggregateFoundation & ExchangeSyntax & BranchingSyntax & FieldBasedSharedData,
 ) extends FullPortableLibrary
     with PortableFieldBasedSharedData
-    with PortableBranchingLibrary
     with JSTypes

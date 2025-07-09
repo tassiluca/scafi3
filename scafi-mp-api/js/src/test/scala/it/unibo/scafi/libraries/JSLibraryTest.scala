@@ -30,12 +30,14 @@ trait JSLibraryTest extends AnyWordSpec with should.Matchers with Inspectors:
 
   type Program[Result] = (ExchangeAggregateContext[ID], Environment[Result, ExchangeAggregateContext[ID]]) ?=> Result
 
-  inline def test[R](program: FullLibrary => R): (Environment[R, ExchangeAggregateContext[ID]], Map[Int, R]) =
-    testIn[R](mooreGrid(sizeX = 3, sizeY = 3, exchangeContextFactory))(program)
+  inline def test[Result](
+      program: FullLibrary => Result,
+  ): (Environment[Result, ExchangeAggregateContext[ID]], Map[Int, Result]) =
+    testIn[Result](mooreGrid(sizeX = 3, sizeY = 3, exchangeContextFactory))(program)
 
-  def testIn[R](testEnvironment: Program[R] => Environment[R, ExchangeAggregateContext[ID]])(
-      program: FullLibrary => R,
-  ): (Environment[R, ExchangeAggregateContext[ID]], Map[ID, R]) =
+  def testIn[Result](testEnvironment: Program[Result] => Environment[Result, ExchangeAggregateContext[ID]])(
+      program: FullLibrary => Result,
+  ): (Environment[Result, ExchangeAggregateContext[ID]], Map[ID, Result]) =
     val env = testEnvironment(program(FullLibrary()))
     env.cycleInOrder()
     env.cycleInReverseOrder()
