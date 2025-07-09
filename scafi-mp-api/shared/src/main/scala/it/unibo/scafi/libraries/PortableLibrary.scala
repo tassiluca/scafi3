@@ -4,7 +4,7 @@ package it.unibo.scafi.libraries
  * The root base trait for all portable libraries.
  */
 trait PortableLibrary:
-  ctx: PortableTypes =>
+  self: PortableTypes =>
   export it.unibo.scafi.language.AggregateFoundation
 
   /**
@@ -25,5 +25,5 @@ trait PortableLibrary:
   /**
    * [[SharedData]] is isomorphic to [[language.SharedData]].
    */
-  given [T]: Iso[SharedData[T], language.SharedData[T]] = compiletime.deferred
+  given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
 end PortableLibrary
