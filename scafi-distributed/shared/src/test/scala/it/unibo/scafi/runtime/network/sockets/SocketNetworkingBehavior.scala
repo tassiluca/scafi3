@@ -2,7 +2,7 @@ package it.unibo.scafi.runtime.network.sockets
 
 import java.util.concurrent.CopyOnWriteArrayList
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.Future
 
 import it.unibo.scafi.runtime.network.sockets.InetTypes.*
 
@@ -13,38 +13,58 @@ trait SocketNetworkingBehavior extends NetworkingTest:
     type MessageOut = String
   }
 
-  def anInboundConnectionListener(using net: Networking)(using ExecutionContext): Unit =
+  def anInboundConnectionListener(using net: Networking): Unit =
     it should "be able to be initialized on a free port" in:
+      println("Test 1 started")
       val server = net.in(FreePort)(nop)
-      server.run() verify: ref =>
+      val result = server.run() verify: ref =>
         ref.listener.isOpen shouldBe true
         ref.listener.close()
         ref.listener.isOpen shouldBe false
+      result.onComplete(_ => println("Test 1 completed"))
+      result
 
   def anOutboundConnection(using net: Networking): Unit =
     it should "fail to connect to an unavailable remote endpoint" in:
+      println("Test 2 started")
       val nonExistentServerPort: Port = 5050
       val client = net.out(Endpoint(Localhost, nonExistentServerPort))
-      client.run().failed map:
+      val result = client.run().failed map:
         _ shouldBe a[Throwable]
+      result.onComplete(_ => println("Test 2 completed"))
+      result
 
     it should "be able to connect to an available remote endpoint" in:
-      usingServer(nop): client =>
+      println("Test 3 started")
+      val result = usingServer(nop): client =>
         client.isOpen shouldBe true
         client.close()
         client.isOpen shouldBe false
+      result.onComplete(_ => println("Test 3 completed"))
+      result
 
   def both(using net: PlainTextNetworking) =
     it should "be able to accept incoming connections from remote endpoints" in:
+      println("Test 4 started")
       val receivedMessages = CopyOnWriteArrayList[net.MessageIn]()
       val messages = Seq("Hello", "World", "Scafi", "Networking")
-      usingServer(msg => receivedMessages.add(msg): Unit):
-        _ send messages verifying eventually(receivedMessages should contain theSameElementsInOrderAs messages)
+      val result = usingServer(msg => receivedMessages.add(msg): Unit):
+        _ send messages verifying:
+          println(s"  [${Thread.currentThread().getName()}] now is: ${System.currentTimeMillis()}")
+          eventually(receivedMessages should contain theSameElementsInOrderAs messages)
+      result.onComplete(_ => println("Test 4 completed"))
+      result
 
     it should "close connections with clients attempting to flood the server" in:
+      println("Test 5 started")
       val tooLargeMessage = "A" * 65_536
-      usingServer(nop): client =>
-        client send Seq(tooLargeMessage) verifying eventually(client.isOpen shouldBe false)
+      val result = usingServer(nop): client =>
+        client send Seq(tooLargeMessage) verifying eventually:
+          println(s"  [${Thread.currentThread().getName()}] now is: ${System.currentTimeMillis()}")
+          client.isOpen shouldBe false
+      result.onComplete(_ => println("Test 5 completed"))
+      result
+  end both
 
   private def usingServer[Result](using
       net: Networking,
@@ -52,9 +72,11 @@ trait SocketNetworkingBehavior extends NetworkingTest:
     for
       server <- net.in(FreePort)(onMessage).run()
       client <- net.out(Endpoint(Localhost, server.listener.boundPort)).run()
-      result <- todo(client)
-      _ = client.close()
-      _ = server.listener.close()
+      result <- todo(client).transform: res =>
+        println(s"  [${Thread.currentThread().getName()}] closing server and client")
+        client.close()
+        server.listener.close()
+        res
     yield result
 
   extension (using net: Networking)(client: net.Connection)
