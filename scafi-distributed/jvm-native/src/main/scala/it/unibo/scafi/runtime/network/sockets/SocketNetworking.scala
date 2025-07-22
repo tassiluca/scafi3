@@ -34,7 +34,7 @@ trait SocketNetworking(using ec: ExecutionContext, conf: SocketConfiguration) ex
       listener = new ListenerTemplate[Socket](onReceive):
         override val accept = Future:
           println(
-            s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()} @ ${System.currentTimeMillis()}] run the server",
+            s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()}] run the server",
           )
           continually(Try(server.accept))
             .takeWhile:

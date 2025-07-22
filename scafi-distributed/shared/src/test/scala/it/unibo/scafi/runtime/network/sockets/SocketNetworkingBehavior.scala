@@ -51,7 +51,7 @@ trait SocketNetworkingBehavior extends NetworkingTest:
       val result = usingServer(msg => receivedMessages.add(msg): Unit):
         _ send messages verifying:
           println(
-            s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()} @ ${System.currentTimeMillis()}] now is: ${System.currentTimeMillis()}",
+            s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()}] now is: ${System.currentTimeMillis()}",
           )
           eventually(receivedMessages should contain theSameElementsInOrderAs messages)
       result.onComplete(_ => println(s"[${System.currentTimeMillis()}] Test 4 completed"))
@@ -63,7 +63,7 @@ trait SocketNetworkingBehavior extends NetworkingTest:
       val result = usingServer(nop): client =>
         client send Seq(tooLargeMessage) verifying eventually:
           println(
-            s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()} @ ${System.currentTimeMillis()}] now is: ${System.currentTimeMillis()}",
+            s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()}] now is: ${System.currentTimeMillis()}",
           )
           client.isOpen shouldBe false
       result.onComplete(_ => println(s"[${System.currentTimeMillis()}] Test 5 completed"))
@@ -78,7 +78,7 @@ trait SocketNetworkingBehavior extends NetworkingTest:
       client <- net.out(Endpoint(Localhost, server.listener.boundPort)).run()
       result <- todo(client).transform: res =>
         println(
-          s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()} @ ${System.currentTimeMillis()}] closing server and client",
+          s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()}] closing server and client",
         )
         client.close()
         server.listener.close()
