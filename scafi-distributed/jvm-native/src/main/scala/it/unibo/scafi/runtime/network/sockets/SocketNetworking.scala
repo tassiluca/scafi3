@@ -18,7 +18,9 @@ trait SocketNetworking(using ec: ExecutionContext, conf: SocketConfiguration) ex
       conn = new ConnectionTemplate:
         private val sendChannel = DataOutputStream(socket.getOutputStream)
         override def write(buffer: Array[Byte]): Future[Unit] = Future:
-          println(s"  [${Thread.currentThread().getName()}] Writing ${buffer.length} bytes to $endpoint")
+          println(
+            s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()}] Writing ${buffer.length} bytes to $endpoint",
+          )
           synchronized:
             sendChannel.write(buffer)
             sendChannel.flush()
@@ -31,16 +33,22 @@ trait SocketNetworking(using ec: ExecutionContext, conf: SocketConfiguration) ex
       server <- Future(ServerSocket(port))
       listener = new ListenerTemplate[Socket](onReceive):
         override val accept = Future:
-          println(s"  [${Thread.currentThread().getName()}] run the server")
+          println(
+            s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()} @ ${System.currentTimeMillis()}] run the server",
+          )
           continually(Try(server.accept))
             .takeWhile:
-              case Failure(e) => println(s"  >>> [${Thread.currentThread().getName()}] error $e"); false
-              case res => println(s"  >>> [${Thread.currentThread().getName()}] Accept completed with $res"); true
+              case Failure(e) =>
+                println(s"  >>> [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()}] error $e"); false
+              case res =>
+                println(
+                  s"  >>> [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()}] Accept completed with $res",
+                ); true
             .collect { case Success(c) => c }
             .foreach: s =>
               s.setSoTimeout(conf.inactivityTimeout.toIntMillis)
               Future(serve(using s))
-          println(s"  [${Thread.currentThread().getName()}] bye stopped")
+          println(s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()}] bye stopped")
 
         override def readMessageLength(using client: Socket): Try[Int] =
           Try(DataInputStream(client.getInputStream).readInt).filter(_ > -1)

@@ -15,54 +15,58 @@ trait SocketNetworkingBehavior extends NetworkingTest:
 
   def anInboundConnectionListener(using net: Networking): Unit =
     it should "be able to be initialized on a free port" in:
-      println("Test 1 started")
+      println(s"[${System.currentTimeMillis()}] Test 1 started")
       val server = net.in(FreePort)(nop)
       val result = server.run() verify: ref =>
         ref.listener.isOpen shouldBe true
         ref.listener.close()
         ref.listener.isOpen shouldBe false
-      result.onComplete(_ => println("Test 1 completed"))
+      result.onComplete(_ => println(s"[${System.currentTimeMillis()}] Test 1 completed"))
       result
 
   def anOutboundConnection(using net: Networking): Unit =
     it should "fail to connect to an unavailable remote endpoint" in:
-      println("Test 2 started")
+      println(s"[${System.currentTimeMillis()}] Test 2 started")
       val nonExistentServerPort: Port = 5050
       val client = net.out(Endpoint(Localhost, nonExistentServerPort))
       val result = client.run().failed map:
         _ shouldBe a[Throwable]
-      result.onComplete(_ => println("Test 2 completed"))
+      result.onComplete(_ => println(s"[${System.currentTimeMillis()}] Test 2 completed"))
       result
 
     it should "be able to connect to an available remote endpoint" in:
-      println("Test 3 started")
+      println(s"[${System.currentTimeMillis()}] Test 3 started")
       val result = usingServer(nop): client =>
         client.isOpen shouldBe true
         client.close()
         client.isOpen shouldBe false
-      result.onComplete(_ => println("Test 3 completed"))
+      result.onComplete(_ => println(s"[${System.currentTimeMillis()}] Test 3 completed"))
       result
 
   def both(using net: PlainTextNetworking) =
     it should "be able to accept incoming connections from remote endpoints" in:
-      println("Test 4 started")
+      println(s"[${System.currentTimeMillis()}] Test 4 started")
       val receivedMessages = CopyOnWriteArrayList[net.MessageIn]()
       val messages = Seq("Hello", "World", "Scafi", "Networking")
       val result = usingServer(msg => receivedMessages.add(msg): Unit):
         _ send messages verifying:
-          println(s"  [${Thread.currentThread().getName()}] now is: ${System.currentTimeMillis()}")
+          println(
+            s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()} @ ${System.currentTimeMillis()}] now is: ${System.currentTimeMillis()}",
+          )
           eventually(receivedMessages should contain theSameElementsInOrderAs messages)
-      result.onComplete(_ => println("Test 4 completed"))
+      result.onComplete(_ => println(s"[${System.currentTimeMillis()}] Test 4 completed"))
       result
 
     it should "close connections with clients attempting to flood the server" in:
-      println("Test 5 started")
+      println(s"[${System.currentTimeMillis()}] Test 5 started")
       val tooLargeMessage = "A" * 65_536
       val result = usingServer(nop): client =>
         client send Seq(tooLargeMessage) verifying eventually:
-          println(s"  [${Thread.currentThread().getName()}] now is: ${System.currentTimeMillis()}")
+          println(
+            s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()} @ ${System.currentTimeMillis()}] now is: ${System.currentTimeMillis()}",
+          )
           client.isOpen shouldBe false
-      result.onComplete(_ => println("Test 5 completed"))
+      result.onComplete(_ => println(s"[${System.currentTimeMillis()}] Test 5 completed"))
       result
   end both
 
@@ -73,7 +77,9 @@ trait SocketNetworkingBehavior extends NetworkingTest:
       server <- net.in(FreePort)(onMessage).run()
       client <- net.out(Endpoint(Localhost, server.listener.boundPort)).run()
       result <- todo(client).transform: res =>
-        println(s"  [${Thread.currentThread().getName()}] closing server and client")
+        println(
+          s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()} @ ${System.currentTimeMillis()}] closing server and client",
+        )
         client.close()
         server.listener.close()
         res
