@@ -54,10 +54,12 @@ trait SocketNetworking(using ec: ExecutionContext, conf: SocketConfiguration) ex
           Try(DataInputStream(client.getInputStream).readInt).filter(_ > -1)
         override def readMessage(length: Int)(using client: Socket): Array[Byte] =
           client.getInputStream.readNBytes(length)
-        override def close(): Unit = 
+        override def close(): Unit =
           server.close()
           val res = Try(Socket("localhost", port))
-          println(s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()}] res of sock to sblock accept is $res")
+          println(
+            s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()}] res of sock to sblock accept is $res",
+          )
         override def isOpen: Boolean = !server.isClosed
         override def boundPort: Port = server.getLocalPort.assume
     yield ListenerRef(listener, listener.accept)
