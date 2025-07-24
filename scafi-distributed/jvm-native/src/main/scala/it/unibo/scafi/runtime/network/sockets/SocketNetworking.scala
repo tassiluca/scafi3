@@ -55,8 +55,8 @@ trait SocketNetworking(using ec: ExecutionContext, conf: SocketConfiguration) ex
         override def readMessage(length: Int)(using client: Socket): Array[Byte] =
           client.getInputStream.readNBytes(length)
         override def close(): Unit =
-          server.close()
           val res = Try(Socket("localhost", port))
+          server.close()
           println(
             s"  [${Thread.currentThread().getName()} @ ${System.currentTimeMillis()}] res of sock to sblock accept is $res",
           )
