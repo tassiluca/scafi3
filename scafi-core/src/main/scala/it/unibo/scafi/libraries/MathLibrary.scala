@@ -2,11 +2,11 @@ package it.unibo.scafi.libraries
 
 import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
+import it.unibo.scafi.message.CodableFromTo
 
 import FieldCalculusLibrary.neighborValues
 import FoldingLibrary.foldWithoutSelf
 import Fractional.Implicits.*
-import it.unibo.scafi.message.CodableFromTo
 
 /**
  * This library provides a set of mathematical functions.
