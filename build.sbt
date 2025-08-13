@@ -46,6 +46,7 @@ ThisBuild / scalacOptions ++= Seq(
   "-explain",
   "-encoding", "UTF-8",
   "-feature",
+  "-deprecation",
   "-language:strictEquality",
   "-language:implicitConversions",
   "-language:experimental.saferExceptions",
