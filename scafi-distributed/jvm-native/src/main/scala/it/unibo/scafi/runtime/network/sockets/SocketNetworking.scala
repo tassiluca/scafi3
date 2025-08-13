@@ -9,7 +9,7 @@ import scala.LazyList.continually
 
 import it.unibo.scafi.utils.Task
 
-trait SocketNetworking(using ec: ExecutionContext, conf: SocketConfiguration) extends NetworkingTemplate:
+trait SocketNetworking(using ec: ExecutionContext, conf: SocketConfiguration) extends ConnectionOrientedTemplate:
 
   override def out(endpoint: Endpoint) = Task:
     for
