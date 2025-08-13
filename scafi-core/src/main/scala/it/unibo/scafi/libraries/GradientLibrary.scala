@@ -44,6 +44,8 @@ object GradientLibrary:
    *   whether this node is the source
    * @param distances
    *   the measured distances from the neighbours
+   * @tparam Format
+   *   the data format type used to encode the distance value for distribution to neighbours
    * @tparam N
    *   the type of the distance
    * @return
@@ -76,6 +78,8 @@ object GradientLibrary:
    * neighbours and computing the minimum distance estimate. The distances are measured by a distance sensor.
    * @param source
    *   whether this node is the source
+   * @tparam Format
+   *   the data format type used to encode the distance value for distribution to neighbours
    * @tparam N
    *   the type of the distance
    * @return
