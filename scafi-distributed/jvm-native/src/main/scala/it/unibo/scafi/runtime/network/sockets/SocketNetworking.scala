@@ -8,7 +8,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 import scala.LazyList.continually
 import scala.util.{ Success, Try }
 
-trait SocketNetworking(using ec: ExecutionContext, conf: SocketConfiguration) extends ConnectionOrientedTemplate:
+trait SocketNetworking(using ec: ExecutionContext, conf: ConnectionConfiguration) extends ConnectionOrientedTemplate:
 
   override def out(endpoint: Endpoint): Future[Connection] =
     for
