@@ -1,5 +1,7 @@
 package it.unibo.scafi.libraries
 
+import it.unibo.scafi.message.Codable
+
 /**
  * The root base trait for all portable libraries.
  */
@@ -26,4 +28,6 @@ trait PortableLibrary:
    * [[SharedData]] is isomorphic to [[language.SharedData]].
    */
   given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
+
+  given [Value, Format]: Codable[Value, Format] = compiletime.deferred
 end PortableLibrary

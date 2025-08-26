@@ -9,9 +9,11 @@ import org.scalatest.Inspectors
 import org.scalatest.wordspec.AnyWordSpec
 
 import scafi.context.xc.ExchangeAggregateContext
+import scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
+import scafi.runtime.network.NetworkManager
 import scafi.test.environment.Environment
 import scafi.test.environment.Grids.mooreGrid
-import scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
+import scafi.test.environment.Node.inMemoryNetwork
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait JSLibraryTest extends AnyWordSpec with should.Matchers with Inspectors:
@@ -28,18 +30,23 @@ trait JSLibraryTest extends AnyWordSpec with should.Matchers with Inspectors:
     case i: Int => i
     case x => fail(s"JavaScript runtime value $x cannot be converted to ID.")
 
-  type Program[Result] = (ExchangeAggregateContext[ID], Environment[Result, ExchangeAggregateContext[ID]]) ?=> Result
+  type Program[Result] = (
+      ExchangeAggregateContext[ID],
+      Environment[Result, ExchangeAggregateContext[ID], NetworkManager { type DeviceId = ID }],
+  ) ?=> Result
 
   inline def test[Result](
       program: FullLibrary => Result,
-  ): (Environment[Result, ExchangeAggregateContext[ID]], Map[Int, Result]) =
-    testIn[Result](mooreGrid(sizeX = 3, sizeY = 3, exchangeContextFactory))(program)
+  ): (Environment[Result, ExchangeAggregateContext[ID], NetworkManager { type DeviceId = ID }], Map[Int, Result]) =
+    testIn[Result](mooreGrid(sizeX = 3, sizeY = 3, exchangeContextFactory, inMemoryNetwork))(program)
 
-  def testIn[Result](testEnvironment: Program[Result] => Environment[Result, ExchangeAggregateContext[ID]])(
+  def testIn[Result](
+      env: Program[Result] => Environment[Result, ExchangeAggregateContext[ID], NetworkManager { type DeviceId = ID }],
+  )(
       program: FullLibrary => Result,
-  ): (Environment[Result, ExchangeAggregateContext[ID]], Map[ID, Result]) =
-    val env = testEnvironment(program(FullLibrary()))
-    env.cycleInOrder()
-    env.cycleInReverseOrder()
-    (env, env.status)
+  ): (Environment[Result, ExchangeAggregateContext[ID], NetworkManager { type DeviceId = ID }], Map[ID, Result]) =
+    val environment = env(program(FullLibrary()))
+    environment.cycleInOrder()
+    environment.cycleInReverseOrder()
+    (environment, environment.status)
 end JSLibraryTest
