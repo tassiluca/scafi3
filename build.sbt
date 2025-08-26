@@ -36,7 +36,7 @@ ThisBuild / scalacOptions ++= Seq(
   "-Wnonunit-statement",
   "-Yexplicit-nulls",
   "-Wsafe-init",
-  "-Ycheck-reentrant",
+  //"-Ycheck-reentrant",
   "-Xcheck-macros",
   "-rewrite",
   "-indent",
@@ -120,7 +120,7 @@ lazy val `scafi-distributed` = crossProject(JSPlatform, JVMPlatform, NativePlatf
 lazy val `scafi-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .in(file("scafi-mp-api"))
-  .dependsOn(`scafi-core` % "compile->compile;test->test")
+  .dependsOn(`scafi-core` % "compile->compile;test->test", `scafi-distributed`)
   .nativeSettings(commonNativeSettings)
   .jsSettings(commonJsSettings)
   .settings(commonDependencies)

@@ -1,0 +1,22 @@
+{
+  "name": "js",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "main.mjs",
+  "scripts": {
+    "build": "npx pbjs -t static-module -w commonjs -o foo.js foo.proto",
+    "start": "node main.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "protobufjs-cli": "^1.1.3",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "protobufjs": "^7.5.4"
+  }
+}
