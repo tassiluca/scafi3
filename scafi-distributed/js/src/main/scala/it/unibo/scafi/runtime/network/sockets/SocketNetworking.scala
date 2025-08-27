@@ -8,8 +8,6 @@ import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.collection.mutable.ArrayBuffer
 import scala.util.chaining.scalaUtilChainingOps
 
-import it.unibo.scafi.runtime.network.sockets.EventEmitter.*
-
 trait SocketNetworking(using ec: ExecutionContext, conf: ConnectionConfiguration) extends ConnectionOrientedTemplate:
 
   override def out(endpoint: Endpoint): Future[Connection] =

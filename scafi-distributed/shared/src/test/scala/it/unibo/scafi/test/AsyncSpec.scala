@@ -2,7 +2,7 @@ package it.unibo.scafi.test
 
 import java.util.concurrent.TimeoutException
 
-import scala.concurrent.duration.*
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.Future
 
 import it.unibo.scafi.utils.Async
