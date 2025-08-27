@@ -1,12 +1,13 @@
 package it.unibo.scafi.runtime.network.sockets
 
 import it.unibo.scafi
-import scafi.runtime.network.sockets.InetTypes.{ Hostname, IPv4, IPv6 }
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatest.Inspectors
 import io.github.iltotore.iron.refineAllUnsafe
+
+import scafi.runtime.network.sockets.InetTypes.{ Hostname, IPv4, IPv6 }
 
 class InetTypesTest extends AnyFlatSpec with should.Matchers with Inspectors:
 
