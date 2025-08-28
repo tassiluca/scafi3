@@ -29,5 +29,7 @@ trait PortableLibrary:
    */
   given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
 
-  given [Value, Format]: Codable[Value, Format] = compiletime.deferred
+  type CodableWithRegister[Value, Format] = Codable[Value, Format] { def register(value: Value): Unit }
+
+  given valueCodable[Value, Format]: CodableWithRegister[Value, Format] = compiletime.deferred
 end PortableLibrary
