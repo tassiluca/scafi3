@@ -1,6 +1,12 @@
 package it.unibo.scafi.utils
 
+import scala.scalajs.js
 import scala.scalajs.js.typedarray.Uint8Array
+
+extension (jsObject: js.Object)
+
+  /** Convert a `js.Object` to a `js.Dynamic` object for dynamic access. */
+  def asDynamic: js.Dynamic = jsObject.asInstanceOf[js.Dynamic]
 
 extension (arr: Uint8Array)
 
@@ -16,6 +22,11 @@ extension (arr: Uint8Array)
 
 extension (buffer: Array[Byte])
 
+  /**
+   * Convert an array of bytes to a `Uint8Array`.
+   * @return
+   *   an equivalent `Uint8Array` representation of the Scala `Array[Byte]`.
+   */
   def toUint8Array: Uint8Array =
     val data = new Uint8Array(buffer.length)
     for i <- buffer.indices do data(i) = buffer(i)
