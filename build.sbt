@@ -36,7 +36,7 @@ ThisBuild / scalacOptions ++= Seq(
   "-Wnonunit-statement",
   "-Yexplicit-nulls",
   "-Wsafe-init",
-  //"-Ycheck-reentrant",
+  "-Ycheck-reentrant",
   "-Xcheck-macros",
   "-rewrite",
   "-indent",

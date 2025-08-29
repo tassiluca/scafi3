@@ -6,7 +6,7 @@ import scala.scalajs.js
 import scala.scalajs.js.typedarray.Uint8Array
 
 import it.unibo.scafi.presentation.protobufjs.ProtobufJSType.fromProtobufJsMessage
-import it.unibo.scafi.utils.{ asDynamic, toByteArray, toUint8Array }
+import it.unibo.scafi.utils.JSUtils.{ asDynamic, toByteArray, toUint8Array }
 
 import io.bullet.borer.{ Cbor, Codec, Decoder, Encoder }
 import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodec
@@ -101,6 +101,7 @@ trait JSCodable extends js.Object:
   def decode(data: js.Any): js.Object
 end JSCodable
 
+@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object JSCodable:
 
   /**
