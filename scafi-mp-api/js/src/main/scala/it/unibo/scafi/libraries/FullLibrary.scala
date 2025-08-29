@@ -15,6 +15,7 @@ import it.unibo.scafi.presentation.RegisterableCodable
  * @param lang
  *   the language context providing the necessary syntax and semantics for all the libraries.
  */
+@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 @JSExportTopLevel("FullLibrary")
 class FullLibrary(using
     lang: AggregateFoundation & ExchangeSyntax & BranchingSyntax & FieldBasedSharedData,

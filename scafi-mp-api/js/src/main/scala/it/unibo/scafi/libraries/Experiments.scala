@@ -13,6 +13,7 @@ trait Experiments:
 
   given valueCodable: [Value, Format] => RegisterableCodable[Value, Format] = compiletime.deferred
 
+@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object CrazyExperiments extends Experiments:
 
   override given valueCodable[Value, Format]: RegisterableCodable[Value, Format] =

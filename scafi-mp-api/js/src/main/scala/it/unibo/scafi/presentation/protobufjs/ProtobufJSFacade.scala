@@ -1,7 +1,7 @@
 package it.unibo.scafi.presentation.protobufjs
 
 import it.unibo.scafi.presentation.JSCodable
-import it.unibo.scafi.utils.asDynamic
+import it.unibo.scafi.utils.JSUtils.asDynamic
 
 import scalajs.js
 import scalajs.js.typedarray.Uint8Array
@@ -57,6 +57,7 @@ trait Writer extends js.Object:
    */
   def finish(): Uint8Array = js.native
 
+@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object ProtobufJSType:
 
   extension (message: js.Object)
