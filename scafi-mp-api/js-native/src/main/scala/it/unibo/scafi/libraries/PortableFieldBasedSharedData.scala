@@ -20,7 +20,8 @@ trait PortableFieldBasedSharedData extends PortableLibrary:
    *   the values for all devices, aligned and unaligned
    */
   @JSExportAll
-  case class Field[Value](default: Value, neighborValues: Map[language.DeviceId, Value])
+  case class Field[Value](default: Value, neighborValues: Map[language.DeviceId, Value]):
+    valueCodable.register(default)
 
   @JSExport
   @JSExportAll

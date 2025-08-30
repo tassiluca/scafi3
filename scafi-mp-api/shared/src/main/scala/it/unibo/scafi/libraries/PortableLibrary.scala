@@ -1,13 +1,12 @@
 package it.unibo.scafi.libraries
 
-import it.unibo.scafi.message.Codable
-
 /**
  * The root base trait for all portable libraries.
  */
 trait PortableLibrary:
   ctx: PortableTypes =>
   export it.unibo.scafi.language.AggregateFoundation
+  export it.unibo.scafi.message.RegisterableCodable
 
   /**
    * The language type comprising all the needed syntaxes needed to implement the library functionalities.
@@ -29,7 +28,5 @@ trait PortableLibrary:
    */
   given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
 
-  type CodableWithRegister[Value, Format] = Codable[Value, Format] { def register(value: Value): Unit }
-
-  given valueCodable[Value, Format]: CodableWithRegister[Value, Format] = compiletime.deferred
+  given valueCodable[Value, Format]: RegisterableCodable[Value, Format] = compiletime.deferred
 end PortableLibrary

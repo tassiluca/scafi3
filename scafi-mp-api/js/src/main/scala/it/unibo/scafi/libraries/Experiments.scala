@@ -6,8 +6,8 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 import it.unibo.scafi.message.Codable
 import it.unibo.scafi.message.CodableFromTo
 import it.unibo.scafi.message.Codable.*
-import it.unibo.scafi.presentation.JSCodable.jsBinaryCodable
-import it.unibo.scafi.presentation.RegisterableCodable
+import it.unibo.scafi.presentation.JSBinaryCodable.jsBinaryCodable
+import it.unibo.scafi.message.RegisterableCodable
 
 trait Experiments:
 

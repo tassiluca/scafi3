@@ -1,15 +1,9 @@
 package it.unibo.scafi.presentation
 
-import java.nio.charset.StandardCharsets
-
 import scala.scalajs.js
-import scala.scalajs.js.typedarray.Uint8Array
 
 import it.unibo.scafi.presentation.protobufjs.ProtobufJSType.fromProtobufJsMessage
-import it.unibo.scafi.utils.JSUtils.{ asDynamic, toByteArray, toUint8Array }
-
-import io.bullet.borer.{ Cbor, Codec, Decoder, Encoder }
-import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodec
+import it.unibo.scafi.utils.JSUtils.asDynamic
 
 /**
  * A base trait for defining format- and library-agnostic binary codables for JavaScript objects.
@@ -132,30 +126,4 @@ object JSCodable:
         else None
       valid(message.asDynamic.constructor).orElse(valid(message.asDynamic.codable))
 
-  given jsBinaryCodable: RegisterableCodable[js.Object, Array[Byte]] = new RegisterableCodable[js.Object, Array[Byte]]:
-    private val registry = JSCodablesRegistry()
-
-    override def register(value: js.Object): Unit = registry.register(JSCodable(value))
-
-    enum Format derives CanEqual:
-      case Binary, String
-
-    given Codec[Format] = deriveCodec[Format]
-
-    override def encode(value: js.Object): Array[Byte] =
-      val codable = JSCodable(value)
-      val (format, encodedData) = codable.encode(value) match
-        case bytes: Uint8Array => (Format.Binary, bytes.toByteArray)
-        case s if js.typeOf(s) == "string" => (Format.String, s.asInstanceOf[String].getBytes(StandardCharsets.UTF_8))
-        case other => throw new IllegalArgumentException(s"$other (${js.typeOf(other)}) is not a supported format.")
-      Cbor.encode(codable.typeName, format, encodedData).toByteArray
-
-    override def decode(bytes: Array[Byte]): scala.scalajs.js.Object =
-      val (typeName, format, encodedData) = Cbor.decode(bytes).to[(String, Format, Array[Byte])].value
-      registry.get(typeName) match
-        case Some(codable) =>
-          format match
-            case Format.Binary => codable.decode(encodedData.toUint8Array)
-            case Format.String => codable.decode(new String(encodedData, StandardCharsets.UTF_8))
-        case None => throw new IllegalStateException(s"Unknow type: $typeName. This should not happen. Report this.")
 end JSCodable
