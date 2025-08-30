@@ -16,7 +16,7 @@ trait ProtobufJSType extends js.Object:
 
   /**
    * Encodes the specified message. Does not implicitly verify messages.
-   * @param Message
+   * @param message
    *   plain object to encode
    * @return
    *   the writer to encode to

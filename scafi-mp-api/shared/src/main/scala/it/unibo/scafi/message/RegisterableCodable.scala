@@ -1,6 +1,4 @@
-package it.unibo.scafi.presentation
-
-import it.unibo.scafi.message.Codable
+package it.unibo.scafi.message
 
 trait RegisterableCodable[Value, Format] extends Codable[Value, Format]:
   def register(value: Value): Unit

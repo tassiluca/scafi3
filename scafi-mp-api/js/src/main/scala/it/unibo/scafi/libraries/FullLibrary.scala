@@ -7,8 +7,7 @@ import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
-import it.unibo.scafi.presentation.JSCodable.jsBinaryCodable
-import it.unibo.scafi.presentation.RegisterableCodable
+import it.unibo.scafi.presentation.JSBinaryCodable.jsBinaryCodable
 
 /**
  * A JavaScript version of the full Scafi library.
@@ -23,5 +22,5 @@ class FullLibrary(using
     with PortableFieldBasedSharedData
     with JSTypes:
 
-  override given valueCodable[Value, Format]: CodableWithRegister[Value, Format] =
+  override given valueCodable[Value, Format]: RegisterableCodable[Value, Format] =
     jsBinaryCodable.asInstanceOf[RegisterableCodable[Value, Format]]

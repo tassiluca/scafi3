@@ -14,6 +14,8 @@ trait JSCodablesRegistry:
   type CodableId
 
   /**
+   * TODO: turn it into functional style
+   *
    * Register a codable in the registry.
    * @param codable
    *   the codable to registers
