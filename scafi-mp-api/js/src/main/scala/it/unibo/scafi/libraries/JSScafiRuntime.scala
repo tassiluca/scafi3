@@ -13,6 +13,7 @@ import it.unibo.scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
 import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 import it.unibo.scafi.utils.Platform
 
+@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with JSTypes:
 
   override given ExecutionContext = scalajs.concurrent.JSExecutionContext.Implicits.queue

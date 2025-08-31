@@ -1,9 +1,9 @@
 package it.unibo.scafi.libraries
 
 import it.unibo.scafi
+import it.unibo.scafi.message.RegisterableCodable
 
 import scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
-import it.unibo.scafi.message.RegisterableCodable
 
 trait PortableRuntime:
   self: PortableTypes =>
