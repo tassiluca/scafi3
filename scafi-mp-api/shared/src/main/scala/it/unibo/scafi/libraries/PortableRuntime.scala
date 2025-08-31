@@ -2,13 +2,13 @@ package it.unibo.scafi.libraries
 
 import it.unibo.scafi
 
-import scafi.message.Codable
 import scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
+import it.unibo.scafi.message.RegisterableCodable
 
 trait PortableRuntime:
   self: PortableTypes =>
 
-  given [Value, Format]: Codable[Value, Format] = compiletime.deferred
+  given [Value, Format]: RegisterableCodable[Value, Format] = compiletime.deferred
 
   trait ADTs:
 
