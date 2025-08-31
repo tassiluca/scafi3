@@ -8,12 +8,16 @@ import it.unibo.scafi.utils.JSUtils.asDynamic
 /**
  * A base trait for defining format- and library-agnostic binary codables for JavaScript objects.
  *
- * Any object passed to the library intended to be encoded or decoded in any format of choice is expected to have a
- * static members conforming this trait structure, i.e., providing a `typeName` property and coherent `encode` and
- * `decode` methods. Alternatively, the object can delegate the (de)serialization concerns to a property named
- * `codable`.
+ * Any <strong>object</strong> passed to the library intended to be encoded or decoded in any format of choice is
+ * expected to have a static members conforming this trait structure, i.e., providing a `typeName` property and coherent
+ * `encode` and `decode` methods. Alternatively, the object can delegate the (de)serialization concerns to a property
+ * named `codable`.
  *
- * On JavaScript, if using `protobuf.js`, it is possible to use the generated message types directly.
+ * The following <strong>special cases</strong> apply:
+ *   - For `number`, `string` and `boolean` primitives, a default codable is provided and it is possible to use them
+ *     directly.
+ *   - In <strong>JavaScript</strong>, if using `protobuf.js`, it is possible to use their <strong>generated
+ *     messages</strong> types directly.
  *
  * <h1>Examples</h1>
  *

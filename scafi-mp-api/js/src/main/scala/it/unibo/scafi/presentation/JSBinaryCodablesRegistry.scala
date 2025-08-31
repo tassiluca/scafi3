@@ -1,7 +1,5 @@
 package it.unibo.scafi.presentation
 
-import scalajs.js
-
 /**
  * A registry for JavaScript codables.
  *
@@ -14,13 +12,11 @@ trait JSCodablesRegistry:
   type CodableId
 
   /**
-   * TODO: turn it into functional style
-   *
    * Register a codable in the registry.
    * @param codable
    *   the codable to registers
    */
-  def register(codable: JSCodable): Unit
+  def register(codable: JSCodable): JSCodablesRegistry & { type CodableId = JSCodablesRegistry.this.CodableId }
 
   /**
    * Retrieve a codable by its identifier.
@@ -50,9 +46,14 @@ end JSCodablesRegistry
 
 object JSCodablesRegistry:
 
-  def apply(): JSCodablesRegistry & { type CodableId = String } = new JSCodablesRegistry:
-    override type CodableId = String
-    private val registry = js.Map.empty[CodableId, JSCodable]
-    override def register(codable: JSCodable): Unit = registry += (codable.typeName -> codable)
-    override def apply(id: CodableId): JSCodable throws NotRegisteredCodableException =
-      registry.getOrElse(id, throw NotRegisteredCodableException(id))
+  /** @return an empty registry for JS codables with string identifiers. */
+  def forStringId(): JSCodablesRegistry & { type CodableId = String } = forStringId(Map.empty)
+
+  /** @return a registry for JS codables with integer identifiers initialized with the given */
+  def forStringId(mappings: Map[String, JSCodable]): JSCodablesRegistry & { type CodableId = String } =
+    new JSCodablesRegistry:
+      override type CodableId = String
+      override def register(codable: JSCodable): JSCodablesRegistry & { type CodableId = String } =
+        forStringId(mappings + (codable.typeName -> codable))
+      override def apply(id: CodableId): JSCodable throws NotRegisteredCodableException =
+        mappings.getOrElse(id, throw NotRegisteredCodableException(id))
