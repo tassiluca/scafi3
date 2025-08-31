@@ -13,5 +13,8 @@ trait JSTypes extends PortableTypes:
   override type Tuple2[A, B] = js.Tuple2[A, B]
   override given [A, B] => Iso[Tuple2[A, B], (A, B)] = Iso[Tuple2[A, B], (A, B)](identity)(identity)
 
+  override type Function0[R] = js.Function0[R]
+  override given [R] => Conversion[Function0[R], () => R] = _.apply
+
   override type Function1[T1, R] = js.Function1[T1, R]
   override given [T1, R] => Conversion[Function1[T1, R], T1 => R] = _.apply

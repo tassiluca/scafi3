@@ -18,12 +18,14 @@ import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
 import it.unibo.scafi.libraries.All.*
 
 import io.github.iltotore.iron.autoRefine
+import it.unibo.scafi.language.common.syntax.BranchingSyntax
 
 object Experiments:
 
   type ID = Int
 
-  type Lang = AggregateContext { type DeviceId = ID } & AggregateFoundation & FieldBasedSharedData & ExchangeSyntax
+  type Lang = AggregateContext { type DeviceId = ID } & AggregateFoundation & FieldBasedSharedData & ExchangeSyntax &
+    BranchingSyntax
 
   given ExecutionContext = ExecutionContext.global
 
@@ -36,13 +38,16 @@ object Experiments:
   case class Neighbor[ID](id: ID, port: Port)
 
   @main def node1(): Unit =
-    val neighbor = Neighbor(5051, 5051)
-    val me = Neighbor(5050, 5050)
+    val neighbor = Neighbor(3, 5053)
+    val me = Neighbor(1, 5051)
     val net =
       SocketNetworkManager.withFixedNeighbors(me.id, me.port, Map(neighbor.id -> Endpoint(Localhost, neighbor.port)))
 
     def program(using Lang) =
-      exchange(0)(f => returnSending(f.map(_ + 1)))
+      branch(localId % 2 == 0)(
+        exchange(1)(returnSending),
+        exchange(0)(returnSending),
+      )
 
     net.start().onComplete(res => println(s"Node ${me.id} network started: $res"))
 
@@ -52,17 +57,21 @@ object Experiments:
       val result = engine.cycle()
       println(result)
       Thread.sleep(1000)
+  end node1
 
   @main def node2(): Unit =
-    val neighbor = Neighbor(5050, 5050)
-    val me = Neighbor(5051, 5051)
+    val neighbor = Neighbor(1, 5051)
+    val me = Neighbor(3, 5053)
     val net =
       SocketNetworkManager.withFixedNeighbors(me.id, me.port, Map(neighbor.id -> Endpoint(Localhost, neighbor.port)))
 
     net.start().onComplete(res => println(s"Node ${me.id} network started: $res"))
 
     def program(using Lang) =
-      exchange(0)(f => returnSending(f.map(_ + 1)))
+      branch(localId % 2 == 0)(
+        exchange(1)(returnSending),
+        exchange(0)(returnSending),
+      )
 
     val engine = ScafiEngine(me.id, net, exchangeContextFactory)(program)
 
@@ -70,4 +79,5 @@ object Experiments:
       val result = engine.cycle()
       println(result)
       Thread.sleep(1000)
+  end node2
 end Experiments
