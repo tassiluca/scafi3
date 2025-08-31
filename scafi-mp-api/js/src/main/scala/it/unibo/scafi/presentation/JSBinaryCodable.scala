@@ -16,11 +16,11 @@ import io.bullet.borer.{ Cbor, Codec }
 object JSBinaryCodable:
 
   given jsBinaryCodable: RegisterableCodable[js.Any, Array[Byte]] = new RegisterableCodable[js.Any, Array[Byte]]:
-    private val registry = JSCodablesRegistry()
+    private var registry = JSCodablesRegistry.forStringId()
 
     override def register(value: js.Any): Unit =
       val codable = value.asPrimitiveCodable.getOrElse(JSCodable(value.asInstanceOf[js.Object]))
-      registry.register(codable)
+      registry = registry.register(codable)
 
     enum Format derives CanEqual:
       case Binary, String
