@@ -30,6 +30,10 @@ trait PortableTypes:
    */
   given [A, B] => Iso[Tuple2[A, B], (A, B)] = compiletime.deferred
 
+  type Function0[R]
+
+  given [R] => Conversion[Function0[R], () => R] = compiletime.deferred
+
   /**
    * A portable 1-argument function type that can be used across different platforms.
    */

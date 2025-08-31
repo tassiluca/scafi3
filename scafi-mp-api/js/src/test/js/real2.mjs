@@ -15,7 +15,11 @@ console.log("Device ID: " + deviceId);
 console.log("Port:      " + port);
 
 function aggregateProgram(lang) {
-    return lang.exchange(lang.Field.of(lang.localId), n => returnSending(n));
+    return lang.branch(
+        deviceId % 2 == 0, 
+        () => lang.exchange(lang.Field.of(1), n => returnSending(n)),
+        () => lang.exchange(lang.Field.of(0), n => returnSending(n)),
+    );
 }
 
 const network = Runtime.socketNetwork(deviceId, port, neighbors);
