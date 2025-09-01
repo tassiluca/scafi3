@@ -4,8 +4,8 @@ import { Runtime, returnSending } from '../../../target/scala-3.6.4/scafi-mp-api
 
 console.log("::: SCAFI3 PROGRAM :::")
 
-const deviceId = 2
-const port = 5052
+const deviceId = 3
+const port = 5053
 const neighbors = new Map([
     [1, Runtime.Endpoint("localhost", 5051)],
 ])
@@ -17,8 +17,8 @@ console.log("Port:      " + port);
 function aggregateProgram(lang) {
     return lang.branch(
         deviceId % 2 == 0, 
-        () => lang.exchange(lang.Field.of(1), n => returnSending(n)),
-        () => lang.exchange(lang.Field.of(0), n => returnSending(n)),
+        () => lang.exchange(lang.Field.of(true), n => returnSending(n)),
+        () => lang.exchange(lang.Field.of(false), n => returnSending(n)),
     );
 }
 

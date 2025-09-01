@@ -34,6 +34,8 @@ object PrimitiveCodables:
       val value = new String(data.asInstanceOf[Uint8Array].toByteArray, StandardCharsets.UTF_8).toInt == 1
       value.asInstanceOf[js.Object]
 
+  def primitiveCodables: Set[JSCodable] = Set(stringCodable, numberCodable, booleanCodable)
+
   extension (message: js.Any)
     def asPrimitiveCodable: Option[JSCodable] = js.typeOf(message) match
       case t if t == "number" => Some(numberCodable)
