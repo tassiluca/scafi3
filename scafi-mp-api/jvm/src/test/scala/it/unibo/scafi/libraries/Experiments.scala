@@ -19,8 +19,41 @@ import it.unibo.scafi.libraries.All.*
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
 
 import io.github.iltotore.iron.autoRefine
+import it.unibo.scafi.test.environment.Grids.mooreGrid
+import it.unibo.scafi.test.environment.Node.inMemoryNetwork
+import it.unibo.scafi.test.environment.IntNetworkManager
 
-object Experiments:
+object CentralizedExperiments:
+
+  type ID = Int
+
+  type Lang = AggregateContext { type DeviceId = ID } & AggregateFoundation & FieldBasedSharedData & ExchangeSyntax &
+    BranchingSyntax
+
+  import it.unibo.scafi.message.Codables.forInMemoryCommunications
+
+  val values = Map(0 -> 0, 1 -> 10, 2 -> 20, 3 -> 30)
+
+  @main def simple(): Unit =
+    def program(using Lang) =
+      branch(localId % 2 == 0)(
+        exchange(values(localId))(returnSending),
+      )(
+        exchange(values(localId))(returnSending),
+      )
+
+    val env = mooreGrid(2, 2, exchangeContextFactory[ID, IntNetworkManager], inMemoryNetwork)(program)
+    while true do
+      env.cycleInOrder()
+      env.cycleInReverseOrder()
+      env.status.foreach: (id, field) =>
+        println(s"Node $id: $field")
+      println("==========================")
+      Thread.sleep(1_000)
+
+end CentralizedExperiments
+
+object DistributedExperiments:
 
   type ID = Int
 
@@ -46,6 +79,7 @@ object Experiments:
     def program(using Lang) =
       branch(localId % 2 == 0)(
         exchange(1)(returnSending),
+      )(
         exchange(0)(returnSending),
       )
 
@@ -69,8 +103,9 @@ object Experiments:
 
     def program(using Lang) =
       branch(localId % 2 == 0)(
-        exchange(1)(returnSending),
-        exchange(0)(returnSending),
+        exchange(100)(returnSending),
+      )(
+        exchange(200)(returnSending),
       )
 
     val engine = ScafiEngine(me.id, net, exchangeContextFactory)(program)
@@ -80,4 +115,4 @@ object Experiments:
       println(result)
       Thread.sleep(1000)
   end node2
-end Experiments
+end DistributedExperiments
