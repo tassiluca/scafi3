@@ -16,7 +16,7 @@ import io.bullet.borer.{ Cbor, Codec }
 object JSBinaryCodable:
 
   given jsBinaryCodable: RegisterableCodable[js.Any, Array[Byte]] = new RegisterableCodable[js.Any, Array[Byte]]:
-    private var registry = JSCodablesRegistry.forStringId()
+    private var registry = JSCodablesRegistry.forStringId(primitiveCodables)
 
     override def register(value: js.Any): Unit =
       val codable = value.asPrimitiveCodable.getOrElse(JSCodable(value.asInstanceOf[js.Object]))

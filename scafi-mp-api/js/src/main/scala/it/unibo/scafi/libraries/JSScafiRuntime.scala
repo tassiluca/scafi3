@@ -36,7 +36,6 @@ object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with JSTy
           result <- Future(engine.cycle())
           _ = scribe.info(s"Node $deviceId cycle result: $result")
           _ <- Platform.asyncOps.sleep(1.second)
-          _ = scribe.info(s"Node $deviceId waking up")
           _ <- loop()
         yield ()
       network

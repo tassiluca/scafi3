@@ -7,7 +7,7 @@ console.log("::: SCAFI3 PROGRAM :::")
 const deviceId = 1
 const port = 5051
 const neighbors = new Map([
-    [2, Runtime.Endpoint("localhost", 5052)],
+    [3, Runtime.Endpoint("localhost", 5053)],
 ])
 
 console.log("::: Info :::");
@@ -17,8 +17,8 @@ console.log("Port:      " + port);
 function aggregateProgram(lang) {
     return lang.branch(
         deviceId % 2 == 0, 
-        () => lang.exchange(lang.Field.of(1), n => returnSending(n)),
-        () => lang.exchange(lang.Field.of(0), n => returnSending(n)),
+        () => lang.exchange(lang.Field.of(true), n => returnSending(n)),
+        () => lang.exchange(lang.Field.of(false), n => returnSending(n)),
     );
 }
 
