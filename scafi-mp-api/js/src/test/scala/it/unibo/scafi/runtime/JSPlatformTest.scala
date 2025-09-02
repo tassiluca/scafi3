@@ -2,12 +2,11 @@ package it.unibo.scafi.runtime
 
 import scala.util.{ Success, Try }
 
-import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
 import scalajs.js
 
-class JSPlatformTest extends AnyFlatSpec with PlatformTest with should.Matchers:
+trait JSPlatformTest extends PlatformTest with should.Matchers:
 
   val rootProjectPath = NodeProcess.cwd()
   override val snapshotsFolderPath: Path = s"$rootProjectPath/scafi-mp-api/js/src/test/resources/snapshots/js"
@@ -15,11 +14,6 @@ class JSPlatformTest extends AnyFlatSpec with PlatformTest with should.Matchers:
   override val programTemplatePath = s"$testResourcesPath/program.template.mjs"
   val packageFilePath = s"$testResourcesPath/package.json"
   override val templatePaths: Set[Path] = Set(programTemplatePath, packageFilePath)
-
-  // it should "work" in:
-  //   test("simple-exchange"):
-  //     "{{deviceId}}" -> "10"
-  //     "{{port}}" -> "100"
 
   override def testDir(directoryName: String): Path =
     val osTmpDir = OS.tmpdir()
@@ -42,5 +36,9 @@ class JSPlatformTest extends AnyFlatSpec with PlatformTest with should.Matchers:
   override def compile(workingDir: Path): Try[Unit] = Success(())
 
   override def run(workingDir: Path): Try[String] = Try:
-    ChildProcess.execSync("node main.mjs", js.Dictionary(("cwd", workingDir))).toString()
+    val envs = js.Dynamic.global.process.env.asInstanceOf[js.Dictionary[js.Any]]
+    envs.update("SCAFI3", s"$rootProjectPath/scafi-mp-api/js/target/fastLinkJS/main.mjs")
+    ChildProcess
+      .execSync(command = "node main.mjs", options = js.Dictionary(("cwd", workingDir), ("env", envs)))
+      .toString()
 end JSPlatformTest

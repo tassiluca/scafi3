@@ -30,19 +30,25 @@ object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with JSTy
         network: ConnectionOrientedNetworkManager[ID],
         program: Function1[FullLibrary, Result],
     ): Future[Unit] =
+      var i = 0
       def loop(): Future[Unit] =
         for
           engine = ScafiEngine(deviceId, network, exchangeContextFactory)(program(FullLibrary()))
           result <- Future(engine.cycle())
           _ = scribe.info(s"Node $deviceId cycle result: $result")
           _ <- Platform.asyncOps.sleep(1.second)
-          _ <- loop()
+          _ <-
+            if i < 5 then
+              i = i + 1; loop()
+            else Future.unit
         yield ()
       network
         .start()
         .andThen(res => scribe.info("Network started " + res))
         .flatMap(_ => loop())
-        .andThen(res => scribe.info(res.toString))
+        .andThen: res =>
+          scribe.info(res.toString)
+          network.close()
     end engine
   end JSInterface
 end JSScafiRuntime
