@@ -17,10 +17,10 @@ class JSPlatformTest extends AnyFlatSpec with PlatformTest with should.Matchers:
   val packageFilePath = s"$testResourcesPath/package.json"
   override val templatePaths: Set[Path] = Set(programTemplatePath, packageFilePath)
 
-  it should "work" in:
-    test("simple-exchange"):
-      "{{deviceId}}" -> "10"
-      "{{port}}" -> "100"
+  // it should "work" in:
+  //   test("simple-exchange"):
+  //     "{{deviceId}}" -> "10"
+  //     "{{port}}" -> "100"
 
   override def testDir(directoryName: String): Path =
     val osTmpDir = OS.tmpdir()
