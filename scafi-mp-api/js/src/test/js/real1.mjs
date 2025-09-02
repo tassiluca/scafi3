@@ -23,7 +23,7 @@ function prettyPrint(foo) {
 
 function aggregateProgram(lang) {
     const all = lang.branch(
-        deviceId % 2 == 0, 
+        lang.localId % 2 == 0, 
         () => lang.exchange(lang.Field.of(true), n => returnSending(n)),
         () => lang.exchange(lang.Field.of(foo), n => returnSending(n)),
     );

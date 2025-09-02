@@ -90,6 +90,8 @@ lazy val commonJsSettings = Seq(
       .withOutputPatterns(OutputPatterns.fromJSFile("%s.mjs"))
       .withOptimizer(true)
   },
+  Compile / fastLinkJS / scalaJSLinkerOutputDirectory := target.value / "fastLinkJS",
+  Compile / fullLinkJS / scalaJSLinkerOutputDirectory := target.value / "fullLinkJS",
   coverageEnabled := false,
 )
 
