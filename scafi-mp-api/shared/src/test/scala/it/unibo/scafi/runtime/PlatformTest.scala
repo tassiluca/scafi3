@@ -12,6 +12,7 @@ import io.github.iltotore.iron.constraint.string.{ EndWith, StartWith }
 
 trait PlatformTest extends should.Matchers with FileSystem:
   export PlatformTest.{ ->, Path }
+  export io.github.iltotore.iron.autoRefine
 
   val snapshotsFolderPath: Path
 
@@ -19,7 +20,7 @@ trait PlatformTest extends should.Matchers with FileSystem:
 
   val testResourcesPath: Path
 
-  def test(testName: String)(addSubstitutions: SubstitutionBuilder ?=> Unit): Assertion =
+  def testProgram(testName: String)(addSubstitutions: SubstitutionBuilder ?=> Unit): Assertion =
     given builder: SubstitutionBuilder = SubstitutionBuilder()
     addSubstitutions
     (for
