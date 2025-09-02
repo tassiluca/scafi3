@@ -17,11 +17,11 @@ import it.unibo.scafi.runtime.network.sockets.ConnectionConfiguration
 import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
 import it.unibo.scafi.libraries.All.*
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
-
-import io.github.iltotore.iron.autoRefine
 import it.unibo.scafi.test.environment.Grids.mooreGrid
 import it.unibo.scafi.test.environment.Node.inMemoryNetwork
 import it.unibo.scafi.test.environment.IntNetworkManager
+
+import io.github.iltotore.iron.autoRefine
 
 object CentralizedExperiments:
 

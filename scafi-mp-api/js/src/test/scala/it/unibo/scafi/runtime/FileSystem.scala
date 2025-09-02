@@ -1,7 +1,8 @@
 package it.unibo.scafi.runtime
 
-import scalajs.js
 import scala.scalajs.js.annotation.JSImport
+
+import scalajs.js
 
 @js.native
 @JSImport("fs", JSImport.Namespace)
@@ -13,9 +14,10 @@ trait FS extends js.Object:
   def writeFileSync(path: String, data: String): Unit = js.native
   def existsSync(path: String): Boolean = js.native
   def copyFileSync(src: String, dest: String): Unit = js.native
-  def rmSync(path: String, options: js.UndefOr[js.Object] = js.undefined): Unit = js.native
+  def rmSync(path: String, options: js.UndefOr[js.Object]): Unit = js.native
   def mkdirSync(path: String): Unit = js.native
 
+@SuppressWarnings(Array("DisableSyntax.asInstanceOf"))
 object FSOptions:
   def recursive: js.Object = js.Dynamic.literal(recursive = true).asInstanceOf[js.Object]
   def recursiveForce: js.Object = js.Dynamic.literal(recursive = true, force = true).asInstanceOf[js.Object]
@@ -44,7 +46,7 @@ object ChildProcess extends ChildProcess
 
 @js.native
 trait ChildProcess extends js.Object:
-  def execSync(command: String, options: js.Dictionary[Any] = js.Dictionary.empty): js.Any = js.native
+  def execSync(command: String, options: js.Dictionary[Any]): js.Any = js.native
 
 @js.native
 trait ProcessEnv extends js.Object:
