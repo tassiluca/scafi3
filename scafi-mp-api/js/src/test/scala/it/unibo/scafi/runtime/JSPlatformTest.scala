@@ -4,7 +4,6 @@ import scala.util.{ Success, Try }
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import io.github.iltotore.iron.autoRefine
 
 import scalajs.js
 
