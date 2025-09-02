@@ -1,0 +1,7 @@
+{
+    "name": "scafi3-js-test",
+    "type": "module",
+    "imports": {
+        "#scafi3": "../../../../target/fastLinkJS/main.mjs"
+    }
+}
