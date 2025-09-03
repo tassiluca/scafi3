@@ -20,11 +20,11 @@ import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.test.environment.Grids.mooreGrid
 import it.unibo.scafi.test.environment.Node.inMemoryNetwork
 import it.unibo.scafi.test.environment.IntNetworkManager
+import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
 
 import io.github.iltotore.iron.autoRefine
 import io.bullet.borer.{ Cbor, Codec }
 import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodec
-import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
 
 object CentralizedExperiments:
   type ID = Int

@@ -1,11 +1,12 @@
 package it.unibo.scafi.libraries
 
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
+
 import it.unibo.scafi.test.AsyncSpec
 import it.unibo.scafi.runtime.JSPlatformTest
 import it.unibo.scafi.test.SimpleGrids.vonNeumannGrid
-import scala.concurrent.Future
 import it.unibo.scafi.runtime.FreePortFinder
-import scala.concurrent.ExecutionContext
 
 class JSNativeTests extends AsyncSpec with JSPlatformTest:
 

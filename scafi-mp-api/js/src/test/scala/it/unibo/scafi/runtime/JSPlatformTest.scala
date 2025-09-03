@@ -6,6 +6,7 @@ import org.scalatest.matchers.should
 
 import scalajs.js
 
+@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait JSPlatformTest extends PlatformTest with should.Matchers:
 
   val rootProjectPath = NodeProcess.cwd()

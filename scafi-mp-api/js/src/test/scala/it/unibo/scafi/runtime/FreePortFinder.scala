@@ -1,8 +1,10 @@
 package it.unibo.scafi.runtime
 
-import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
 import scala.concurrent.{ Future, Promise }
+
+import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
 import it.unibo.scafi.runtime.network.sockets.Net
+
 import io.github.iltotore.iron.refineUnsafe
 
 object FreePortFinder:
