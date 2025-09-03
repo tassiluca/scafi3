@@ -22,9 +22,10 @@ import it.unibo.scafi.test.environment.Node.inMemoryNetwork
 import it.unibo.scafi.test.environment.IntNetworkManager
 
 import io.github.iltotore.iron.autoRefine
+import io.bullet.borer.{ Cbor, Codec }
+import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodec
 
 object CentralizedExperiments:
-
   type ID = Int
 
   type Lang = AggregateContext { type DeviceId = ID } & AggregateFoundation & FieldBasedSharedData & ExchangeSyntax &
@@ -50,8 +51,51 @@ object CentralizedExperiments:
         println(s"Node $id: $field")
       println("==========================")
       Thread.sleep(1_000)
-
 end CentralizedExperiments
+
+object JSInteroperableExperiments:
+
+  enum Format derives CanEqual:
+    case Binary, String
+
+  given Codec[Format] = deriveCodec[Format]
+
+  type ID = Int
+
+  type Lang = AggregateContext { type DeviceId = ID } & AggregateFoundation & FieldBasedSharedData & ExchangeSyntax &
+    BranchingSyntax
+
+  given ExecutionContext = ExecutionContext.global
+
+  given ConnectionConfiguration = ConnectionConfiguration.basic
+
+  given BinaryCodable[ID] = new BinaryCodable[ID]:
+    def encode(msg: ID): Array[Byte] =
+      Cbor.encode("number", Format.Binary, msg.toDouble.toString.getBytes(StandardCharsets.UTF_8)).toByteArray
+    def decode(bytes: Array[Byte]): ID =
+      val (_, _, encodedData) = Cbor.decode(bytes).to[(String, Format, Array[Byte])].value
+      new String(encodedData, StandardCharsets.UTF_8).toInt
+
+  case class Neighbor[ID](id: ID, port: Port)
+
+  @main def simple1(): Unit =
+    val neighbor = Neighbor(3, 5053)
+    val me = Neighbor(1, 5051)
+    val net =
+      SocketNetworkManager.withFixedNeighbors(me.id, me.port, Map(neighbor.id -> Endpoint(Localhost, neighbor.port)))
+
+    def program(using Lang) =
+      exchange(localId)(returnSending)
+
+    net.start().onComplete(res => println(s"Node ${me.id} network started: $res"))
+
+    val engine = ScafiEngine(me.id, net, exchangeContextFactory)(program)
+
+    while true do
+      val result = engine.cycle()
+      println(result)
+      Thread.sleep(500)
+end JSInteroperableExperiments
 
 object DistributedExperiments:
 
@@ -65,8 +109,10 @@ object DistributedExperiments:
   given ConnectionConfiguration = ConnectionConfiguration.basic
 
   given BinaryCodable[ID] = new BinaryCodable[ID]:
-    def encode(msg: ID): Array[Byte] = msg.toString.getBytes(StandardCharsets.UTF_8)
-    def decode(bytes: Array[Byte]): ID = new String(bytes, StandardCharsets.UTF_8).toInt
+    def encode(msg: ID): Array[Byte] = msg.toDouble.toString.getBytes(StandardCharsets.UTF_8)
+    def decode(bytes: Array[Byte]): ID =
+      scribe.info("Decoding arrived bytes: " + new String(bytes, StandardCharsets.UTF_8).toDouble)
+      new String(bytes, StandardCharsets.UTF_8).toInt
 
   case class Neighbor[ID](id: ID, port: Port)
 
