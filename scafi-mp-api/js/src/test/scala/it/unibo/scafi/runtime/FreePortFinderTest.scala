@@ -1,7 +1,8 @@
 package it.unibo.scafi.runtime
 
-import it.unibo.scafi.test.AsyncSpec
 import scala.concurrent.ExecutionContext
+
+import it.unibo.scafi.test.AsyncSpec
 
 class FreePortFinderTest extends AsyncSpec:
 
