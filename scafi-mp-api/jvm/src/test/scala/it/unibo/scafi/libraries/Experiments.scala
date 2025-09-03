@@ -24,24 +24,38 @@ import it.unibo.scafi.test.environment.IntNetworkManager
 import io.github.iltotore.iron.autoRefine
 import io.bullet.borer.{ Cbor, Codec }
 import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodec
+import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
 
 object CentralizedExperiments:
   type ID = Int
 
   type Lang = AggregateContext { type DeviceId = ID } & AggregateFoundation & FieldBasedSharedData & ExchangeSyntax &
-    BranchingSyntax
+    BranchingSyntax & FieldCalculusSyntax
 
   import it.unibo.scafi.message.Codables.forInMemoryCommunications
 
   val values = Map(0 -> 0, 1 -> 10, 2 -> 20, 3 -> 30)
 
-  @main def simple(): Unit =
+  @main def withBranchAndExchange(): Unit =
     def program(using Lang) =
       branch(localId % 2 == 0)(
         exchange(values(localId))(returnSending),
       )(
         exchange(values(localId))(returnSending),
       )
+
+    val env = mooreGrid(2, 2, exchangeContextFactory[ID, IntNetworkManager], inMemoryNetwork)(program)
+    while true do
+      env.cycleInOrder()
+      env.cycleInReverseOrder()
+      env.status.foreach: (id, field) =>
+        println(s"Node $id: $field")
+      println("==========================")
+      Thread.sleep(1_000)
+
+  @main def withEvolve(): Unit =
+    def program(using Lang) =
+      evolve(0)(_ + 1)
 
     val env = mooreGrid(2, 2, exchangeContextFactory[ID, IntNetworkManager], inMemoryNetwork)(program)
     while true do
