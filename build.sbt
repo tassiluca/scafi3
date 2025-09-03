@@ -64,7 +64,7 @@ lazy val commonDependencies =
   libraryDependencies ++= Seq(
     "org.typelevel" %%% "cats-core" % "2.13.0",
     "org.scalactic" %%% "scalactic" % "3.2.19",
-    "io.github.iltotore" %%% "iron" % "3.2.0",
+    "io.github.iltotore" %%% "iron" % "3.0.4",
     "com.outr" %%% "scribe" % "3.17.0",
     "dev.optics" %%% "monocle-core" % "3.3.0",
     "dev.optics" %%% "monocle-macro" % "3.3.0",
