@@ -7,7 +7,7 @@
   "type": "commonjs",
   "main": "main.mjs",
   "scripts": {
-    "build": "npx pbjs -t static-module -w commonjs -o foo.js foo.proto",
+    "build": "npx pbjs -t static-module -w commonjs -o messages.js messages.proto",
     "start": "node main.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
