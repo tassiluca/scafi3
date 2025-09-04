@@ -1,8 +1,8 @@
 "use strict";
 /*
  * WARNING: This is a template file intended to be used for testing purposes.
- * 
- * Every occurrence of {{ var }} will be replaced with the value of the variable `var` in the test infrastructure.
+ *          It is not meant to be executed directly but rather to be processed by replacing
+ *          the placeholders `{{ var }}` with actual values.
  */
 
 const { Runtime, returnSending } = await import(process.env.SCAFI3);
@@ -20,10 +20,10 @@ console.log(
 );
 
 const network = Runtime.socketNetwork(deviceId, port, neighbors);
+let lastResult = null;
 let iterations = 10;
 Runtime.engine(deviceId, network, lang => aggregateProgram(lang), result => {
-    console.log("::: Result :::");
-    console.log("  Default: ", result.default);
-    console.log("  Neighbors: ", Array.from(result.neighborValues).map(([k, v]) => `${k} -> ${v}`).join(", "));
+    lastResult = result;
+    console.log(`Iteration ${iterations} result: ${result}`);
     return iterations-- > 0;
 });

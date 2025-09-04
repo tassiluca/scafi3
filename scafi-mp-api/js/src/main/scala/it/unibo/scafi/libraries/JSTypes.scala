@@ -1,5 +1,7 @@
 package it.unibo.scafi.libraries
 
+import scala.concurrent.Future
+
 /**
  * Provides JavaScript-specific implementations for the portable types.
  */
@@ -18,3 +20,9 @@ trait JSTypes extends PortableTypes:
 
   override type Function1[T1, R] = js.Function1[T1, R]
   override given [T1, R] => Conversion[Function1[T1, R], T1 => R] = _.apply
+
+  override type Handler[T] = js.Promise[T] | T
+  override given [T] => Conversion[Handler[T], Future[T]] =
+    case p: js.Promise[?] => p.toFuture.asInstanceOf[Future[T]]
+    case v => Future.successful(v.asInstanceOf[T])
+end JSTypes

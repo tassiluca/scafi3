@@ -9,7 +9,7 @@ import io.github.iltotore.iron.refineUnsafe
 import scafi.libraries.{ PortableRuntime, PortableTypes }
 import scafi.runtime.network.sockets.{ ConnectionConfiguration, ConnectionOrientedNetworkManager, SocketNetworkManager }
 
-trait ScafiNetworkBinding extends PortableRuntime:
+trait ScafiNetworkBinding[AggregateLibrary] extends PortableRuntime[AggregateLibrary]:
   self: PortableTypes =>
 
   given ExecutionContext = compiletime.deferred

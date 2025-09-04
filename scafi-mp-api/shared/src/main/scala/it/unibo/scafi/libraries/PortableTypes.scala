@@ -1,5 +1,7 @@
 package it.unibo.scafi.libraries
 
+import scala.concurrent.Future
+
 /**
  * This trait defines portable types among different platforms, along with their Scala conversions. Actual
  * platform-specific implementations of the multi-platform API should incarnate these types with the appropriate
@@ -43,4 +45,8 @@ trait PortableTypes:
    * Portable functions at 1-argument can be converted to Scala's `T1 => R`.
    */
   given [T1, R] => Conversion[Function1[T1, R], T1 => R] = compiletime.deferred
+
+  type Handler[T]
+
+  given [T] => Conversion[Handler[T], Future[T]] = compiletime.deferred
 end PortableTypes
