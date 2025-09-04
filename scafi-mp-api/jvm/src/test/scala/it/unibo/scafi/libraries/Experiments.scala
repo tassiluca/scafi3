@@ -23,7 +23,9 @@ import it.unibo.scafi.test.environment.Node.inMemoryNetwork
 import io.bullet.borer.{ Cbor, Codec }
 import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodec
 import io.github.iltotore.iron.autoRefine
+import scala.annotation.nowarn
 
+@nowarn("msg=unused local definition")
 object CentralizedExperiments:
   type ID = Int
 
@@ -65,6 +67,7 @@ object CentralizedExperiments:
       Thread.sleep(1_000)
 end CentralizedExperiments
 
+@nowarn("msg=unused local definition")
 object JSInteroperableExperiments:
 
   enum Format derives CanEqual:
@@ -109,6 +112,7 @@ object JSInteroperableExperiments:
       Thread.sleep(500)
 end JSInteroperableExperiments
 
+@nowarn("msg=unused local definition")
 object DistributedExperiments:
 
   type ID = Int

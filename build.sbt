@@ -133,6 +133,19 @@ lazy val `scafi-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     ),
   )
 
+lazy val `scafi-integration` = project
+  .in(file("scafi-integration"))
+  .dependsOn(`scafi-mp-api`.js)
+  .settings(commonDependencies)
+  .enablePlugins(Snapshot4sPlugin)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.siriusxm" %% "snapshot4s-scalatest" % "0.2.0" % Test,
+    ),
+    publish / skip := true,
+    Test / test := (Test / test).dependsOn(`scafi-mp-api`.js / Compile / fullLinkJS).value,
+  )
+
 //val alchemistVersion = "42.1.0"
 //lazy val `alchemist-incarnation-scafi3` = project
 //  .settings(

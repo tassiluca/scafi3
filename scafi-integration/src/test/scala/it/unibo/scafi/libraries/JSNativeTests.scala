@@ -22,7 +22,7 @@ class JSNativeTests extends AnyFlatSpec with JSPlatformTest:
           .map(nid => s"[$nid, Runtime.Endpoint('localhost', ${portsPool(nid)})]")
           .mkString("[", ", ", "]")
         Future:
-          testProgram("simple-exchange"):
+          testProgram(s"simple-exchange", id):
             "{{ deviceId }}" -> id.toString
             "{{ port }}" -> portsPool(id).toString
             "{{ neighbors }}" -> neighborsAsJsEntries

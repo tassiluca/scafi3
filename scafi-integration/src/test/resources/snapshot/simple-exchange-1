@@ -1,0 +1,38 @@
+::: Info :::
+Device ID:  1
+Port:       5051
+Neighbors:  Device 0 @ localhost:5050
+::: Result :::
+  Default:  1
+  Neighbors:  
+::: Result :::
+  Default:  1
+  Neighbors:  0 -> 0
+::: Result :::
+  Default:  1
+  Neighbors:  0 -> 1
+::: Result :::
+  Default:  1
+  Neighbors:  0 -> 0
+::: Result :::
+  Default:  1
+  Neighbors:  0 -> 1
+::: Result :::
+  Default:  1
+  Neighbors:  0 -> 0
+::: Result :::
+  Default:  1
+  Neighbors:  0 -> 1
+::: Result :::
+  Default:  1
+  Neighbors:  0 -> 0
+::: Result :::
+  Default:  1
+  Neighbors:  0 -> 1
+::: Result :::
+  Default:  1
+  Neighbors:  0 -> 0
+::: Result :::
+  Default:  1
+  Neighbors:  0 -> 1
+Engine stopped successfully.

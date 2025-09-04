@@ -12,7 +12,7 @@ trait PortableRuntime:
 
   trait ADTs:
 
-    @JSExport
+    @JSExport @JSExportAll
     case class Endpoint(address: String, port: Int)
 
   trait Interface:

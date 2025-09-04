@@ -43,8 +43,8 @@ object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with JSTy
         .flatMap(_ => loop())
         .andThen(_ => network.close())
         .onComplete:
-          case Success(_) => scribe.info("Engine stopped successfully.")
-          case Failure(err) => scribe.error(s"Error occurred: ${err.getMessage}")
+          case Success(_) => Console.out.println("Engine stopped successfully.")
+          case Failure(err) => Console.err.println(s"Error occurred: ${err.getMessage}")
     end engine
   end JSInterface
 end JSScafiRuntime
