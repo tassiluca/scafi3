@@ -1,12 +1,11 @@
 package it.unibo.scafi.libraries
 
-import scala.scalajs.js
 import scala.scalajs.js.annotation.JSExportTopLevel
 
 import it.unibo.scafi.language.AggregateFoundation
-import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
-import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
+import it.unibo.scafi.language.xc.FieldBasedSharedData
+import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
 import it.unibo.scafi.presentation.JSBinaryCodable.jsBinaryCodable
 
 /**

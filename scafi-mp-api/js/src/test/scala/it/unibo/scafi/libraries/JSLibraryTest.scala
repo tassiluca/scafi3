@@ -4,8 +4,8 @@ import scala.util.Try
 
 import it.unibo.scafi
 
-import org.scalatest.matchers.should
 import org.scalatest.Inspectors
+import org.scalatest.matchers.should
 import org.scalatest.wordspec.AnyWordSpec
 
 import scafi.context.xc.ExchangeAggregateContext

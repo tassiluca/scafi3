@@ -1,8 +1,8 @@
 package it.unibo.scafi.mp.api.test
 
-import scala.util.Try
-import scala.util.Success
 import java.nio.file.Path
+
+import scala.util.{ Success, Try }
 
 trait JSPlatformTest extends PlatformTest:
 

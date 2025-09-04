@@ -1,15 +1,14 @@
 package it.unibo.scafi.libraries
 
 import scala.concurrent.{ ExecutionContext, Future }
-import scala.scalajs.js.annotation.JSExportTopLevel
 import scala.concurrent.duration.DurationInt
 import scala.util.{ Failure, Success }
 
+import it.unibo.scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
 import it.unibo.scafi.libraries.bindings.ScafiNetworkBinding
 import it.unibo.scafi.message.RegisterableCodable
 import it.unibo.scafi.presentation.JSBinaryCodable.jsBinaryCodable
 import it.unibo.scafi.runtime.ScafiEngine
-import it.unibo.scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
 import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 import it.unibo.scafi.utils.Platform
 

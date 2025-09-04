@@ -1,17 +1,16 @@
 package it.unibo.scafi.mp.api.test
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.{ Files, Path, StandardOpenOption }
+
 import scala.util.Try
 
-import it.unibo.scafi.mp.api.test.PlatformTest.Pattern
-import it.unibo.scafi.mp.api.test.PlatformTest.SubstitutionBuilder
+import it.unibo.scafi.mp.api.test.PlatformTest.{ Pattern, SubstitutionBuilder }
 
-import org.scalatest.compatible.Assertion
-import org.scalatest.matchers.should
 import io.github.iltotore.iron.:|
 import io.github.iltotore.iron.constraint.string.{ EndWith, StartWith }
-import java.nio.file.{ Files, Path }
-import java.nio.charset.StandardCharsets
-import java.nio.file.StandardOpenOption
+import org.scalatest.compatible.Assertion
+import org.scalatest.matchers.should
 
 trait PlatformTest extends should.Matchers with FileSystem:
   export PlatformTest.->

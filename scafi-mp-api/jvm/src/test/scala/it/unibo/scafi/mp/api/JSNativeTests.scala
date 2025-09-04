@@ -1,13 +1,13 @@
 package it.unibo.scafi.mp.api
 
-import it.unibo.scafi.mp.api.test.JSPlatformTest
-import org.scalatest.flatspec.AnyFlatSpec
-import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
-import scala.concurrent.Future
-import it.unibo.scafi.mp.api.test.SimpleGrids.vonNeumannGrid
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Await
+import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.concurrent.duration.DurationInt
+
+import it.unibo.scafi.mp.api.test.JSPlatformTest
+import it.unibo.scafi.mp.api.test.SimpleGrids.vonNeumannGrid
+import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
+
+import org.scalatest.flatspec.AnyFlatSpec
 
 class JSNativeTests extends AnyFlatSpec with JSPlatformTest:
 
