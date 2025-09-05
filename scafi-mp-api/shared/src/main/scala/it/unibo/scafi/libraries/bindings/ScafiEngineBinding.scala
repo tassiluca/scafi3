@@ -21,7 +21,7 @@ trait ScafiEngineBinding[AggregateLibrary] extends PortableRuntime[AggregateLibr
         network: ConnectionOrientedNetworkManager[ID],
         program: Function1[AggregateLibrary, Result],
         onResult: Function1[Result, Handler[Boolean]],
-    ): Unit =
+    ): Handler[Unit] =
       def round: Future[Unit] =
         for
           engine = ScafiEngine(deviceId, network, exchangeContextFactory)(program(library))
@@ -33,7 +33,7 @@ trait ScafiEngineBinding[AggregateLibrary] extends PortableRuntime[AggregateLibr
         .start()
         .flatMap(_ => round)
         .andThen(_ => network.close())
-        .onComplete:
+        .andThen:
           case Success(_) => Console.out.println("Engine stopped successfully.")
           case Failure(err) => Console.err.println(s"Error occurred: ${err.getMessage}")
     end engine

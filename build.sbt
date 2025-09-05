@@ -135,7 +135,7 @@ lazy val `scafi-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
 
 lazy val `scafi-integration` = project
   .in(file("scafi-integration"))
-  .dependsOn(`scafi-mp-api`.js)
+  .dependsOn(`scafi-distributed`.jvm % "test->test", `scafi-mp-api`.js)
   .settings(commonDependencies)
   .enablePlugins(Snapshot4sPlugin)
   .settings(

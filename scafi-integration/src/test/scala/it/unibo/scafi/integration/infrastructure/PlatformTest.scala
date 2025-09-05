@@ -13,6 +13,7 @@ import org.scalatest.compatible.Assertion
 import org.scalatest.matchers.should
 import snapshot4s.generated.snapshotConfig
 import snapshot4s.scalatest.SnapshotAssertions.{ assertFileSnapshot, scalatestResultLike, snapshotEq }
+import java.nio.file.Paths
 
 trait PlatformTest extends should.Matchers with FileSystem:
   export PlatformTest.->
@@ -27,7 +28,7 @@ trait PlatformTest extends should.Matchers with FileSystem:
     given builder: SubstitutionBuilder = SubstitutionBuilder()
     addSubstitutions
     val programOutput = for
-      workingDir = Files.createTempDirectory(testName)
+      workingDir = testDir(testName, id)
       _ = scribe.info(s"Working directory: $workingDir")
       _ <- resolveTemplates(testName, workingDir, builder.all)
       _ <- compile(workingDir)
@@ -36,8 +37,17 @@ trait PlatformTest extends should.Matchers with FileSystem:
     yield out
     programOutput.fold(err => fail(s"Test failed: ${err.getMessage}"), compare(_, testName, id))
 
+  private def testDir[ID](testName: String, id: ID): Path =
+    val baseTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
+    val testDir = baseTempDir.resolve(s"$testName-$id")
+    if Files.exists(testDir) then delete(testDir)
+    Files.createDirectory(testDir)
+
   private def resolveTemplates(testName: String, workingDir: Path, substitutions: Set[Substitution]): Try[Unit] = Try:
-    templatePaths.foreach(template => copy(template, workingDir.resolve(baseName(template))))
+    templatePaths.foreach(template =>
+      println(s"Copying template $template to ${workingDir.resolve(baseName(template))}")
+      copy(template, workingDir.resolve(baseName(template))),
+    )
     val templateFile = templatePaths
       .find(_.getFileName.toString.contains("template"))
       .getOrElse(throw IllegalStateException("No template file found!"))

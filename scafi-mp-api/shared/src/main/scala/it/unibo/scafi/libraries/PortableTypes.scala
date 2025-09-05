@@ -48,5 +48,5 @@ trait PortableTypes:
 
   type Handler[T]
 
-  given [T] => Conversion[Handler[T], Future[T]] = compiletime.deferred
+  given [T] => Iso[Handler[T], Future[T]] = compiletime.deferred
 end PortableTypes

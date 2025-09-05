@@ -2,6 +2,7 @@ package it.unibo.scafi.libraries
 
 import java.nio.charset.StandardCharsets
 
+import scala.annotation.nowarn
 import scala.concurrent.ExecutionContext
 
 import it.unibo.scafi.context.AggregateContext
@@ -23,7 +24,6 @@ import it.unibo.scafi.test.environment.Node.inMemoryNetwork
 import io.bullet.borer.{ Cbor, Codec }
 import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodec
 import io.github.iltotore.iron.autoRefine
-import scala.annotation.nowarn
 
 @nowarn("msg=unused local definition")
 object CentralizedExperiments:

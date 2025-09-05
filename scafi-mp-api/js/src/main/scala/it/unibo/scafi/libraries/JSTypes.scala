@@ -1,10 +1,11 @@
 package it.unibo.scafi.libraries
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
  * Provides JavaScript-specific implementations for the portable types.
  */
+@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait JSTypes extends PortableTypes:
   import scalajs.js
 
@@ -22,7 +23,14 @@ trait JSTypes extends PortableTypes:
   override given [T1, R] => Conversion[Function1[T1, R], T1 => R] = _.apply
 
   override type Handler[T] = js.Promise[T] | T
-  override given [T] => Conversion[Handler[T], Future[T]] =
+  override given [T] => Iso[Handler[T], Future[T]] = Iso[Handler[T], Future[T]] {
     case p: js.Promise[?] => p.toFuture.asInstanceOf[Future[T]]
     case v => Future.successful(v.asInstanceOf[T])
+  }(f =>
+    given ExecutionContext = scalajs.concurrent.JSExecutionContext.queue
+    js.Promise[T]: (resolve, reject) =>
+      f.onComplete:
+        case scala.util.Success(value) => resolve(value)
+        case scala.util.Failure(exception) => reject(exception),
+  )
 end JSTypes

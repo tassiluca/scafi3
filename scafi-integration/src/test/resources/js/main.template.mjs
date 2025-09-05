@@ -5,7 +5,7 @@
  *          the placeholders `{{ var }}` with actual values.
  */
 
-const { Runtime, returnSending } = await import(process.env.SCAFI3);
+const { Runtime, returning, returnSending } = await import(process.env.SCAFI3);
 
 const deviceId = {{ deviceId }};
 const port = {{ port }};
@@ -13,17 +13,20 @@ const neighbors = new Map({{ neighbors }});
 
 console.log("::: Info :::");
 console.log("Device ID: ", deviceId);
-console.log("Port:      ", port);
-console.log(
-    "Neighbors: ",
-    Array.from(neighbors.entries()).map(([id, end]) => `Device ${id} @ ${end.address}:${end.port}`).join(", ")
-);
+console.log("Neighbors IDs: ", Array.from(neighbors.entries()).map(([id]) => id).join(", "));
 
 const network = Runtime.socketNetwork(deviceId, port, neighbors);
 let lastResult = null;
 let iterations = 10;
-Runtime.engine(deviceId, network, lang => aggregateProgram(lang), result => {
+await Runtime.engine(deviceId, network, lang => aggregateProgram(lang), async result => {
     lastResult = result;
-    console.log(`Iteration ${iterations} result: ${result}`);
+    await sleep(1_000);
     return iterations-- > 0;
 });
+
+console.log("::: Steady state result :::");
+console.log(lastResult.toString());
+
+async function sleep(ms) {
+    await new Promise(resolve => setTimeout(resolve, ms));
+}

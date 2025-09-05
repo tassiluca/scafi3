@@ -32,5 +32,5 @@ trait PortableRuntime[AggregateLibrary]:
         network: ConnectionOrientedNetworkManager[ID],
         program: Function1[AggregateLibrary, Result],
         onResult: Function1[Result, Handler[Boolean]],
-    ): Unit
+    ): Handler[Unit]
 end PortableRuntime
