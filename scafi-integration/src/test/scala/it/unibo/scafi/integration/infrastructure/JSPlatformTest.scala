@@ -10,8 +10,6 @@ trait JSPlatformTest extends PlatformTest:
 
   override val templatePaths: Set[Path] = Set(resource("js/main.template.mjs"), packageJsonPath)
 
-  override val snapshotsFolderPath: Path = resource("snapshots")
-
   override def programUnderTest(testName: String): Path = resource(s"js/$testName/program.mjs")
 
   override def compile(workingDir: Path): Try[Unit] = Success(())

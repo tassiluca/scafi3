@@ -8,6 +8,7 @@ import it.unibo.scafi.mp.api.test.SimpleGrids.vonNeumannGrid
 import it.unibo.scafi.runtime.FreePortFinder
 
 import org.scalatest.flatspec.AnyFlatSpec
+import scala.util.Success
 
 class JSNativeTests extends AnyFlatSpec with JSPlatformTest:
 
@@ -22,8 +23,12 @@ class JSNativeTests extends AnyFlatSpec with JSPlatformTest:
           .map(nid => s"[$nid, Runtime.Endpoint('localhost', ${portsPool(nid)})]")
           .mkString("[", ", ", "]")
         Future:
-          testProgram("simple-exchange", id):
+          testProgram("simple-exchange"):
             "{{ deviceId }}" -> id.toString
             "{{ port }}" -> portsPool(id).toString
             "{{ neighbors }}" -> neighborsAsJsEntries
+        .map: res =>
+          res shouldBe a[Success[String]]
+          res.get shouldBe s"Field($id, ${neighbors.map(n => n -> n).toMap})"
     Await.result(results, 15.seconds)
+end JSNativeTests

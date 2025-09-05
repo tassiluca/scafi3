@@ -1,6 +1,0 @@
-::: Info :::
-Device ID:  0
-Neighbors IDs:  1
-Engine stopped successfully.
-::: Steady state result :::
-Field(default=0, neighborValues=Map(1 -> 1))

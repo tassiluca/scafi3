@@ -6,6 +6,8 @@ import scala.jdk.StreamConverters.*
 
 trait FileSystem:
 
+  def createTempDirectory(prefix: String): Path = Files.createTempDirectory(prefix)
+
   def copy(origin: Path, destination: Path): Unit = Files.copy(origin, destination): Unit
 
   def baseName(path: Path): String = path.getFileName().toString.replaceFirst("\\.[^.]+$", "")

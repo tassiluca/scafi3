@@ -1,6 +1,6 @@
 package it.unibo.scafi.mp.api.test
 
-import java.nio.file.{ Files, Path }
+import java.nio.file.Path
 
 import scala.util.Try
 
@@ -9,45 +9,28 @@ import it.unibo.scafi.mp.api.test.PlatformTest.{ Pattern, Substitution, Substitu
 
 import io.github.iltotore.iron.:|
 import io.github.iltotore.iron.constraint.string.{ EndWith, StartWith }
-import org.scalatest.compatible.Assertion
 import org.scalatest.matchers.should
-import snapshot4s.generated.snapshotConfig
-import snapshot4s.scalatest.SnapshotAssertions.{ assertFileSnapshot, scalatestResultLike, snapshotEq }
-import java.nio.file.Paths
 
 trait PlatformTest extends should.Matchers with FileSystem:
   export PlatformTest.->
   export io.github.iltotore.iron.autoRefine
 
-  val snapshotsFolderPath: Path // Will be removed if uses snapshots library
-
   /** The set of template files from which bootstrapping the test working directory. */
   val templatePaths: Set[Path]
 
-  def testProgram[ID](testName: String, id: ID)(addSubstitutions: SubstitutionBuilder ?=> Unit): Assertion =
+  def testProgram(testName: String)(addSubstitutions: SubstitutionBuilder ?=> Unit): Try[String] =
     given builder: SubstitutionBuilder = SubstitutionBuilder()
     addSubstitutions
-    val programOutput = for
-      workingDir = testDir(testName, id)
+    for
+      workingDir = createTempDirectory(testName)
       _ = scribe.info(s"Working directory: $workingDir")
       _ <- resolveTemplates(testName, workingDir, builder.all)
       _ <- compile(workingDir)
       out <- run(workingDir)
-      _ = scribe.info(s"Test output: $out")
     yield out
-    programOutput.fold(err => fail(s"Test failed: ${err.getMessage}"), compare(_, testName, id))
-
-  private def testDir[ID](testName: String, id: ID): Path =
-    val baseTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
-    val testDir = baseTempDir.resolve(s"$testName-$id")
-    if Files.exists(testDir) then delete(testDir)
-    Files.createDirectory(testDir)
 
   private def resolveTemplates(testName: String, workingDir: Path, substitutions: Set[Substitution]): Try[Unit] = Try:
-    templatePaths.foreach(template =>
-      println(s"Copying template $template to ${workingDir.resolve(baseName(template))}")
-      copy(template, workingDir.resolve(baseName(template))),
-    )
+    templatePaths.foreach(template => copy(template, workingDir.resolve(template.getFileName)))
     val templateFile = templatePaths
       .find(_.getFileName.toString.contains("template"))
       .getOrElse(throw IllegalStateException("No template file found!"))
@@ -67,9 +50,6 @@ trait PlatformTest extends should.Matchers with FileSystem:
 
   /** Run the program in the given [[workingDir]] and return its output. */
   def run(workingDir: Path): Try[String]
-
-  private def compare[ID](actual: String, testName: String, id: ID): Assertion =
-    assertFileSnapshot(actual, s"$testName-$id")
 
   protected def resource(name: String): Path = Path.of(getClass.getClassLoader.getResource(name).getPath())
 

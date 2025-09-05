@@ -11,10 +11,6 @@ const deviceId = {{ deviceId }};
 const port = {{ port }};
 const neighbors = new Map({{ neighbors }});
 
-console.log("::: Info :::");
-console.log("Device ID: ", deviceId);
-console.log("Neighbors IDs: ", Array.from(neighbors.entries()).map(([id]) => id).join(", "));
-
 const network = Runtime.socketNetwork(deviceId, port, neighbors);
 let lastResult = null;
 let iterations = 10;
@@ -24,7 +20,6 @@ await Runtime.engine(deviceId, network, lang => aggregateProgram(lang), async re
     return iterations-- > 0;
 });
 
-console.log("::: Steady state result :::");
 console.log(lastResult.toString());
 
 async function sleep(ms) {

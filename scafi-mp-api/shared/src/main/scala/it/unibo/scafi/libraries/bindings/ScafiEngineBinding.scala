@@ -34,7 +34,7 @@ trait ScafiEngineBinding[AggregateLibrary] extends PortableRuntime[AggregateLibr
         .flatMap(_ => round)
         .andThen(_ => network.close())
         .andThen:
-          case Success(_) => Console.out.println("Engine stopped successfully.")
+          case Success(_) => ()
           case Failure(err) => Console.err.println(s"Error occurred: ${err.getMessage}")
     end engine
   end EngineBindings
