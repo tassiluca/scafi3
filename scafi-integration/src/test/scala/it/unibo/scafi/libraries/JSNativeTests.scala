@@ -19,7 +19,7 @@ class JSNativeTests extends AnyFlatSpec with JSPlatformTest with ScalaFutures:
 
   given ExecutionContext = ExecutionContext.global
 
-  given PatienceConfig = PatienceConfig(timeout = Span(10, Seconds))
+  given PatienceConfig = PatienceConfig(timeout = Span(15, Seconds))
 
   "Neighbors discovery program" should "spread local values to neighborhood" in:
     val ports = FreePortFinder.get(4)
@@ -38,6 +38,17 @@ class JSNativeTests extends AnyFlatSpec with JSPlatformTest with ScalaFutures:
       Future(
         jsAggregateResult("restricted-exchange", ports, id, neighbors),
       ) shouldBe s"Field(${id.isEven}, $expectedNeighbors)"
+    sequence(results).futureValue
+
+  "Protobuf exchange aggregate program" should "correctly exchange protobuf messages" in:
+    val ports = FreePortFinder.get(4)
+    val results = vonNeumannGrid(rows = 2, cols = 2): (id, neighbors) =>
+      val expectedNeighbors = neighbors
+        .map(n => n -> s"TemperatureSensor(id=temp#${n}, temperature=${n * 100})")
+        .toMap
+      Future(
+        jsAggregateResult("protobuf-exchange", ports, id, neighbors),
+      ) shouldBe s"Field(TemperatureSensor(id=temp#${id}, temperature=${id * 100}), $expectedNeighbors)"
     sequence(results).futureValue
 
   extension (result: Future[Try[String]])

@@ -15,9 +15,6 @@ trait PlatformTest extends should.Matchers with FileSystem:
   export PlatformTest.->
   export io.github.iltotore.iron.autoRefine
 
-  /** The set of template files from which bootstrapping the test working directory. */
-  val templatePaths: Set[Path]
-
   def testProgram(testName: String)(addSubstitutions: SubstitutionBuilder ?=> Unit): Try[String] =
     given builder: SubstitutionBuilder = SubstitutionBuilder()
     addSubstitutions
@@ -30,11 +27,11 @@ trait PlatformTest extends should.Matchers with FileSystem:
     yield out.trim()
 
   private def resolveTemplates(testName: String, workingDir: Path, substitutions: Set[Substitution]): Try[Unit] = Try:
-    templatePaths.foreach(template => copy(template, workingDir.resolve(template.getFileName)))
-    val templateFile = templatePaths
+    templates(testName).foreach(template => copy(template, workingDir.resolve(template.getFileName)))
+    val templateFile = templates(testName)
       .find(_.getFileName.toString.contains("template"))
       .getOrElse(throw IllegalStateException("No template file found!"))
-    val updatedContent = substitutions.foldLeft(read(templateFile) ++ read(programUnderTest(testName))):
+    val updatedContent = substitutions.foldLeft(read(programUnderTest(testName)) ++ read(templateFile)):
       case (content, (pattern, substitution)) =>
         content.replace(pattern, substitution) match
           case newContent if newContent != content => newContent
@@ -43,6 +40,9 @@ trait PlatformTest extends should.Matchers with FileSystem:
 
   /** @return the path to the aggregate program under test, given its name. */
   def programUnderTest(testName: String): Path
+
+  /** The set of template files from which bootstrapping the test working directory. */
+  def templates(testName: String): Set[Path]
 
   /** Compile the program situated in the given [[workingDir]]. */
   def compile(workingDir: Path): Try[Unit]

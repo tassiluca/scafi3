@@ -22,6 +22,8 @@ trait FileSystem:
     StandardOpenOption.TRUNCATE_EXISTING,
   ): Unit
 
+  def findAll(path: Path): Set[Path] = Files.walk(path).toScala(Seq).filter(_.toFile.isFile).toSet
+
   def delete(path: Path): Unit =
     if path.toFile().isDirectory()
     then Files.walk(path).toScala(Seq).sortBy(_.toString)(using Ordering.String.reverse).foreach(Files.delete)

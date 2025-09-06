@@ -8,7 +8,8 @@ import scala.util.chaining.scalaUtilChainingOps
 
 trait JSPlatformTest extends PlatformTest:
 
-  override val templatePaths: Set[Path] = Set(resource("js/main.template.mjs"), resource("js/package.json"))
+  override def templates(testName: String): Set[Path] =
+    Set(resource("js/main.template.mjs"), resource("js/package.json")) ++ findAll(resource(s"js/$testName"))
 
   override def programUnderTest(testName: String): Path = resource(s"js/$testName/program.mjs")
 
