@@ -2,28 +2,29 @@ package it.unibo.scafi.mp.api.test
 
 import java.nio.file.Path
 
-import scala.util.{ Success, Try }
+import scala.io.Source
+import scala.util.{ Success, Try, Using }
+import scala.util.chaining.scalaUtilChainingOps
 
 trait JSPlatformTest extends PlatformTest:
 
-  private val packageJsonPath = resource("js/package.json")
-
-  override val templatePaths: Set[Path] = Set(resource("js/main.template.mjs"), packageJsonPath)
+  override val templatePaths: Set[Path] = Set(resource("js/main.template.mjs"), resource("js/package.json"))
 
   override def programUnderTest(testName: String): Path = resource(s"js/$testName/program.mjs")
 
   override def compile(workingDir: Path): Try[Unit] = Success(())
 
   override def run(workingDir: Path): Try[String] = Try:
-    val processBuilder = new ProcessBuilder("node", "main.mjs")
-    processBuilder.environment.put("SCAFI3", s"${rootProjectPath}/scafi-mp-api/js/target/fullLinkJS/main.mjs")
-    processBuilder.directory(workingDir.toFile)
-    val process = processBuilder.start()
-    val exitCode = process.waitFor()
-    if exitCode != 0 then
-      val errorStream = scala.io.Source.fromInputStream(process.getErrorStream).mkString
-      throw new RuntimeException(s"Process exited with code $exitCode. Error: $errorStream")
-    else scala.io.Source.fromInputStream(process.getInputStream).mkString
+    val process = new ProcessBuilder("npm", "start", "--silent")
+      .directory(workingDir.toFile)
+      .tap(_.environment.put("SCAFI3", scafiJsBundlePath))
+      .start()
+    process.waitFor() match
+      case 0 => Using.resource(Source.fromInputStream(process.getInputStream))(_.mkString)
+      case _ =>
+        val err = Using.resource(Source.fromInputStream(process.getErrorStream))(_.mkString)
+        throw new RuntimeException(s"Node process failed: $err")
 
-  private val rootProjectPath: String = System.getProperty("user.dir")
+  private val scafiJsBundlePath = s"${System.getProperty("user.dir")}/scafi-mp-api/js/target/fullLinkJS/main.mjs"
+
 end JSPlatformTest

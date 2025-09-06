@@ -1,4 +1,7 @@
 {
     "name": "scafi3-js-test",
-    "type": "module"
+    "type": "module",
+    "scripts": {
+        "start": "node main.mjs"
+    }
 }

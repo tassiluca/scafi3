@@ -23,34 +23,34 @@ trait PlatformTest extends should.Matchers with FileSystem:
     addSubstitutions
     for
       workingDir = createTempDirectory(testName)
-      _ = scribe.info(s"Working directory: $workingDir")
       _ <- resolveTemplates(testName, workingDir, builder.all)
       _ <- compile(workingDir)
       out <- run(workingDir)
-    yield out
+      _ = delete(workingDir)
+    yield out.trim()
 
   private def resolveTemplates(testName: String, workingDir: Path, substitutions: Set[Substitution]): Try[Unit] = Try:
     templatePaths.foreach(template => copy(template, workingDir.resolve(template.getFileName)))
     val templateFile = templatePaths
       .find(_.getFileName.toString.contains("template"))
       .getOrElse(throw IllegalStateException("No template file found!"))
-    val templateContent = read(templateFile)
-    val programUnderTestContent = read(programUnderTest(testName))
-    val updatedContent = substitutions.foldLeft(templateContent.appendedAll(programUnderTestContent)):
+    val updatedContent = substitutions.foldLeft(read(templateFile) ++ read(programUnderTest(testName))):
       case (content, (pattern, substitution)) =>
-        val newContent = content.replace(pattern, substitution)
-        if newContent == content then throw IllegalStateException(s"No pattern ${pattern}!")
-        else newContent
+        content.replace(pattern, substitution) match
+          case newContent if newContent != content => newContent
+          case _ => throw IllegalStateException(s"No pattern ${pattern} found to replace!")
     write(workingDir.resolve(templateFile.getFileName.toString.replace(".template", "")), updatedContent)
 
+  /** @return the path to the aggregate program under test, given its name. */
   def programUnderTest(testName: String): Path
 
-  /** Compile the program in the given [[workingDir]]. */
+  /** Compile the program situated in the given [[workingDir]]. */
   def compile(workingDir: Path): Try[Unit]
 
-  /** Run the program in the given [[workingDir]] and return its output. */
+  /** Run the program situated in the given [[workingDir]] and return its output. */
   def run(workingDir: Path): Try[String]
 
+  /** @return the path to a resource file named [[name]] situated in `src/test/resources`. */
   protected def resource(name: String): Path = Path.of(getClass.getClassLoader.getResource(name).getPath())
 
 end PlatformTest
