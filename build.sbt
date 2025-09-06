@@ -137,11 +137,7 @@ lazy val `scafi-integration` = project
   .in(file("scafi-integration"))
   .dependsOn(`scafi-distributed`.jvm % "test->test", `scafi-mp-api`.js % "compile->compile;test->test")
   .settings(commonDependencies)
-  .enablePlugins(Snapshot4sPlugin)
   .settings(
-    libraryDependencies ++= Seq(
-      "com.siriusxm" %% "snapshot4s-scalatest" % "0.2.0" % Test,
-    ),
     publish / skip := true,
     Test / test := (Test / test).dependsOn(`scafi-mp-api`.js / Compile / fullLinkJS).value,
   )
