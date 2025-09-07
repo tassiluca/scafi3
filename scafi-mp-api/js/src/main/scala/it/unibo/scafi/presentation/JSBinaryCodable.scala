@@ -35,7 +35,7 @@ object JSBinaryCodable:
         case other => throw new IllegalArgumentException(s"$other (${js.typeOf(other)}) is not a supported format.")
       Cbor.encode(codable.typeName, format, encodedData).toByteArray
 
-    override def decode(bytes: Array[Byte]): scala.scalajs.js.Object =
+    override def decode(bytes: Array[Byte]): js.Any =
       val (typeName, format, encodedData) = Cbor.decode(bytes).to[(String, Format, Array[Byte])].value
       registry.get(typeName) match
         case Some(codable) =>

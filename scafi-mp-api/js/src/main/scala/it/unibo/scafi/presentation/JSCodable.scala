@@ -87,7 +87,7 @@ trait JSCodable extends js.Object:
    * @return
    *   the encoded message
    */
-  def encode(message: js.Object): js.Any
+  def encode(message: js.Any): js.Any
 
   /**
    * Decodes the provided data into a JavaScript object.
@@ -96,7 +96,7 @@ trait JSCodable extends js.Object:
    * @return
    *   the decoded JavaScript object
    */
-  def decode(data: js.Any): js.Object
+  def decode(data: js.Any): js.Any
 end JSCodable
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
