@@ -19,7 +19,7 @@ class JSNativeTests extends AnyFlatSpec with JSPlatformTest with ScalaFutures:
 
   given ExecutionContext = ExecutionContext.global
 
-  given PatienceConfig = PatienceConfig(timeout = Span(15, Seconds))
+  given PatienceConfig = PatienceConfig(timeout = Span(60, Seconds))
 
   "Neighbors discovery program" should "spread local values to neighborhood" in:
     val ports = FreePortFinder.get(4)

@@ -160,7 +160,13 @@ lazy val `scafi-integration` = project
 lazy val root = project
   .in(file("."))
   .enablePlugins(ScalaUnidocPlugin)
-  .aggregate(crossProjects(`scafi-core`, `scafi-distributed`, `scafi-mp-api`) /* :+ `alchemist-incarnation`*/.map(_.project)*)
+  .aggregate(
+    (
+      crossProjects(`scafi-core`, `scafi-distributed`, `scafi-mp-api`) 
+      ++ 
+      Seq(`scafi-integration` /* :+ `alchemist-incarnation`*/)
+    ).map(_.project)*
+  )
   .settings(
     name := "scafi3",
     publish / skip := true,
