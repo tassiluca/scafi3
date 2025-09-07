@@ -3,23 +3,23 @@ package it.unibo.scafi.libraries
 import scala.concurrent.ExecutionContext
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
-import it.unibo.scafi.libraries.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
+import it.unibo.scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
 import it.unibo.scafi.message.RegisterableCodable
 import it.unibo.scafi.presentation.JSBinaryCodable.jsBinaryCodable
+import it.unibo.scafi.runtime.PortableRuntime
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
-object JSScafiRuntime
-    extends PortableRuntime[FullLibrary]
-    with ScafiNetworkBinding[FullLibrary]
-    with ScafiEngineBinding[FullLibrary]
-    with JSTypes:
+object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with ScafiEngineBinding with JSTypes:
 
   override given ExecutionContext = scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-  override given [Value, Format]: RegisterableCodable[Value, Format] =
-    jsBinaryCodable.asInstanceOf[RegisterableCodable[Value, Format]]
+  trait JSRequirements extends Requirements:
+    type AggregateLibrary = FullLibrary
 
-  override def library[ID](using ctx: ExchangeAggregateContext[ID]): FullLibrary = FullLibrary()
+    override given [Value, Format]: RegisterableCodable[Value, Format] =
+      jsBinaryCodable.asInstanceOf[RegisterableCodable[Value, Format]]
+
+    override def library[ID]: ExchangeAggregateContext[ID] ?=> FullLibrary = FullLibrary()
 
   @JSExportTopLevel("Runtime")
-  object JSInterface extends Interface with ADTs with NetworkBindings with EngineBindings
+  object JSAPI extends Api with Adts with NetworkBindings with EngineBindings with JSRequirements

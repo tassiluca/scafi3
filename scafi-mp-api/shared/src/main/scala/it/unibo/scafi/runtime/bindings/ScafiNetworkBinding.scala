@@ -1,4 +1,4 @@
-package it.unibo.scafi.libraries.bindings
+package it.unibo.scafi.runtime.bindings
 
 import scala.concurrent.ExecutionContext
 
@@ -6,18 +6,17 @@ import it.unibo.scafi
 
 import io.github.iltotore.iron.refineUnsafe
 
-import scafi.libraries.{ PortableRuntime, PortableTypes }
+import scafi.libraries.PortableTypes
 import scafi.runtime.network.sockets.{ ConnectionConfiguration, ConnectionOrientedNetworkManager, SocketNetworkManager }
+import it.unibo.scafi.runtime.PortableRuntime
 
-trait ScafiNetworkBinding[AggregateLibrary] extends PortableRuntime[AggregateLibrary]:
+trait ScafiNetworkBinding extends PortableRuntime:
   self: PortableTypes =>
 
-  given ExecutionContext = compiletime.deferred
+  trait NetworkBindings(using ExecutionContext) extends Api:
+    self: Requirements =>
 
-  given ConnectionConfiguration = ConnectionConfiguration.basic
-
-  trait NetworkBindings extends Interface:
-    self: ADTs =>
+    given ConnectionConfiguration = ConnectionConfiguration.basic
 
     override def socketNetwork[ID](
         deviceId: ID,

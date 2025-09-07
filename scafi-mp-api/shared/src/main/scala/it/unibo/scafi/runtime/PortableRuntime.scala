@@ -1,27 +1,30 @@
-package it.unibo.scafi.libraries
+package it.unibo.scafi.runtime
 
 import it.unibo.scafi
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
+import it.unibo.scafi.libraries.PortableTypes
 import it.unibo.scafi.message.RegisterableCodable
 
 import scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 
-trait PortableRuntime[AggregateLibrary]:
+trait PortableRuntime:
   self: PortableTypes =>
 
-  // Requirements?
+  trait Requirements:
 
-  given [Value, Format]: RegisterableCodable[Value, Format] = compiletime.deferred
+    given [Value, Format]: RegisterableCodable[Value, Format] = compiletime.deferred
 
-  def library[ID](using ctx: ExchangeAggregateContext[ID]): AggregateLibrary
+    type AggregateLibrary
 
-  trait ADTs:
+    def library[ID]: ExchangeAggregateContext[ID] ?=> AggregateLibrary
+
+  trait Adts:
 
     @JSExport @JSExportAll
     case class Endpoint(address: String, port: Int)
 
-  trait Interface:
-    self: ADTs =>
+  trait Api extends Adts:
+    self: Requirements =>
 
     @JSExport
     def socketNetwork[ID](deviceId: ID, port: Int, neighbors: Map[ID, Endpoint]): ConnectionOrientedNetworkManager[ID]

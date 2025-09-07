@@ -1,20 +1,21 @@
-package it.unibo.scafi.libraries.bindings
+package it.unibo.scafi.runtime.bindings
 
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success }
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
-import it.unibo.scafi.libraries.{ PortableRuntime, PortableTypes }
+import it.unibo.scafi.libraries.PortableTypes
+import it.unibo.scafi.runtime.PortableRuntime
 import it.unibo.scafi.runtime.ScafiEngine
 import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 
-trait ScafiEngineBinding[AggregateLibrary] extends PortableRuntime[AggregateLibrary]:
+trait ScafiEngineBinding extends PortableRuntime:
   self: PortableTypes =>
 
   given ExecutionContext = compiletime.deferred
 
-  trait EngineBindings extends Interface:
-    self: ADTs =>
+  trait EngineBindings extends Api:
+    self: Requirements =>
 
     override def engine[ID, Result](
         deviceId: ID,
