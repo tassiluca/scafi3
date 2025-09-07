@@ -1,5 +1,7 @@
 package it.unibo.scafi.mp.api
 
+import java.util.concurrent.Executors
+
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.Future.sequence
 import scala.util.{ Failure, Success, Try }
@@ -17,7 +19,7 @@ import org.scalatest.time.{ Seconds, Span }
 
 class JSNativeTests extends AnyFlatSpec with JSPlatformTest with ScalaFutures:
 
-  given ExecutionContext = ExecutionContext.global
+  given ExecutionContext = ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
 
   given PatienceConfig = PatienceConfig(timeout = Span(60, Seconds))
 
