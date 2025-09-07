@@ -22,8 +22,8 @@ trait JSTypes extends PortableTypes:
   override type Function1[T1, R] = js.Function1[T1, R]
   override given [T1, R] => Conversion[Function1[T1, R], T1 => R] = _.apply
 
-  override type Handler[T] = js.Promise[T] | T
-  override given [T] => Iso[Handler[T], Future[T]] = Iso[Handler[T], Future[T]] {
+  override type Outcome[T] = js.Promise[T] | T
+  override given [T] => Iso[Outcome[T], Future[T]] = Iso[Outcome[T], Future[T]] {
     case p: js.Promise[?] => p.toFuture.asInstanceOf[Future[T]]
     case v => Future.successful(v.asInstanceOf[T])
   }(f =>

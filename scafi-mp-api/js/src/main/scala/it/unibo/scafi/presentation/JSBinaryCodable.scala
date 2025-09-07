@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Uint8Array
 
-import it.unibo.scafi.message.RegisterableCodable
+import it.unibo.scafi.message.UniversalCodable
 import it.unibo.scafi.presentation.primitive.PrimitiveCodables.{ asPrimitiveCodable, primitiveCodables }
 import it.unibo.scafi.utils.JSUtils.{ toByteArray, toUint8Array }
 
@@ -15,7 +15,7 @@ import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodec
 @SuppressWarnings(Array("DisableSyntax.asInstanceOf"))
 object JSBinaryCodable:
 
-  given jsBinaryCodable: RegisterableCodable[js.Any, Array[Byte]] = new RegisterableCodable[js.Any, Array[Byte]]:
+  given jsBinaryCodable: UniversalCodable[js.Any, Array[Byte]] = new UniversalCodable[js.Any, Array[Byte]]:
     private var registry = JSCodablesRegistry.forStringId(primitiveCodables)
 
     override def register(value: js.Any): Unit =

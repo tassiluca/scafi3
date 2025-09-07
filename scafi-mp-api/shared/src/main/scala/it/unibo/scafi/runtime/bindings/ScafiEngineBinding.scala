@@ -8,20 +8,21 @@ import it.unibo.scafi.libraries.PortableTypes
 import it.unibo.scafi.runtime.{ PortableRuntime, ScafiEngine }
 import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 
+/**
+ * Provides a concrete implementation of the portable runtime API for the ScaFi engine.
+ */
 trait ScafiEngineBinding extends PortableRuntime:
   self: PortableTypes =>
 
-  given ExecutionContext = compiletime.deferred
-
-  trait EngineBindings extends Api:
+  trait EngineBindings(using ExecutionContext) extends Api:
     self: Requirements =>
 
     override def engine[ID, Result](
         deviceId: ID,
         network: ConnectionOrientedNetworkManager[ID],
         program: Function1[AggregateLibrary, Result],
-        onResult: Function1[Result, Handler[Boolean]],
-    ): Handler[Unit] =
+        onResult: Function1[Result, Outcome[Boolean]],
+    ): Outcome[Unit] =
       def round: Future[Unit] =
         for
           engine = ScafiEngine(deviceId, network, exchangeContextFactory)(program(library))

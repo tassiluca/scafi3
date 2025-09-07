@@ -22,7 +22,7 @@ trait PortableFieldBasedSharedData extends PortableLibrary:
   @JSExportAll
   case class Field[Value](default: Value, neighborValues: Map[language.DeviceId, Value]):
     valueCodable.register(default)
-    override def toString(): String = s"Field($default, ${neighborValues.toMap})"
+    override def toString: String = s"Field($default, ${neighborValues.toMap})"
 
   @JSExport
   @JSExportAll

@@ -21,5 +21,5 @@ class FullLibrary(using
     with PortableFieldBasedSharedData
     with JSTypes:
 
-  override given valueCodable[Value, Format]: RegisterableCodable[Value, Format] =
-    jsBinaryCodable.asInstanceOf[RegisterableCodable[Value, Format]]
+  override given valueCodable[Value, Format]: UniversalCodable[Value, Format] =
+    jsBinaryCodable.asInstanceOf[UniversalCodable[Value, Format]]
