@@ -1,7 +1,7 @@
 package it.unibo.scafi.presentation.protobufjs
 
 import it.unibo.scafi.presentation.JSCodable
-import it.unibo.scafi.utils.JSUtils.asDynamic
+import it.unibo.scafi.utils.JSUtils.{ asDynamic, hasFunctions }
 
 import scalajs.js
 import scalajs.js.typedarray.Uint8Array
@@ -66,11 +66,7 @@ object ProtobufJSType:
 
     private def asValidatedProtobufJsType: Option[js.Dynamic] =
       val Type = message.asDynamic.constructor
-      if !js.isUndefined(message) &&
-        js.typeOf(message) == "object" &&
-        js.typeOf(Type.encode) == "function" &&
-        js.typeOf(Type.decode) == "function" &&
-        js.typeOf(Type.getTypeUrl) == "function"
+      if !js.isUndefined(message) && Type.hasFunctions("encode", "decode", "getTypeUrl")
       then Some(Type)
       else None
 

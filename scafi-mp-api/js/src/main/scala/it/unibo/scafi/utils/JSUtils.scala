@@ -34,4 +34,22 @@ object JSUtils:
       val data = new Uint8Array(buffer.length)
       for i <- buffer.indices do data(i) = buffer(i)
       data
+
+  extension (value: js.Dynamic)
+
+    /** @return true if the dynamic object has all the specified functions. */
+    def hasFunctions(functionNames: String*): Boolean = functionNames.forall: name =>
+      js.typeOf(value.selectDynamic(name)) == "function"
+
+    /** @return true if the dynamic object has all the specified properties with the expected types. */
+    def hasProps(properties: (PropertyName, PropertyType)*): Boolean = properties.forall:
+      case (name, expectedType) =>
+        !js.isUndefined(value.selectDynamic(name)) && js.typeOf(value.selectDynamic(name)) == expectedType
+
+  type PropertyName = String
+  type PropertyType = String
+
+  extension (propertyName: PropertyName)
+    inline infix def typed(propertyType: PropertyType): (PropertyName, PropertyType) = (propertyName, propertyType)
+
 end JSUtils

@@ -3,7 +3,7 @@ package it.unibo.scafi.presentation
 import scala.scalajs.js
 
 import it.unibo.scafi.presentation.protobufjs.ProtobufJSType.fromProtobufJsMessage
-import it.unibo.scafi.utils.JSUtils.asDynamic
+import it.unibo.scafi.utils.JSUtils.{ asDynamic, hasFunctions, hasProps, typed }
 
 /**
  * A base trait for defining format- and library-agnostic binary codables for JavaScript objects.
@@ -121,11 +121,7 @@ object JSCodable:
 
     private def asValidatedJSCodable: Option[js.Dynamic] =
       def valid(Type: js.Dynamic): Option[js.Dynamic] =
-        if !js.isUndefined(message) &&
-          js.typeOf(message) == "object" &&
-          js.typeOf(Type.encode) == "function" &&
-          js.typeOf(Type.decode) == "function" &&
-          js.typeOf(Type.typeName) == "string"
+        if !js.isUndefined(message) && Type.hasFunctions("encode", "decode") && Type.hasProps("typeName" typed "string")
         then Some(Type)
         else None
       valid(message.asDynamic.constructor).orElse(valid(message.asDynamic.codable))
