@@ -20,7 +20,7 @@ trait JSCodablesRegistry:
 
   /**
    * Retrieve a codable by its identifier.
-   * @param id
+   * @param codableId
    *   the identifier of the codable to retrieve
    * @return
    *   the codable associated with the provided identifier

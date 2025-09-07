@@ -3,10 +3,10 @@ package it.unibo.scafi.libraries
 import scala.concurrent.ExecutionContext
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
-import it.unibo.scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
 import it.unibo.scafi.message.RegisterableCodable
 import it.unibo.scafi.presentation.JSBinaryCodable.jsBinaryCodable
 import it.unibo.scafi.runtime.PortableRuntime
+import it.unibo.scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with ScafiEngineBinding with JSTypes:

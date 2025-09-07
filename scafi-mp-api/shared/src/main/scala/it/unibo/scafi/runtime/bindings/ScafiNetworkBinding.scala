@@ -3,12 +3,12 @@ package it.unibo.scafi.runtime.bindings
 import scala.concurrent.ExecutionContext
 
 import it.unibo.scafi
+import it.unibo.scafi.runtime.PortableRuntime
 
 import io.github.iltotore.iron.refineUnsafe
 
 import scafi.libraries.PortableTypes
 import scafi.runtime.network.sockets.{ ConnectionConfiguration, ConnectionOrientedNetworkManager, SocketNetworkManager }
-import it.unibo.scafi.runtime.PortableRuntime
 
 trait ScafiNetworkBinding extends PortableRuntime:
   self: PortableTypes =>

@@ -5,8 +5,7 @@ import scala.util.{ Failure, Success }
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
 import it.unibo.scafi.libraries.PortableTypes
-import it.unibo.scafi.runtime.PortableRuntime
-import it.unibo.scafi.runtime.ScafiEngine
+import it.unibo.scafi.runtime.{ PortableRuntime, ScafiEngine }
 import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 
 trait ScafiEngineBinding extends PortableRuntime:
