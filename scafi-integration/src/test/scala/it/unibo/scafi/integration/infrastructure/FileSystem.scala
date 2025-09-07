@@ -2,7 +2,8 @@ package it.unibo.scafi.integration.infrastructure
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{ Files, Path, StandardOpenOption }
-import scala.jdk.StreamConverters.*
+
+import scala.jdk.StreamConverters.StreamHasToScala
 
 trait FileSystem:
 
