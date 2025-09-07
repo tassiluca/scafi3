@@ -1,6 +1,7 @@
 package it.unibo.scafi.libraries
 
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.{ Failure, Success }
 
 /**
  * Provides JavaScript-specific implementations for the portable types.
@@ -30,7 +31,7 @@ trait JSTypes extends PortableTypes:
     given ExecutionContext = scalajs.concurrent.JSExecutionContext.queue
     js.Promise[T]: (resolve, reject) =>
       f.onComplete:
-        case scala.util.Success(value) => resolve(value)
-        case scala.util.Failure(exception) => reject(exception),
+        case Success(value) => resolve(value)
+        case Failure(exception) => reject(exception),
   )
 end JSTypes

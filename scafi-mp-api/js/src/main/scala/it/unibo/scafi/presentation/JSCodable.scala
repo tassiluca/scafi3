@@ -53,7 +53,7 @@ import it.unibo.scafi.utils.JSUtils.asDynamic
  *
  * Using protobuf messages:
  * {{{
- * class Foo implements HasCodec<Foo, Uint8Array> {
+ * class Foo implements HasCodable<Foo, Uint8Array> {
  *     private instance: ProtoFoo;
  *
  *     constructor(name: string, id: number) {
@@ -115,9 +115,9 @@ object JSCodable:
     throw new IllegalArgumentException("The provided value is not a valid `JSBinaryCodable`.")
 
   extension (message: js.Object)
-    def asJSCodable: Option[JSCodable] = message.fromProtobufJsMessage.orElse(message.asPlainJSCodable)
+    private def asJSCodable: Option[JSCodable] = message.fromProtobufJsMessage.orElse(message.asPlainJSCodable)
 
-    def asPlainJSCodable: Option[JSCodable] = message.asValidatedJSCodable.map(_.asInstanceOf[JSCodable])
+    private def asPlainJSCodable: Option[JSCodable] = message.asValidatedJSCodable.map(_.asInstanceOf[JSCodable])
 
     private def asValidatedJSCodable: Option[js.Dynamic] =
       def valid(Type: js.Dynamic): Option[js.Dynamic] =
@@ -129,5 +129,4 @@ object JSCodable:
         then Some(Type)
         else None
       valid(message.asDynamic.constructor).orElse(valid(message.asDynamic.codable))
-
 end JSCodable

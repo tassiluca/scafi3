@@ -22,4 +22,4 @@ object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with Scaf
     override def library[ID]: ExchangeAggregateContext[ID] ?=> FullLibrary = FullLibrary()
 
   @JSExportTopLevel("Runtime")
-  object JSAPI extends Api with Adts with NetworkBindings with EngineBindings with JSRequirements
+  object JSAPI extends Api with NetworkBindings with EngineBindings with JSRequirements
