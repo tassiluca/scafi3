@@ -16,6 +16,18 @@ trait PlatformTest extends should.Matchers with FileSystem:
   export PlatformTest.->
   export io.github.iltotore.iron.autoRefine
 
+  /**
+   * Runs a test for the specified program by:
+   *   1. Creating a working directory from predefined templates.
+   *   2. Applying all substitutions provided in the `addSubstitutions` block.
+   *   3. Compiling and executing the program.
+   * @param testName
+   *   The name of the program being tested.
+   * @param addSubstitutions
+   *   A function block where template substitutions can be defined using the `->` operator.
+   * @return
+   *   The program's output, if the process completes successfully.
+   */
   def testProgram(testName: String)(addSubstitutions: SubstitutionBuilder ?=> Unit): Try[ProgramOutput] =
     given builder: SubstitutionBuilder = SubstitutionBuilder()
     addSubstitutions
@@ -47,17 +59,17 @@ trait PlatformTest extends should.Matchers with FileSystem:
       _ <- files.toList.traverse(p => copy(p, workingDir.resolve(p.getFileName)))
     yield files.find(_.getFileName.toString.contains("template")).getOrElse(throw IllegalStateException("No template!"))
 
-  /** @return the path to the aggregate program under test, given its name. */
+  /** @return the path to the program under test, given its name. */
   def programUnderTest(testName: String): Try[Path]
 
-  /** The set of template files from which bootstrapping the test working directory. */
+  /** @return the set of template files from which bootstrapping the test working directory. */
   def templates(testName: String): Try[Set[Path]]
 
   /** Compile the program situated in the given [[workingDir]]. */
   def compile(workingDir: Path): Try[Unit]
 
   /** Run the program situated in the given [[workingDir]] and return its output. */
-  def run(workingDir: Path): Try[String]
+  def run(workingDir: Path): Try[ProgramOutput]
 
 end PlatformTest
 
