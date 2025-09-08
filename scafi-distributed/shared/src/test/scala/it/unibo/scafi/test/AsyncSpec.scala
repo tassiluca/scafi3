@@ -3,12 +3,12 @@ package it.unibo.scafi.test
 import java.util.concurrent.TimeoutException
 
 import scala.concurrent.Future
-import scala.concurrent.duration.{ DurationInt, FiniteDuration }
+import scala.concurrent.duration.FiniteDuration
 
 import it.unibo.scafi.utils.Async
 
 import org.scalatest.compatible.Assertion
-import org.scalatest.concurrent.{ AsyncTimeLimitedTests, PatienceConfiguration }
+import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should
 
@@ -16,9 +16,7 @@ import org.scalatest.matchers.should
  * A base trait for asynchronous non-blocking cross-platform tests, needed to support platforms like Scala.js where
  * blocking operations are not allowed.
  */
-trait AsyncSpec extends AsyncFlatSpec with should.Matchers with PatienceConfiguration with AsyncTimeLimitedTests:
-
-  override val timeLimit = 30.minutes
+trait AsyncSpec extends AsyncFlatSpec with should.Matchers with PatienceConfiguration:
 
   /**
    * Asynchronously and periodically verifies that the given assertion eventually holds true within the specified
