@@ -1,4 +1,4 @@
-package it.unibo.scafi.mp.api.test
+package it.unibo.scafi.integration.infrastructure
 
 import java.nio.file.{ Path, Paths }
 

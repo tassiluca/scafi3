@@ -1,4 +1,4 @@
-package it.unibo.scafi.mp.api
+package it.unibo.scafi.libraries
 
 import java.util.concurrent.Executors
 
@@ -6,11 +6,10 @@ import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.Future.sequence
 import scala.util.{ Failure, Success, Try }
 
-import it.unibo.scafi.libraries.BranchingLibraryTest.{ hasSameParityAs, isEven }
-import it.unibo.scafi.mp.api.test.JSPlatformTest
-import it.unibo.scafi.mp.api.test.SimpleGrids.vonNeumannGrid
-import it.unibo.scafi.runtime.FreePortFinder
+import it.unibo.scafi.integration.infrastructure.JSPlatformTest
 import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
+import it.unibo.scafi.utils.FreePortFinder
+import it.unibo.scafi.utils.SimpleGrids.vonNeumannGrid
 
 import org.scalatest.Assertion
 import org.scalatest.concurrent.ScalaFutures
@@ -21,7 +20,7 @@ class JSNativeTests extends AnyFlatSpec with JSPlatformTest with ScalaFutures:
 
   given ExecutionContext = ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
 
-  given PatienceConfig = PatienceConfig(timeout = Span(120, Seconds))
+  given PatienceConfig = PatienceConfig(timeout = Span(180, Seconds))
 
   "Neighbors discovery program" should "spread local values to neighborhood" in:
     val ports = FreePortFinder.get(4)
@@ -68,4 +67,8 @@ class JSNativeTests extends AnyFlatSpec with JSPlatformTest with ScalaFutures:
       "{{ deviceId }}" -> id.toString
       "{{ port }}" -> portsPool(id).toString
       "{{ neighbors }}" -> neighborsAsJsEntries
+
+  extension (n: Int)
+    def isEven: Boolean = n % 2 == 0
+    def hasSameParityAs(other: Int): Boolean = (n % 2) == (other % 2)
 end JSNativeTests

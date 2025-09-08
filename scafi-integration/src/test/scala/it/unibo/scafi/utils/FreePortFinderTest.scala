@@ -1,4 +1,4 @@
-package it.unibo.scafi.runtime
+package it.unibo.scafi.utils
 
 import it.unibo.scafi.runtime.network.sockets.InetTypes.{ FreePort, Port }
 
@@ -15,7 +15,7 @@ object FreePortFinder:
     try
       sockets.map: s =>
         s.setReuseAddress(true) // allow quick reuse of the port after the socket is closed
-        s.getLocalPort().refineUnsafe
+        s.getLocalPort.refineUnsafe
     finally sockets.foreach(_.close())
 
 class FreePortFinderTest extends AnyFlatSpec with should.Matchers:

@@ -1,11 +1,11 @@
-package it.unibo.scafi.mp.api.test
+package it.unibo.scafi.integration.infrastructure
 
 import java.nio.file.{ Path, Paths }
 
 import scala.util.Try
 
 import it.unibo.scafi.integration.infrastructure.FileSystem
-import it.unibo.scafi.mp.api.test.PlatformTest.{ Pattern, Substitution, SubstitutionBuilder }
+import it.unibo.scafi.integration.infrastructure.PlatformTest.{ Pattern, Substitution, SubstitutionBuilder }
 
 import io.github.iltotore.iron.:|
 import io.github.iltotore.iron.constraint.string.{ EndWith, StartWith }

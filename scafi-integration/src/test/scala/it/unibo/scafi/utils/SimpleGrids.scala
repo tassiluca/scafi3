@@ -1,4 +1,4 @@
-package it.unibo.scafi.mp.api.test
+package it.unibo.scafi.utils
 
 object SimpleGrids:
 

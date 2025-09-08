@@ -11,7 +11,7 @@ trait FileSystem:
 
   def copy(origin: Path, destination: Path): Unit = Files.copy(origin, destination): Unit
 
-  def baseName(path: Path): String = path.getFileName().toString.replaceFirst("\\.[^.]+$", "")
+  def baseName(path: Path): String = path.getFileName.toString.replaceFirst("\\.[^.]+$", "")
 
   def read(path: Path): String = Files.readString(path, StandardCharsets.UTF_8)
 
@@ -26,7 +26,7 @@ trait FileSystem:
   def findAll(path: Path): Set[Path] = Files.walk(path).toScala(Seq).filter(_.toFile.isFile).toSet
 
   def delete(path: Path): Unit =
-    if path.toFile().isDirectory()
+    if path.toFile.isDirectory
     then Files.walk(path).toScala(Seq).sortBy(_.toString)(using Ordering.String.reverse).foreach(Files.delete)
     else Files.delete(path)
 end FileSystem
