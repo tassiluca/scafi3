@@ -141,7 +141,6 @@ lazy val `scafi-integration` = project
   .dependsOn(`scafi-distributed`.jvm % "compile->compile;test->test")
   .settings(commonDependencies)
   .settings(
-    fork := false,
     publish / skip := true,
     Test / test := (Test / test).dependsOn(`scafi-mp-api`.js / Compile / fullLinkJS).tag(ExclusiveTestTag).value,
   )

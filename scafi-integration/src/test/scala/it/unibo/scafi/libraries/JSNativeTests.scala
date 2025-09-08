@@ -4,10 +4,9 @@ import java.util.concurrent.Executors
 
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.Future.sequence
-import scala.util.{ Failure, Success, Try }
 
 import it.unibo.scafi.integration.JSPlatformTest
-import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
+import it.unibo.scafi.integration.PlatformTest.ProgramOutput
 import it.unibo.scafi.test.environment.Grids.vonNeumannGrid
 import it.unibo.scafi.utils.FreePortFinder
 
@@ -23,63 +22,53 @@ class JSNativeTests extends AnyFlatSpec with JSPlatformTest with ScalaFutures:
   given PatienceConfig = PatienceConfig(timeout = Span(180, Seconds))
 
   "Neighbors discovery program" should "spread local values to neighborhood" in:
-    val ports = FreePortFinder.get(4)
-    val results = vonNeumannGrid(rows = 2, cols = 2): (id, neighbors) =>
-      val expectedNeighbors = (neighbors - id).map(n => n -> n).toMap
-      Future(jsAggregateResult("neighbors-discovery", ports, id, neighbors)) shouldBe s"Field($id, $expectedNeighbors)"
-    sequence(results).futureValue
+    sequence:
+      jsAggregateResult("neighbors-discovery", rows = 2, cols = 2)
+    .futureValue should contain theSameElementsAs Seq(
+      0 -> jsField(default = 0, neighbors = Map(1 -> 1, 2 -> 2)),
+      1 -> jsField(default = 1, neighbors = Map(0 -> 0, 3 -> 3)),
+      2 -> jsField(default = 2, neighbors = Map(0 -> 0, 3 -> 3)),
+      3 -> jsField(default = 3, neighbors = Map(1 -> 1, 2 -> 2)),
+    )
 
   "Exchange aggregate program with branch restriction" should "correctly spread local values to aligned neighbors" in:
-    val ports = FreePortFinder.get(4)
-    val results = vonNeumannGrid(rows = 2, cols = 2): (id, neighbors) =>
-      val expectedNeighbors = (neighbors - id)
-        .filter(_.hasSameParityAs(id))
-        .map(n => n -> (if n.isEven then true else false))
-        .toMap
-      Future(
-        jsAggregateResult("restricted-exchange", ports, id, neighbors),
-      ) shouldBe s"Field(${id.isEven}, $expectedNeighbors)"
-    sequence(results).futureValue
+    sequence:
+      jsAggregateResult("restricted-exchange", rows = 2, cols = 2)
+    .futureValue should contain theSameElementsAs Seq(
+      0 -> jsField(default = true, neighbors = Map(2 -> true)),
+      1 -> jsField(default = false, neighbors = Map(3 -> false)),
+      2 -> jsField(default = true, neighbors = Map(0 -> true)),
+      3 -> jsField(default = false, neighbors = Map(1 -> false)),
+    )
 
-  "Protobuf exchange aggregate program" should "correctly exchange protobuf messages" in:
-    val ports = FreePortFinder.get(4)
-    val results = vonNeumannGrid(rows = 2, cols = 2): (id, neighbors) =>
-      val expectedNeighbors = (neighbors - id)
-        .map(n => n -> s"TemperatureSensor(id=temp#${n}, temperature=${n * 10})")
-        .toMap
-      Future(
-        jsAggregateResult("protobuf-exchange", ports, id, neighbors),
-      ) shouldBe s"Field(TemperatureSensor(id=temp#${id}, temperature=${id * 10}), $expectedNeighbors)"
-    sequence(results).futureValue
+  "Protobuf exchange aggregate program" should "correctly exchange protobuf messages" in sensorTestWith("protobuf")
 
-  "JSON exchange aggregate program" should "correctly exchange JSON messages" in:
-    val ports = FreePortFinder.get(4)
-    val results = vonNeumannGrid(rows = 2, cols = 2): (id, neighbors) =>
-      val expectedNeighbors = (neighbors - id)
-        .map(n => n -> s"TemperatureSensor(id=temp#${n}, temperature=${n * 10})")
-        .toMap
-      Future(
-        jsAggregateResult("json-exchange", ports, id, neighbors),
-      ) shouldBe s"Field(TemperatureSensor(id=temp#${id}, temperature=${id * 10}), $expectedNeighbors)"
-    sequence(results).futureValue
+  "JSON exchange aggregate program" should "correctly exchange JSON messages" in sensorTestWith("json")
 
-  extension (result: Future[Try[String]])
-    infix def shouldBe(expected: String): Future[Assertion] = result.map:
-      case Success(out) =>
-        println(s"Got output: $out")
-        out shouldBe expected
-      case Failure(err) => fail(err.getMessage)
+  inline def sensorTestWith(format: String): Assertion =
+    def jsSensor(id: Int): String = s"Sensor(id=#$id, temp=${id * 10})"
+    sequence:
+      jsAggregateResult(s"${format}-exchange", rows = 2, cols = 2)
+    .futureValue should contain theSameElementsAs Seq(
+      0 -> jsField(default = jsSensor(0), neighbors = Map(1 -> jsSensor(1), 2 -> jsSensor(2))),
+      1 -> jsField(default = jsSensor(1), neighbors = Map(0 -> jsSensor(0), 3 -> jsSensor(3))),
+      2 -> jsField(default = jsSensor(2), neighbors = Map(0 -> jsSensor(0), 3 -> jsSensor(3))),
+      3 -> jsField(default = jsSensor(3), neighbors = Map(1 -> jsSensor(1), 2 -> jsSensor(2))),
+    )
 
-  private def jsAggregateResult(testName: String, portsPool: Seq[Port], id: Int, neighbors: Set[Int]) =
-    val neighborsAsJsEntries = neighbors
-      .map(nid => s"[$nid, Runtime.Endpoint('localhost', ${portsPool(nid)})]")
-      .mkString("[", ", ", "]")
-    testProgram(testName):
-      "{{ deviceId }}" -> id.toString
-      "{{ port }}" -> portsPool(id).toString
-      "{{ neighbors }}" -> neighborsAsJsEntries
+  private def jsAggregateResult(testName: String, rows: Int, cols: Int): Seq[Future[(Int, ProgramOutput)]] =
+    val ports = FreePortFinder.get(rows * cols)
+    vonNeumannGrid(rows, cols): (id, neighbors) =>
+      for
+        neighborsAsJsEntries = neighbors
+          .map(nid => s"[$nid, Runtime.Endpoint('localhost', ${ports(nid)})]")
+          .mkString("[", ", ", "]")
+        res <- Future:
+          testProgram(testName):
+            "{{ deviceId }}" -> id.toString
+            "{{ port }}" -> ports(id).toString
+            "{{ neighbors }}" -> neighborsAsJsEntries
+      yield id -> res.getOrElse(fail(s"JS test '$testName' failed on device '$id': ${res.failed.get.getMessage}"))
 
-  extension (n: Int)
-    def isEven: Boolean = n % 2 == 0
-    def hasSameParityAs(other: Int): Boolean = (n % 2) == (other % 2)
+  private def jsField[V <: Any](default: V, neighbors: Map[Int, V]): String = s"Field($default, $neighbors)"
 end JSNativeTests

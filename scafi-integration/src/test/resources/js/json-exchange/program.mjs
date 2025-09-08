@@ -19,7 +19,7 @@ class TemperatureSensor {
     }
 
     toString() {
-        return `TemperatureSensor(id=${this.id}, temperature=${this.temperature})`;
+        return `Sensor(id=${this.id}, temp=${this.temperature})`;
     }
 }
 
@@ -31,5 +31,5 @@ function aggregateProgram(lang) {
 }
 
 function senseTemperature() {
-    return new TemperatureSensor(`temp#${deviceId}`, deviceId * 10);
+    return new TemperatureSensor(`#${deviceId}`, deviceId * 10);
 }

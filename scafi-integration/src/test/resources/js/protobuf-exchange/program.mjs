@@ -8,9 +8,9 @@ function aggregateProgram(lang) {
 }
 
 proto.TemperatureSensor.prototype.toString = function () {
-    return `TemperatureSensor(id=${this.id}, temperature=${this.temperature})`;
+    return `Sensor(id=${this.id}, temp=${this.temperature})`;
 };
 
 function senseTemperature() {
-    return proto.TemperatureSensor.create({ id: `temp#${deviceId}`, temperature: deviceId * 10 });
+    return proto.TemperatureSensor.create({ id: `#${deviceId}`, temperature: deviceId * 10 });
 }
