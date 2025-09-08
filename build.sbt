@@ -60,6 +60,9 @@ ThisBuild / coverageEnabled := true
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
+val ExclusiveTestTag = Tags.Tag("exclusive-test")
+Global / concurrentRestrictions += Tags.exclusive(ExclusiveTestTag)
+
 lazy val commonDependencies =
   libraryDependencies ++= Seq(
     "org.typelevel" %%% "cats-core" % "2.13.0",
@@ -139,7 +142,8 @@ lazy val `scafi-integration` = project
   .settings(commonDependencies)
   .settings(
     publish / skip := true,
-    Test / test := (Test / test).dependsOn(`scafi-mp-api`.js / Compile / fullLinkJS).value,
+    fork := false,
+    Test / test := (Test / test).dependsOn(`scafi-mp-api`.js / Compile / fullLinkJS).tag(ExclusiveTestTag).value,
   )
 
 //val alchemistVersion = "42.1.0"
