@@ -52,6 +52,7 @@ import it.unibo.scafi.utils.JSUtils.{ asDynamic, hasFunctions, hasProps, typed }
  * <h2>Typescript</h2>
  *
  * Using protobuf messages:
+ *
  * {{{
  * class Foo implements HasCodable<Foo, Uint8Array> {
  *     private instance: ProtoFoo;

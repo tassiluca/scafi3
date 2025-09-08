@@ -14,14 +14,14 @@ trait FileSystem:
   /** Copy a file from the [[origin]] path to the [[destination]] path. */
   def copy(origin: Path, destination: Path): Try[Unit] = Try(Files.copy(origin, destination): Unit)
 
-  /** Read the contents of a file at the given [[path]]. */
+  /** @return the contents of the file at the given [[path]]. */
   def read(path: Path): Try[String] = Try(Files.readString(path, StandardCharsets.UTF_8))
 
   /** Write the given [[content]] to a file at the specified [[path]]. */
   def write(path: Path, content: String): Try[Unit] = Try:
     Files.writeString(path, content, StandardCharsets.UTF_8, StandardOpenOption.CREATE): Unit
 
-  /** Recursively find all files in the given [[path]] directory. */
+  /** @return all files recursively found in the given [[path]] directory. */
   def findAll(path: Path): Try[Set[Path]] = Try(Files.walk(path).toScala(Seq).filter(_.toFile.isFile).toSet)
 
   /** Delete the file or directory at the given [[path]]. */

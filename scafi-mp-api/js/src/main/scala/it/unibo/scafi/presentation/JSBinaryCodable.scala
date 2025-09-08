@@ -15,17 +15,21 @@ import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodec
 @SuppressWarnings(Array("DisableSyntax.asInstanceOf"))
 object JSBinaryCodable:
 
+  private enum Format derives CanEqual:
+    case Binary, String
+
+  private given Codec[Format] = deriveCodec[Format]
+
+  /**
+   * A universal codable that can encode and decode in binary format any JavaScript object that either corresponds to a
+   * primitive type (i.e., `string`, `number`, or `boolean`), or implements the [[JSCodable]] interface.
+   */
   given jsBinaryCodable: UniversalCodable[js.Any, Array[Byte]] = new UniversalCodable[js.Any, Array[Byte]]:
     private var registry = JSCodablesRegistry.forStringId(primitiveCodables)
 
     override def register(value: js.Any): Unit =
       val codable = value.asPrimitiveCodable.getOrElse(JSCodable(value.asInstanceOf[js.Object]))
       registry = registry.register(codable)
-
-    enum Format derives CanEqual:
-      case Binary, String
-
-    given Codec[Format] = deriveCodec[Format]
 
     override def encode(value: js.Any): Array[Byte] =
       val codable = value.asPrimitiveCodable.getOrElse(JSCodable(value.asInstanceOf[js.Object]))

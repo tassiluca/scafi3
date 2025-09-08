@@ -23,9 +23,16 @@ object PrimitiveCodables:
     override def decode(data: js.Any): js.Any =
       decodeStrategy(new String(data.asInstanceOf[Uint8Array].toByteArray, UTF_8))
 
+  /** @return the set of all codables for primitive JavaScript types. */
   def primitiveCodables: Set[JSCodable] = Set(stringCodable, numberCodable, booleanCodable)
 
   extension (message: js.Any)
+
+    /**
+     * Attempts to get the primitive codable corresponding to the type of the given message.
+     * @return
+     *   an optional [[JSCodable]] if the value corresponds to a primitive type, or `None` otherwise.
+     */
     def asPrimitiveCodable: Option[JSCodable] = js.typeOf(message) match
       case t if t == "number" => Some(numberCodable)
       case t if t == "boolean" => Some(booleanCodable)

@@ -21,7 +21,7 @@ class BranchingLibraryTest extends JSLibraryTest:
             .filter(_.hasSameParityAs(id))
           result.neighborValues.toMap should contain theSameElementsAs alignedNeighbors.map(_ -> id.isEven)
 
-  extension (n: Int)
-    def isEven: Boolean = n % 2 == 0
-    def hasSameParityAs(other: Int): Boolean = (n % 2) == (other % 2)
+  extension (id: Int)
+    def isEven: Boolean = id % 2 == 0
+    def hasSameParityAs(other: Int): Boolean = (id % 2) == (other % 2)
 end BranchingLibraryTest
