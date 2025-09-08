@@ -7,7 +7,7 @@ import scala.util.Try
 import it.unibo.scafi.integration.FileSystem
 import it.unibo.scafi.integration.PlatformTest.{ Pattern, ProgramOutput, Substitution, SubstitutionBuilder }
 
-import cats.implicits.*
+import cats.syntax.traverse.toTraverseOps
 import io.github.iltotore.iron.:|
 import io.github.iltotore.iron.constraint.string.{ EndWith, StartWith }
 import org.scalatest.matchers.should

@@ -8,7 +8,7 @@ import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.integration.PlatformTest
 
-import cats.implicits.*
+import cats.syntax.all.catsSyntaxTuple4Semigroupal
 
 trait JSPlatformTest extends PlatformTest:
 
