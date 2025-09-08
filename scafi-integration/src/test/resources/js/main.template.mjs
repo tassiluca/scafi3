@@ -1,4 +1,4 @@
-/**
+/*
  * Warning: this file is a template used for testing purposes and it is not intended to be executed directly.
  * It will be processed by the test suite to replace placeholders (i.e., `{{ ... }}`) with actual values and
  * inject the aggregate program to be tested.

@@ -1,6 +1,6 @@
 package it.unibo.scafi.mp.api.test
 
-import java.nio.file.Path
+import java.nio.file.{ Path, Paths }
 
 import scala.util.Try
 
@@ -51,7 +51,7 @@ trait PlatformTest extends should.Matchers with FileSystem:
   def run(workingDir: Path): Try[String]
 
   /** @return the path to a resource file named [[name]] situated in `src/test/resources`. */
-  protected def resource(name: String): Path = Path.of(getClass.getClassLoader.getResource(name).getPath())
+  protected def resource(name: String): Path = Paths.get(getClass.getClassLoader.getResource(name).toURI)
 
 end PlatformTest
 

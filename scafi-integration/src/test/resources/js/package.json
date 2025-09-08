@@ -2,7 +2,7 @@
     "name": "scafi3-js-test",
     "type": "commonjs",
     "scripts": {
-        "prestart": "npm install && if [ -f messages.proto ]; then npx pbjs -t static-module -w commonjs -o messages.js messages.proto; fi",
+        "prestart": "npm install && node build-protos.js",
         "start": "node main.mjs"
     },
     "devDependencies": {
