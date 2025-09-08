@@ -6,10 +6,10 @@ import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.Future.sequence
 import scala.util.{ Failure, Success, Try }
 
-import it.unibo.scafi.integration.infrastructure.JSPlatformTest
+import it.unibo.scafi.integration.JSPlatformTest
 import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
+import it.unibo.scafi.test.environment.Grids.vonNeumannGrid
 import it.unibo.scafi.utils.FreePortFinder
-import it.unibo.scafi.utils.SimpleGrids.vonNeumannGrid
 
 import org.scalatest.Assertion
 import org.scalatest.concurrent.ScalaFutures
@@ -25,14 +25,14 @@ class JSNativeTests extends AnyFlatSpec with JSPlatformTest with ScalaFutures:
   "Neighbors discovery program" should "spread local values to neighborhood" in:
     val ports = FreePortFinder.get(4)
     val results = vonNeumannGrid(rows = 2, cols = 2): (id, neighbors) =>
-      val expectedNeighbors = neighbors.map(n => n -> n).toMap
+      val expectedNeighbors = (neighbors - id).map(n => n -> n).toMap
       Future(jsAggregateResult("neighbors-discovery", ports, id, neighbors)) shouldBe s"Field($id, $expectedNeighbors)"
     sequence(results).futureValue
 
   "Exchange aggregate program with branch restriction" should "correctly spread local values to aligned neighbors" in:
     val ports = FreePortFinder.get(4)
     val results = vonNeumannGrid(rows = 2, cols = 2): (id, neighbors) =>
-      val expectedNeighbors = neighbors
+      val expectedNeighbors = (neighbors - id)
         .filter(_.hasSameParityAs(id))
         .map(n => n -> (if n.isEven then true else false))
         .toMap
@@ -44,12 +44,23 @@ class JSNativeTests extends AnyFlatSpec with JSPlatformTest with ScalaFutures:
   "Protobuf exchange aggregate program" should "correctly exchange protobuf messages" in:
     val ports = FreePortFinder.get(4)
     val results = vonNeumannGrid(rows = 2, cols = 2): (id, neighbors) =>
-      val expectedNeighbors = neighbors
-        .map(n => n -> s"TemperatureSensor(id=temp#${n}, temperature=${n * 100})")
+      val expectedNeighbors = (neighbors - id)
+        .map(n => n -> s"TemperatureSensor(id=temp#${n}, temperature=${n * 10})")
         .toMap
       Future(
         jsAggregateResult("protobuf-exchange", ports, id, neighbors),
-      ) shouldBe s"Field(TemperatureSensor(id=temp#${id}, temperature=${id * 100}), $expectedNeighbors)"
+      ) shouldBe s"Field(TemperatureSensor(id=temp#${id}, temperature=${id * 10}), $expectedNeighbors)"
+    sequence(results).futureValue
+
+  "JSON exchange aggregate program" should "correctly exchange JSON messages" in:
+    val ports = FreePortFinder.get(4)
+    val results = vonNeumannGrid(rows = 2, cols = 2): (id, neighbors) =>
+      val expectedNeighbors = (neighbors - id)
+        .map(n => n -> s"TemperatureSensor(id=temp#${n}, temperature=${n * 10})")
+        .toMap
+      Future(
+        jsAggregateResult("json-exchange", ports, id, neighbors),
+      ) shouldBe s"Field(TemperatureSensor(id=temp#${id}, temperature=${id * 10}), $expectedNeighbors)"
     sequence(results).futureValue
 
   extension (result: Future[Try[String]])
@@ -59,7 +70,7 @@ class JSNativeTests extends AnyFlatSpec with JSPlatformTest with ScalaFutures:
         out shouldBe expected
       case Failure(err) => fail(err.getMessage)
 
-  private def jsAggregateResult(testName: String, portsPool: Seq[Port], id: Int, neighbors: Seq[Int]) =
+  private def jsAggregateResult(testName: String, portsPool: Seq[Port], id: Int, neighbors: Set[Int]) =
     val neighborsAsJsEntries = neighbors
       .map(nid => s"[$nid, Runtime.Endpoint('localhost', ${portsPool(nid)})]")
       .mkString("[", ", ", "]")

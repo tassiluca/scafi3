@@ -1,4 +1,4 @@
-package it.unibo.scafi.integration.infrastructure
+package it.unibo.scafi.integration
 
 import java.nio.file.{ Path, Paths }
 
@@ -6,12 +6,20 @@ import scala.io.Source
 import scala.util.{ Success, Try, Using }
 import scala.util.chaining.scalaUtilChainingOps
 
+import it.unibo.scafi.integration.PlatformTest
+
+import cats.implicits.*
+
 trait JSPlatformTest extends PlatformTest:
 
-  override def templates(testName: String): Set[Path] = findAll(resource(s"js/$testName")) ++
-    Set(resource("js/main.template.mjs"), resource("js/package.json"), resource("js/build-protos.js"))
+  override def programUnderTest(testName: String): Try[Path] = resource(s"js/$testName/program.mjs")
 
-  override def programUnderTest(testName: String): Path = resource(s"js/$testName/program.mjs")
+  override def templates(testName: String): Try[Set[Path]] = (
+    resource(s"js/$testName").flatMap(findAll),
+    resource("js/main.template.mjs"),
+    resource("js/package.json"),
+    resource("js/build-protos.js"),
+  ).mapN(_ + _ + _ + _)
 
   override def compile(workingDir: Path): Try[Unit] = Success(())
 

@@ -12,5 +12,5 @@ proto.TemperatureSensor.prototype.toString = function () {
 };
 
 function senseTemperature() {
-    return proto.TemperatureSensor.create({ id: `temp#${deviceId}`, temperature: deviceId * 100 });
+    return proto.TemperatureSensor.create({ id: `temp#${deviceId}`, temperature: deviceId * 10 });
 }

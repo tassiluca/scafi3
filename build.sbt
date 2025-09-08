@@ -138,7 +138,7 @@ lazy val `scafi-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
 
 lazy val `scafi-integration` = project
   .in(file("scafi-integration"))
-  .dependsOn(`scafi-distributed`.jvm)
+  .dependsOn(`scafi-distributed`.jvm % "compile->compile;test->test")
   .settings(commonDependencies)
   .settings(
     fork := false,

@@ -1,12 +1,13 @@
-package it.unibo.scafi.integration.infrastructure
+package it.unibo.scafi.integration
 
-import java.nio.file.{ Path, Paths }
+import java.nio.file.Path
 
 import scala.util.Try
 
-import it.unibo.scafi.integration.infrastructure.FileSystem
-import it.unibo.scafi.integration.infrastructure.PlatformTest.{ Pattern, Substitution, SubstitutionBuilder }
+import it.unibo.scafi.integration.FileSystem
+import it.unibo.scafi.integration.PlatformTest.{ Pattern, ProgramOutput, Substitution, SubstitutionBuilder }
 
+import cats.implicits.*
 import io.github.iltotore.iron.:|
 import io.github.iltotore.iron.constraint.string.{ EndWith, StartWith }
 import org.scalatest.matchers.should
@@ -15,34 +16,42 @@ trait PlatformTest extends should.Matchers with FileSystem:
   export PlatformTest.->
   export io.github.iltotore.iron.autoRefine
 
-  def testProgram(testName: String)(addSubstitutions: SubstitutionBuilder ?=> Unit): Try[String] =
+  def testProgram(testName: String)(addSubstitutions: SubstitutionBuilder ?=> Unit): Try[ProgramOutput] =
     given builder: SubstitutionBuilder = SubstitutionBuilder()
     addSubstitutions
     for
-      workingDir = createTempDirectory(testName)
+      workingDir <- createTempDirectory(testName)
       _ <- resolveTemplates(testName, workingDir, builder.all)
       _ <- compile(workingDir)
       out <- run(workingDir)
       _ = delete(workingDir)
     yield out.trim()
 
-  private def resolveTemplates(testName: String, workingDir: Path, substitutions: Set[Substitution]): Try[Unit] = Try:
-    templates(testName).foreach(template => copy(template, workingDir.resolve(template.getFileName)))
-    val templateFile = templates(testName)
-      .find(_.getFileName.toString.contains("template"))
-      .getOrElse(throw IllegalStateException("No template file found!"))
-    val updatedContent = substitutions.foldLeft(read(programUnderTest(testName)) ++ read(templateFile)):
-      case (content, (pattern, substitution)) =>
-        content.replace(pattern, substitution) match
-          case newContent if newContent != content => newContent
-          case _ => throw IllegalStateException(s"No pattern ${pattern} found to replace!")
-    write(workingDir.resolve(templateFile.getFileName.toString.replace(".template", "")), updatedContent)
+  private def resolveTemplates(testName: String, workingDir: Path, substitutions: Set[Substitution]): Try[Unit] =
+    for
+      templateFile <- copyTemplates(testName, workingDir)
+      programContent <- programUnderTest(testName).flatMap(read)
+      templateContent <- read(templateFile)
+      updatedContent = substitutions.foldLeft(programContent ++ templateContent):
+        case (content, (pattern, substitution)) =>
+          content.replace(pattern, substitution) match
+            case newContent if newContent != content => newContent
+            case _ => throw IllegalStateException(s"No pattern ${pattern} found to replace!")
+      mainProgramPath = workingDir.resolve(templateFile.getFileName.toString.replace(".template", ""))
+      _ <- write(mainProgramPath, updatedContent)
+    yield ()
+
+  private def copyTemplates(testName: String, workingDir: Path): Try[Path] =
+    for
+      files <- templates(testName)
+      _ <- files.toList.traverse(p => copy(p, workingDir.resolve(p.getFileName)))
+    yield files.find(_.getFileName.toString.contains("template")).getOrElse(throw IllegalStateException("No template!"))
 
   /** @return the path to the aggregate program under test, given its name. */
-  def programUnderTest(testName: String): Path
+  def programUnderTest(testName: String): Try[Path]
 
   /** The set of template files from which bootstrapping the test working directory. */
-  def templates(testName: String): Set[Path]
+  def templates(testName: String): Try[Set[Path]]
 
   /** Compile the program situated in the given [[workingDir]]. */
   def compile(workingDir: Path): Try[Unit]
@@ -50,12 +59,12 @@ trait PlatformTest extends should.Matchers with FileSystem:
   /** Run the program situated in the given [[workingDir]] and return its output. */
   def run(workingDir: Path): Try[String]
 
-  /** @return the path to a resource file named [[name]] situated in `src/test/resources`. */
-  protected def resource(name: String): Path = Paths.get(getClass.getClassLoader.getResource(name).toURI)
-
 end PlatformTest
 
 object PlatformTest:
+
+  /** The type of output produced by the program under test. */
+  type ProgramOutput = String
 
   /** A pattern is a portion of text to be replaced in a template file in the form of `{{ var }}`. */
   type Pattern = String :| (StartWith["{{"] & EndWith["}}"])
