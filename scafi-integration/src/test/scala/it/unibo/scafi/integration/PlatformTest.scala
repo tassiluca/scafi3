@@ -33,7 +33,7 @@ trait PlatformTest extends should.Matchers with FileSystem:
     addSubstitutions
     for
       workingDir <- createTempDirectory(testName)
-      _ <- resolveTemplates(testName, workingDir, builder.all)
+      _ <- resolveTemplates(testName, workingDir, builder.substitutions)
       _ <- compile(workingDir)
       out <- run(workingDir)
       _ = delete(workingDir)
@@ -85,9 +85,9 @@ object PlatformTest:
   type Substitution = (Pattern, String)
 
   class SubstitutionBuilder:
-    private var substitutions = Set.empty[Substitution]
-    private[PlatformTest] def add(key: Pattern, value: String): Unit = substitutions += ((key, value))
-    def all: Set[Substitution] = substitutions.view.toSet
+    private var _substitutions = Set.empty[Substitution]
+    private[PlatformTest] def add(key: Pattern, value: String): Unit = _substitutions += ((key, value))
+    def substitutions: Set[Substitution] = _substitutions.view.toSet
 
   extension (pattern: Pattern)
     /** Substitutes the pattern with the given value in a template file. */
