@@ -23,5 +23,5 @@ class BranchingLibraryTest extends JSLibraryTest:
 
   extension (id: Int)
     def isEven: Boolean = id % 2 == 0
-    def hasSameParityAs(other: Int): Boolean = (id % 2) == (other % 2)
+    def hasSameParityAs(other: Int): Boolean = id.isEven == other.isEven
 end BranchingLibraryTest
