@@ -1,3 +1,15 @@
+## [1.0.1](https://github.com/scafi/scafi3/compare/v1.0.0...v1.0.1) (2025-09-09)
+
+### Dependency updates
+
+* **core-deps:** update dependency scala to v3.7.3 ([c8c3daf](https://github.com/scafi/scafi3/commit/c8c3daf4be061049e23657e33214f340cda87dff))
+* **deps:** update dependency org.scala-js:sbt-scalajs to v1.20.1 ([223eab0](https://github.com/scafi/scafi3/commit/223eab0ceabc9f509ead244af326487a49cfac6a))
+* **deps:** update dependency sbt/sbt to v1.11.6 ([4b77453](https://github.com/scafi/scafi3/commit/4b77453c6d70688887bea364f5dcddf43baf04a0))
+
+### Build and continuous integration
+
+* **deps:** update nicolasfara/build-check-deploy-sbt-action action to v1.0.28 ([228bccf](https://github.com/scafi/scafi3/commit/228bccf9458456d1f7f5a7391efa2a7b4e45ae70))
+
 ## 1.0.0 (2025-09-05)
 
 ### ⚠ BREAKING CHANGES
