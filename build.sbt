@@ -1,10 +1,12 @@
+import bindgen.interface.Binding
+import org.scalajs.linker.interface.OutputPatterns
 import scala.scalanative.build.*
 import sbtcrossproject.CrossProject
-import org.scalajs.linker.interface.OutputPatterns
 
 val scala3Version = "3.7.2"
 
 ThisBuild / scalaVersion := scala3Version
+ThisBuild / name := "scafi3"
 ThisBuild / organization := "it.unibo.scafi"
 ThisBuild / homepage := Some(url("https://github.com/scafi/scafi3"))
 ThisBuild / licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
@@ -76,13 +78,28 @@ lazy val commonDependencies =
   )
 
 lazy val commonNativeSettings = Seq(
-  nativeConfig ~= {
-    _.withLTO(LTO.full)
+  nativeConfig ~= { defaultConfig =>
+    defaultConfig.withLTO(LTO.full)
       .withMode(Mode.releaseSize)
       .withGC(GC.immix)
       .withBuildTarget(BuildTarget.libraryDynamic)
+      .withCompileOptions(
+        defaultConfig.compileOptions ++ Seq(
+          "-Wall",                           // Enable all standard warnings about potential issues
+          "-Wextra",                         // Enable extra warnings
+          "-Wpedantic",                      // Enforce strict ISO C compliance
+          "-Werror",                         // Promote all warnings to compilation errors
+          "-fsanitize=address,null,thread",  // Enable sanitizers for detecting heap/stack/Global buffer overflows, 
+                                             // null pointer dereferences and thread data races
+          "-g",                              // Generate debug information (required by sanitizers)
+        )
+      )
   },
   coverageEnabled := false,
+)
+
+lazy val commonBindgenSettings = Seq(
+  scalacOptions ++= Seq(s"-Wconf:msg=unused import&src=${sourceManaged.value.getAbsolutePath}/.*:silent"),
 )
 
 lazy val commonJsSettings = Seq(
@@ -126,7 +143,18 @@ lazy val `scafi-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .in(file("scafi-mp-api"))
   .dependsOn(`scafi-core` % "compile->compile;test->test", `scafi-distributed`)
-  .nativeSettings(commonNativeSettings)
+  .enablePlugins(BindgenPlugin, VcpkgPlugin)
+  .nativeSettings(
+    commonNativeSettings,
+    commonBindgenSettings,
+    vcpkgDependencies := VcpkgDependencies("uthash"),
+    bindgenBindings ++= Seq(
+      Binding(
+        header = (Compile / resourceDirectory).value / s"${(ThisBuild / name).value}.h",
+        packageName = s"lib${(ThisBuild / name).value}"
+      ).withClangFlags(List("-I" + vcpkgConfigurator.value.includes("uthash").toString)).withExport(true)
+    )
+  )
   .jsSettings(commonJsSettings)
   .settings(commonDependencies)
   .settings(
@@ -165,13 +193,13 @@ lazy val root = project
   .enablePlugins(ScalaUnidocPlugin)
   .aggregate(
     (
-      crossProjects(`scafi-core`, `scafi-distributed`, `scafi-mp-api`) 
-      ++ 
+      crossProjects(`scafi-core`, `scafi-distributed`, `scafi-mp-api`)
+      ++
       Seq(`scafi-integration` /* :+ `alchemist-incarnation`*/)
     ).map(_.project)*
   )
   .settings(
-    name := "scafi3",
+    name := (ThisBuild / name).value,
     publish / skip := true,
     publishArtifact := false,
   )
