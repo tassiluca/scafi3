@@ -31,8 +31,7 @@ trait AggregateContext:
   def importFromInboundMessages: Import[DeviceId]
 
   /**
-   * Retrieves the [[ValueTree]] containing self-messages from the previous round used to update and evolve the local
-   * state.
+   * Retrieves the [[ValueTree]] containing self-messages from the previous round used to update the local state.
    * @return
    *   the [[ValueTree]] of self-messages from the previous round.
    */
