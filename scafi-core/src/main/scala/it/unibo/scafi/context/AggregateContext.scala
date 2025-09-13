@@ -14,7 +14,7 @@ trait AggregateContext:
   def exportFromOutboundMessages: Export[DeviceId]
 
   /**
-   * Based on the current context, produces a [[ValueTree]] containing self-messages for use in the next round.
+   * Based on the current context, produces a [[ValueTree]] containing self-messages to use in the next round.
    *
    * Unlike regular messages, self-messages are not transmitted over the network. Instead, they are propagated locally
    * and made available in the following round.
