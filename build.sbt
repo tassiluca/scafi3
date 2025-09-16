@@ -147,12 +147,12 @@ lazy val `scafi-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .nativeSettings(
     commonNativeSettings,
     commonBindgenSettings,
-    vcpkgDependencies := VcpkgDependencies("uthash"),
+    // vcpkgDependencies := VcpkgDependencies("glib"),
     bindgenBindings ++= Seq(
       Binding(
         header = (Compile / resourceDirectory).value / s"${(ThisBuild / name).value}.h",
         packageName = s"lib${(ThisBuild / name).value}"
-      ).withClangFlags(List("-I" + vcpkgConfigurator.value.includes("uthash").toString)).withExport(true)
+      ).withExport(true)
     )
   )
   .jsSettings(commonJsSettings)

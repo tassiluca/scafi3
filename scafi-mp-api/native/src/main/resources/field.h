@@ -1,25 +1,29 @@
 #ifndef SCAFI3_FIELD_H
 #define SCAFI3_FIELD_H
 
-#include <uthash.h>
+#include <stdint.h>
+#include <stddef.h>
+
+// TODO: hash and equality functions?
+typedef struct Serializable {
+    void *data;
+    size_t (*serialize)(void *data, uint8_t *buffer);
+    void *(*deserialize)(const uint8_t *buffer, size_t size);
+} Serializable;
+
+typedef struct Neighborhood Neighborhood;
+
+Serializable* neighborhood_get(const Neighborhood* neighborhood, const Serializable* key);
 
 typedef struct {
-    const void const* id;
-    const void const* value;
-    UT_hash_handle hh;
-} NeighborValue;
+    const Serializable* default_value;
+    const Neighborhood* neighbor_values;
+} SharedData;
+
+char* shared_data_to_string(const SharedData* field);
 
 typedef struct {
-    const void const* default_value;
-    const NeighborValue const* neighbor_values;
-} Field;
-
-typedef struct {
-    const Field const* (*of)(const void const* default_value);
-} FieldFactory;
-
-typedef struct {
-    const FieldFactory const* field;
+    const SharedData const* (*of)(const void const* default_value);
 } FieldBasedSharedData;
 
 #endif // SCAFI3_FIELD_H
