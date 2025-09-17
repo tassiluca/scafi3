@@ -5,8 +5,8 @@
 
 typedef struct {
     FieldBasedSharedData Field;
-    Serializable* (*local_id)();
-    SharedData* (*device_id)();
+    Serializable* (*local_id)(void);
+    SharedData* (*device_id)(void);
 } CommonLibrary;
 
 #endif // COMMON_SCAFI3_LIB_H

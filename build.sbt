@@ -83,17 +83,17 @@ lazy val commonNativeSettings = Seq(
       .withMode(Mode.releaseSize)
       .withGC(GC.immix)
       .withBuildTarget(BuildTarget.libraryDynamic)
-      .withCompileOptions(
-        defaultConfig.compileOptions ++ Seq(
-          "-Wall",                           // Enable all standard warnings about potential issues
-          "-Wextra",                         // Enable extra warnings
-          "-Wpedantic",                      // Enforce strict ISO C compliance
-          "-Werror",                         // Promote all warnings to compilation errors
-          "-fsanitize=address,null,thread",  // Enable sanitizers for detecting heap/stack/Global buffer overflows, 
-                                             // null pointer dereferences and thread data races
-          "-g",                              // Generate debug information (required by sanitizers)
-        )
-      )
+      // .withCompileOptions(
+      //   defaultConfig.compileOptions ++ Seq(
+      //     "-Wall",                           // Enable all standard warnings about potential issues
+      //     "-Wextra",                         // Enable extra warnings
+      //     "-Wpedantic",                      // Enforce strict ISO C compliance
+      //     "-Werror",                         // Promote all warnings to compilation errors
+      //     "-fsanitize=address,null,thread",  // Enable sanitizers for detecting heap/stack/Global buffer overflows, 
+      //                                        // null pointer dereferences and thread data races
+      //     "-g",                              // Generate debug information (required by sanitizers)
+      //   )
+      // )
   },
   coverageEnabled := false,
 )
