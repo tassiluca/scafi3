@@ -2,26 +2,32 @@
 #include <stdlib.h>
 #include "test.h"
 
+MAP_OF(ints, int, int)
+
 int main(void) {
-    Tuple2* t1 = pair((void*)1, (void*)2);
-    printf("(%d, %d)\n", (int)(long)fst(t1), (int)(long)snd(t1));
-
-    Tuple2* t2 = pair((void*)3, (void*)4);
-    printf("(%d, %d)\n", (int)(long)fst(t2), (int)(long)snd(t2));
-
-    Map m = map_empty();
-    Map m1 = map_put(m, (void*)1, (void*)2);
-    Map m2 = map_put(m1, (void*)3, (void*)4);
-    Map m3 = map_put(m2, (void*)10, (void*)20);
-    Map m4 = map_put(m3, (void*)1, (void*)3); // overwrite? yes
-
-    printf("map_get 1: %d\n", (int)(long)map_get(m4, (void*)1));
-    printf("map_get 3: %d\n", (int)(long)map_get(m4, (void*)3));
-    printf("map_get 10: %d\n", (int)(long)map_get(m4, (void*)10));
-
-    Map m5 = map_of((Tuple2*[]){t1, t2}, 2);
-    printf("map_of get 1: %d\n", (int)(long)map_get(m5, (void*)1));
-    printf("map_of get 3: %d\n", (int)(long)map_get(m5, (void*)3));
-
+    Map m = ints_empty();
+    int k1 = 1;
+    int v1 = 10;
+    int k2 = 2;
+    int v2 = 20;
+    m = ints_put(m, &k1, &v1);
+    m = ints_put(m, &k2, &v2);
+    int* val1 = ints_get(m, &k1);
+    int* val2 = ints_get(m, &k2);
+    printf("Key: %d, Value: %d\n", k1, *val1);
+    printf("Key: %d, Value: %d\n", k2, *val2);
+    // overwrite value for k1
+    int v1_new = 15;
+    m = ints_put(m, &k1, &v1_new);
+    val1 = ints_get(m, &k1);
+    printf("Key: %d, New Value: %d\n", k1, *val1);
+    // remove k2
+    m = ints_remove(m, &k2);
+    val2 = ints_get(m, &k2);
+    if (val2 == NULL) {
+        printf("Key: %d has been removed.\n", k2);
+    } else {
+        printf("Key: %d, Value: %d\n", k2, *val2);
+    }
     return 0;
 }
