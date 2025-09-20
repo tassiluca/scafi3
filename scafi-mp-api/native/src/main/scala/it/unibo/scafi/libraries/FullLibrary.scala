@@ -12,6 +12,7 @@ class FullLibrary(using
     with PortableFieldBasedSharedData
     with NativeTypes:
 
-  override given valueCodable[Value, Format]: UniversalCodable[Value, Format] =
-    scribe.info("Using native binary codable in full library")
-    ???
+  override given valueCodable[Value, Format]: UniversalCodable[Value, Format] = new UniversalCodable[Value, Format]:
+    override def encode(value: Value): Format = ???
+    override def decode(data: Format): Value = ???
+    override def register(value: Value): Unit = ???
