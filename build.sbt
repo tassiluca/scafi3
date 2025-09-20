@@ -88,7 +88,7 @@ lazy val commonNativeSettings = Seq(
 )
 
 lazy val commonBindgenSettings = Seq(
-  scalacOptions ++= Seq(s"-Wconf:msg=unused import&src=${sourceManaged.value.getAbsolutePath}/.*:silent"),
+  scalacOptions ++= Seq(s"-Wconf:msg=unused import&src=${sourceManaged.value.toURI.getPath}.*:silent"),
 )
 
 lazy val commonJsSettings = Seq(
