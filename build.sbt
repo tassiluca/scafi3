@@ -132,17 +132,18 @@ lazy val `scafi-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .in(file("scafi-mp-api"))
   .dependsOn(`scafi-core` % "compile->compile;test->test", `scafi-distributed`)
-  .enablePlugins(BindgenPlugin, VcpkgPlugin)
-  .nativeSettings(
-    commonNativeSettings,
-    commonBindgenSettings,
-    bindgenBindings ++= Seq(
-      Binding(
-        header = (Compile / resourceDirectory).value / s"${(ThisBuild / name).value}.h",
-        packageName = s"lib${(ThisBuild / name).value}"
-      ),
-    )
-  )
+  .nativeConfigure {
+    _.settings(
+      commonNativeSettings,
+      commonBindgenSettings,
+      bindgenBindings ++= Seq(
+        Binding(
+          header = (Compile / resourceDirectory).value / s"${(ThisBuild / name).value}.h",
+          packageName = s"lib${(ThisBuild / name).value}"
+        ),
+      )
+    ).enablePlugins(BindgenPlugin)
+  }
   .jsSettings(commonJsSettings)
   .settings(commonDependencies)
   .settings(
