@@ -83,17 +83,6 @@ lazy val commonNativeSettings = Seq(
       .withMode(Mode.releaseSize)
       .withGC(GC.immix)
       .withBuildTarget(BuildTarget.libraryDynamic)
-      // .withCompileOptions(
-      //   defaultConfig.compileOptions ++ Seq(
-      //     "-Wall",                           // Enable all standard warnings about potential issues
-      //     "-Wextra",                         // Enable extra warnings
-      //     "-Wpedantic",                      // Enforce strict ISO C compliance
-      //     "-Werror",                         // Promote all warnings to compilation errors
-      //     "-fsanitize=address,null,thread",  // Enable sanitizers for detecting heap/stack/Global buffer overflows, 
-      //                                        // null pointer dereferences and thread data races
-      //     "-g",                              // Generate debug information (required by sanitizers)
-      //   )
-      // )
   },
   coverageEnabled := false,
 )
@@ -147,12 +136,11 @@ lazy val `scafi-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .nativeSettings(
     commonNativeSettings,
     commonBindgenSettings,
-    // vcpkgDependencies := VcpkgDependencies("glib"),
     bindgenBindings ++= Seq(
       Binding(
         header = (Compile / resourceDirectory).value / s"${(ThisBuild / name).value}.h",
         packageName = s"lib${(ThisBuild / name).value}"
-      ).withExport(true)
+      ),
     )
   )
   .jsSettings(commonJsSettings)

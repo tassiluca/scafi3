@@ -1,23 +1,23 @@
-#ifndef TEST_H
-#define TEST_H
+#ifndef UTILS_H
+#define UTILS_H
 
-#include <stdarg.h>
-#include <stddef.h>
+#include "internals.h"
 
-/******************************** PAIRS ******************************************/
-
-typedef struct Tuple2* Tuple2;
-
-Tuple2 pair(void* first, void* second);
-void* fst(const Tuple2 tuple);
-void* snd(const Tuple2 tuple);
-
-/******************************** MAPS ******************************************/
-
-typedef struct Map* Map;
+#define PAIR_OF(NAME, FIRST_TYPE, SECOND_TYPE)                                  \
+    typedef Tuple2 NAME;                                                        \
+    static inline Tuple2 NAME(FIRST_TYPE* first, SECOND_TYPE* second) {         \
+        return pair((void*)first, (void*)second);                               \
+    }                                                                           \
+    static inline FIRST_TYPE* NAME##_fst(const Tuple2 tuple) {                  \
+        return (FIRST_TYPE*)fst(tuple);                                         \
+    }                                                                           \
+    static inline SECOND_TYPE* NAME##_snd(const Tuple2 tuple) {                 \
+        return (SECOND_TYPE*)snd(tuple);                                        \
+    }
 
 #define MAP_OF(NAME, KEYS_TYPE, VALUES_TYPE)                                    \
-    static inline Map NAME##_empty(void) {                                      \
+    typedef Map NAME;                                                           \
+    static inline NAME NAME##_empty(void) {                                     \
         return map_empty();                                                     \
     }                                                                           \
     static inline Map NAME##_put(Map map, KEYS_TYPE* key, VALUES_TYPE* value) { \
@@ -37,12 +37,4 @@ typedef struct Map* Map;
         return map;                                                             \
     }
 
-Map map_empty();
-
-Map map_put(Map map, void* key, void* value);
-
-Map map_remove(Map map, void* key);
-
-void* map_get(const Map map, void* key);
-
-#endif // TEST_H
+#endif // UTILS_H

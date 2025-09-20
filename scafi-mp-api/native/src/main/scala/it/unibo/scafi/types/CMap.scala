@@ -1,4 +1,4 @@
-package it.unibo.scafi.libraries.types
+package it.unibo.scafi.types
 
 import scala.language.unsafeNulls
 import scala.scalanative.unsafe.{ exported, CVoidPtr }

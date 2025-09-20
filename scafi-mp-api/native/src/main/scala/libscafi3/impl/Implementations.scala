@@ -1,15 +1,21 @@
-// package libscafi3.impl
+package libscafi3.impl
 
-// import scala.scalanative.unsafe.{ CString, Ptr }
+import scala.scalanative.unsafe.{ exported, Ptr }
 
-// import libscafi3.ExportedFunctions
-// import libscafi3.structs.{ SharedData, Neighborhood, Serializable }
+import it.unibo.scafi.runtime.NativeScafiRuntime
+import it.unibo.scafi.types.CMap
 
-// /**
-//  * Bindings for exported C functions.
-//  */
-// object Implementations extends ExportedFunctions:
+import libscafi3.all.Serializable
 
-//   override def shared_data_to_string(field: Ptr[SharedData]): CString = ???
+object ExportedNativeBindings:
 
-//   override def neighborhood_get(neighborhood: Ptr[Neighborhood], key: Ptr[Serializable]): Ptr[Serializable] = ???
+  @exported("socket_network")
+  def socketNetwork(
+      deviceId: Ptr[Serializable],
+      port: Int,
+      neighbors: CMap,
+  ) = try NativeScafiRuntime.NativeApi.socketNetwork(deviceId, port, neighbors)
+  catch
+    case e =>
+      scribe.error("Error in native socket_network", e)
+      throw e

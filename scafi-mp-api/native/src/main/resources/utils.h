@@ -4,6 +4,7 @@
 #include "internals.h"
 
 #define PAIR_OF(NAME, FIRST_TYPE, SECOND_TYPE)                                  \
+    typedef Tuple2 NAME;                                                        \
     static inline Tuple2 NAME(FIRST_TYPE* first, SECOND_TYPE* second) {         \
         return pair((void*)first, (void*)second);                               \
     }                                                                           \
@@ -15,7 +16,8 @@
     }
 
 #define MAP_OF(NAME, KEYS_TYPE, VALUES_TYPE)                                    \
-    static inline Map NAME##_empty(void) {                                      \
+    typedef Map NAME;                                                           \
+    static inline NAME NAME##_empty(void) {                                     \
         return map_empty();                                                     \
     }                                                                           \
     static inline Map NAME##_put(Map map, KEYS_TYPE* key, VALUES_TYPE* value) { \
