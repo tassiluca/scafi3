@@ -2,7 +2,7 @@ package it.unibo.scafi.types
 
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration.Duration
-import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1, CVoidPtr }
+import scala.scalanative.unsafe.CVoidPtr
 
 import it.unibo.scafi.libraries.PortableTypes
 
@@ -25,9 +25,9 @@ trait NativeTypes extends PortableTypes:
   override given [T] => Iso[Outcome[T], Future[T]] =
     Iso[Outcome[T], Future[T]](Future.successful)(Await.result(_, Duration.Inf))
 
-  override type Function0[R] = CFuncPtr0[R]
-  override given [R] => Conversion[Function0[R], () => R] = cf => () => cf()
+  override type Function0[R] = () => R
+  override given [R] => Conversion[Function0[R], () => R] = _.apply
 
-  override type Function1[T1, R] = CFuncPtr1[T1, R]
-  override given [T1, R] => Conversion[Function1[T1, R], T1 => R] = cf => (x: T1) => cf(x)
+  override type Function1[T1, R] = T1 => R
+  override given [T1, R] => Conversion[Function1[T1, R], T1 => R] = _.apply
 end NativeTypes

@@ -1,7 +1,7 @@
 package it.unibo.scafi.runtime
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
-import it.unibo.scafi.libraries.{ FullPortableLibrary, PortableTypes }
+import it.unibo.scafi.libraries.PortableTypes
 import it.unibo.scafi.message.UniversalCodable
 import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 
@@ -18,7 +18,7 @@ trait PortableRuntime:
     given [Value, Format]: UniversalCodable[Value, Format] = compiletime.deferred
 
     /** The aggregate library entry point. */
-    type AggregateLibrary <: FullPortableLibrary[?]
+    type AggregateLibrary
 
     /** @return the concrete portable aggregate library instance. */
     def library[ID]: ExchangeAggregateContext[ID] ?=> AggregateLibrary

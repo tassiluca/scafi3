@@ -11,12 +11,16 @@ struct Endpoint {
     uint16_t port;
 };
 
-MAP_OF(Connections, Serializable, struct Endpoint)
+MAP_OF(Connections, BinaryCodable, struct Endpoint)
 
-ConnectionOrientedNetworkManager* socket_network(const Serializable* device_id, int port, const Connections* neighbors);
+ConnectionOrientedNetworkManager* socket_network(
+    const BinaryCodable* device_id,
+    int port, 
+    const Connections neighbors
+);
 
 void engine(
-    const Serializable* device_id,
+    const BinaryCodable* device_id,
     const ConnectionOrientedNetworkManager* network_manager,
     const void* (*aggregate_program)(const AggregateLibrary* library),
     bool (*on_result)(const void* result)

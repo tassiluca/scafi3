@@ -6,23 +6,23 @@
 #include "utils.h"
 
 // TODO: hash and equality functions?
-typedef struct Serializable {
+typedef struct BinaryCodable {
     void *data;
     size_t (*serialize)(void *data, uint8_t *buffer);
     void* (*deserialize)(const uint8_t *buffer, size_t size);
-} Serializable;
+} BinaryCodable;
 
-MAP_OF(Neighborhood, Serializable, Serializable)
+MAP_OF(Neighborhood, BinaryCodable, BinaryCodable)
 
 typedef struct {
-    const Serializable* default_value;
-    const Neighborhood* neighbor_values;
+    const BinaryCodable* default_value;
+    const Neighborhood neighbor_values;
 } SharedData;
 
 char* shared_data_to_string(const SharedData* field);
 
 typedef struct {
-    const SharedData* (*of)(const void* default_value);
+    const SharedData* (*of)(const BinaryCodable* default_value);
 } FieldBasedSharedData;
 
 #endif // SCAFI3_FIELD_H

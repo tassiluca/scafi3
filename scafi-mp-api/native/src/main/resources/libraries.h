@@ -6,7 +6,7 @@
 typedef struct AggregateLibrary {
     FieldBasedSharedData Field;
     struct { // Common library
-        Serializable* (*local_id)(void);
+        BinaryCodable* (*local_id)(void);
         SharedData* (*device_id)(void);
     };
 } AggregateLibrary;
