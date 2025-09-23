@@ -1,3 +1,17 @@
+## [1.0.3](https://github.com/scafi/scafi3/compare/v1.0.2...v1.0.3) (2025-09-23)
+
+### Dependency updates
+
+* **deps:** update dependency org.scalameta:sbt-scalafmt to v2.5.5 ([a26b085](https://github.com/scafi/scafi3/commit/a26b0853cd9553a55112e012f642dad96dc4e763))
+
+### Bug Fixes
+
+* **core:** propagate self-messages locally between rounds without relying on the network ([#137](https://github.com/scafi/scafi3/issues/137)) ([5c99e5c](https://github.com/scafi/scafi3/commit/5c99e5c65d4b1b10799965b2e3def6981fce9384))
+
+### General maintenance
+
+* use unix lineEndings when formatting with scalafmt ([#134](https://github.com/scafi/scafi3/issues/134)) ([a81945a](https://github.com/scafi/scafi3/commit/a81945af4907f8c11b35cde482584f4617743dd1))
+
 ## [1.0.2](https://github.com/scafi/scafi3/compare/v1.0.1...v1.0.2) (2025-09-23)
 
 ### Dependency updates
