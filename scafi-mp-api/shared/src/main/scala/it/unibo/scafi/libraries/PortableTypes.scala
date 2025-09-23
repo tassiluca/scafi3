@@ -34,7 +34,7 @@ trait PortableTypes:
   type Function1[T1, R]
 
   /** Portable functions at 1-argument can be converted to Scala's `T1 => R`. */
-  given [T1, R] => Conversion[Function1[T1, R], T1 => R] = compiletime.deferred
+  given f1c[T1, R]: Conversion[Function1[T1, R], T1 => R]
 
   /**
    * A portable type representing a blocking computation that will eventually produce a value of type `T` that can be

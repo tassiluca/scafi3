@@ -1,22 +1,36 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "scafi3.h"
 
+int device_id = 100;
+int rounds = 10;
+
 bool on_result(const void* result) {
-    printf("Result reaction\n");
-    return true;
+    const BinaryCodable* local_id = (const BinaryCodable*) result;
+    printf("Result: local id is %d\n", *(int*) local_id->data);
+    return rounds-- > 0;
 }
 
 const void* aggregate_program(const AggregateLibrary* lib) {
-    sleep(1);
-    return NULL;
+    sleep(1); // slow down a bit...
+    return lib->common->local_id();
 }
 
 int main(void) {
-    const ConnectionOrientedNetworkManager* network = socket_network(NULL, 9000, Connections_empty());
-    engine(NULL, network, aggregate_program, on_result);
+    BinaryCodable bin_device_id = {
+        .data = &device_id,
+        .serialize = NULL,
+        .deserialize = NULL
+    };
+    printf("Calling with device id %p\n", &bin_device_id);
+    printf("My device id is %d\n", * (int*) bin_device_id.data);
+    const ConnectionOrientedNetworkManager* network = socket_network(&bin_device_id, 9000, Connections_empty());
+    engine(&bin_device_id, network, aggregate_program, on_result);
+    const char* result = test();
+    printf("Test result: %s\n", result);
     printf("OK!\n");
     return 0;
 }

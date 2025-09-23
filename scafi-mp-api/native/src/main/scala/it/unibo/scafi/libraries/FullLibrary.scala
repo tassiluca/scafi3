@@ -6,7 +6,7 @@ import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
-import it.unibo.scafi.types.{ ExportedNativeTypes, NativeTypes, NativeTypesConversions }
+import it.unibo.scafi.types.{ ExportedNativeTypes, LibraryRef, NativeTypes, NativeTypesConversions }
 
 class FullLibrary(using
     lang: AggregateFoundation & ExchangeSyntax & BranchingSyntax & FieldBasedSharedData,
@@ -26,5 +26,7 @@ class FullLibrary(using
       scribe.info(s"[Full library] Registering value: $value")
       ???
 
-  def asNative: Ptr[ExportedNativeTypes.CAggregateLibrary] = nativeAggregateLibrary()
+  def asNative: Ptr[ExportedNativeTypes.CAggregateLibrary] =
+    LibraryRef.fullLibrary = FullLibrary()
+    LibraryRef.nativeAggregateLibrary()
 end FullLibrary

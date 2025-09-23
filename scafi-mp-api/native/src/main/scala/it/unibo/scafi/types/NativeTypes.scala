@@ -5,6 +5,7 @@ import scala.concurrent.duration.Duration
 import scala.scalanative.unsafe.CVoidPtr
 
 import it.unibo.scafi.libraries.PortableTypes
+import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1 }
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait NativeTypes extends PortableTypes:
@@ -25,9 +26,10 @@ trait NativeTypes extends PortableTypes:
   override given [T] => Iso[Outcome[T], Future[T]] =
     Iso[Outcome[T], Future[T]](Future.successful)(Await.result(_, Duration.Inf))
 
-  override type Function0[R] = () => R
+  override type Function0[R] = CFuncPtr0[R] // () => R
   override given [R] => Conversion[Function0[R], () => R] = _.apply
 
-  override type Function1[T1, R] = T1 => R
-  override given [T1, R] => Conversion[Function1[T1, R], T1 => R] = _.apply
+  type Function1[T1, R] = CFuncPtr1[T1, R]
+  given f1c[T1, R]: Conversion[Function1[T1, R], T1 => R] with
+    inline def apply(f: Function1[T1, R]): T1 => R = f(_)
 end NativeTypes

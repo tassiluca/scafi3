@@ -17,7 +17,7 @@ trait ScafiEngineBinding extends PortableRuntime:
   trait EngineBindings(using ExecutionContext) extends Api:
     self: Requirements =>
 
-    override def engine[ID, Result](
+    inline override def engine[ID, Result](
         deviceId: ID,
         network: ConnectionOrientedNetworkManager[ID],
         program: Function1[AggregateLibrary, Result],

@@ -3,14 +3,15 @@ package it.unibo.scafi.runtime
 import java.util.concurrent.Executors
 
 import scala.concurrent.ExecutionContext
-import scala.scalanative.unsafe.{ exported, CFuncPtr1, Ptr, Zone }
+import scala.scalanative.unsafe.{ exported, Ptr }
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
+import it.unibo.scafi.libraries.FullLibrary
 import it.unibo.scafi.message.UniversalCodable
 import it.unibo.scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
 import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 import it.unibo.scafi.types.{ ExportedNativeTypes, NativeTypes }
-import it.unibo.scafi.utils.CUtils.withLogging
+import scala.scalanative.unsafe.CVoidPtr
 
 object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with ScafiEngineBinding with NativeTypes:
 
@@ -24,7 +25,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
       override def decode(data: Format): Value = ???
       override def register(value: Value): Unit = ???
 
-    override def library[ID]: ExchangeAggregateContext[ID] ?=> AggregateLibrary = null.asInstanceOf[AggregateLibrary]
+    override def library[ID]: ExchangeAggregateContext[ID] ?=> AggregateLibrary = FullLibrary().asNative
 
   object NativeApi extends Api with NetworkBindings with EngineBindings with NativeRequirements:
 
@@ -37,10 +38,10 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
 
     @exported("engine")
     def nativeEngine[ID, Result](
-        deviceId: ID,
-        network: ConnectionOrientedNetworkManager[ID],
-        program: CFuncPtr1[AggregateLibrary, Result],
-        onResult: CFuncPtr1[Result, Outcome[Boolean]],
-    ): Outcome[Unit] = withLogging(engine(deviceId, network, Zone(program(_)), onResult(_)))
+        deviceId: CVoidPtr,
+        network: ConnectionOrientedNetworkManager[CVoidPtr],
+        program: Function1[AggregateLibrary, Result],
+        onResult: Function1[Result, Outcome[Boolean]],
+    ): Outcome[Unit] = engine(deviceId, network, program, onResult)
   end NativeApi
 end NativeScafiRuntime

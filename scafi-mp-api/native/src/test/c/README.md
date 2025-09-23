@@ -6,6 +6,12 @@ To compile manually:
 clang test.c -I. -L. -lscafi-mp-api -o test -Wl,-rpath,.
 ```
 
+Complete:
+
+```bash
+rm -rf ./test && rm -rf libscafi-mp-api.dylib && cp ../../../target/scala-3.7.2/libscafi-mp-api.dylib . && clang test.c -I. -L. -lscafi-mp-api -o test -Wl,-rpath,. && ./test
+```
+
 ---
 
 ```bash
