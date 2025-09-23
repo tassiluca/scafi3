@@ -1,3 +1,21 @@
+## [1.0.2](https://github.com/scafi/scafi3/compare/v1.0.1...v1.0.2) (2025-09-23)
+
+### Dependency updates
+
+* **deps:** update dependency scalafmt to v3.9.10 ([f2d2562](https://github.com/scafi/scafi3/commit/f2d25625ca3e8ac07586bef5bf7df8d75bf0ab11))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.142 ([940fa3c](https://github.com/scafi/scafi3/commit/940fa3cedefd75e380b273c0b99eb4336485350e))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.143 ([dbaf865](https://github.com/scafi/scafi3/commit/dbaf865cbc7132b980a614aab3835315f5024158))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.144 ([01934f7](https://github.com/scafi/scafi3/commit/01934f7ec9e0b1fb1b849eae3a2f38f1f187fcab))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.145 ([d03b289](https://github.com/scafi/scafi3/commit/d03b28973b72ab8dc9609a4480c9c1b339859c27))
+
+### Documentation
+
+* use new `ReturnSending` syntax in doc examples ([#131](https://github.com/scafi/scafi3/issues/131)) ([02cd09c](https://github.com/scafi/scafi3/commit/02cd09c74c83cd7eea1c057c9d31625a6cfcd4f5))
+
+### Build and continuous integration
+
+* **deps:** update nicolasfara/build-check-deploy-sbt-action action to v1.0.29 ([55a8c20](https://github.com/scafi/scafi3/commit/55a8c20ed97921fc116b1790fddab8c5e118f525))
+
 ## [1.0.1](https://github.com/scafi/scafi3/compare/v1.0.0...v1.0.1) (2025-09-09)
 
 ### Dependency updates
