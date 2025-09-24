@@ -1,7 +1,7 @@
 #ifndef SCAFI3_FIELD_H
 #define SCAFI3_FIELD_H
 
-#include <stdint.h>
+#include <inttypes.h>
 #include <stddef.h>
 #include "utils.h"
 
