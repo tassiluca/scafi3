@@ -2,15 +2,16 @@ package it.unibo.scafi.types
 
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration.Duration
-import scala.scalanative.unsafe.CVoidPtr
+import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1, CVoidPtr }
 
 import it.unibo.scafi.libraries.PortableTypes
-import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1 }
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait NativeTypes extends PortableTypes:
 
-  // On native generic types are not supported, everything falls back to `void*`, i.e., `CVoidPtr`
+  /*
+   * On native generic types are not supported, everything falls back to `void*`, i.e., `CVoidPtr`.
+   */
 
   override type Map[K, V] = CMap
   override given [K, V] => Iso[Map[K, V], collection.immutable.Map[K, V]] =
@@ -26,10 +27,19 @@ trait NativeTypes extends PortableTypes:
   override given [T] => Iso[Outcome[T], Future[T]] =
     Iso[Outcome[T], Future[T]](Future.successful)(Await.result(_, Duration.Inf))
 
-  override type Function0[R] = CFuncPtr0[R] // () => R
-  override given [R] => Conversion[Function0[R], () => R] = _.apply
+  /* WARNING
+   * =======
+   * Note that the following conversions for portable functions needs to be inlined to work properly since
+   * the native compiler needs to generate type information (`Tag` type class) in the call site for the conversion
+   * to work properly.
+   * If the `inline` keyword is removed, compilation completes successfully but runtime execution leads to segfaults!
+   */
+
+  override type Function0[R] = CFuncPtr0[R]
+  given toScalaFunction0[R]: Conversion[Function0[R], () => R] with
+    inline def apply(f: Function0[R]): () => R = f.apply
 
   type Function1[T1, R] = CFuncPtr1[T1, R]
-  given f1c[T1, R]: Conversion[Function1[T1, R], T1 => R] with
-    inline def apply(f: Function1[T1, R]): T1 => R = f(_)
+  given toScalaFunction1[T1, R]: Conversion[Function1[T1, R], T1 => R] with
+    inline def apply(f: Function1[T1, R]): T1 => R = f.apply
 end NativeTypes

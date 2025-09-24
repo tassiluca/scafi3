@@ -1,7 +1,7 @@
 package it.unibo.scafi.runtime.bindings
 
 import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.{ Failure, Success }
+import scala.util.{ Failure, Try }
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
 import it.unibo.scafi.libraries.PortableTypes
@@ -17,6 +17,10 @@ trait ScafiEngineBinding extends PortableRuntime:
   trait EngineBindings(using ExecutionContext) extends Api:
     self: Requirements =>
 
+    /*
+     * WARNING: Inline is needed here for native platform to ensure function pointers are correctly handled at
+     * call site. Removing it does not lead to compilation errors but to runtime segfaults!
+     */
     inline override def engine[ID, Result](
         deviceId: ID,
         network: ConnectionOrientedNetworkManager[ID],
@@ -28,15 +32,15 @@ trait ScafiEngineBinding extends PortableRuntime:
           engine = ScafiEngine(deviceId, network, exchangeContextFactory)(program(library))
           result <- Future(engine.cycle())
           continue <- onResult(result)
-          _ <- if continue then round else Future.unit
+          _ <- if continue then round else Future(network.close())
         yield ()
       network
         .start()
         .flatMap(_ => round)
-        .andThen(_ => network.close())
-        .andThen:
-          case Success(_) => ()
-          case Failure(err) => Console.err.println(s"Error occurred: ${err.getMessage}")
+        .andThen(reportFailure)
     end engine
+
+    private val reportFailure: PartialFunction[Try[Unit], Unit] =
+      case Failure(err) => Console.err.println(s"Error occurred: ${err.getMessage}")
   end EngineBindings
 end ScafiEngineBinding

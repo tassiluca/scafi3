@@ -24,18 +24,6 @@ trait PortableTypes:
   /** Portable tuples of 2 elements are isomorphic to Scala's `(A, B)`. */
   given [A, B] => Iso[Tuple2[A, B], (A, B)] = compiletime.deferred
 
-  /** A portable 0-argument function type that can be used across different platforms. */
-  type Function0[R]
-
-  /** Portable functions at 0-argument can be converted to Scala's `() => R`. */
-  given [R] => Conversion[Function0[R], () => R] = compiletime.deferred
-
-  /** A portable 1-argument function type that can be used across different platforms. */
-  type Function1[T1, R]
-
-  /** Portable functions at 1-argument can be converted to Scala's `T1 => R`. */
-  given f1c[T1, R]: Conversion[Function1[T1, R], T1 => R]
-
   /**
    * A portable type representing a blocking computation that will eventually produce a value of type `T` that can be
    * used both in synchronous and asynchronous platforms where blocking is not possible.
@@ -44,4 +32,16 @@ trait PortableTypes:
 
   /** Outcomes are isomorphic to Scala's `Future`. */
   given [T] => Iso[Outcome[T], Future[T]] = compiletime.deferred
+
+  /** A portable 0-argument function type that can be used across different platforms. */
+  type Function0[R]
+
+  /** Portable functions at 0-argument can be converted to Scala's `() => R`. */
+  given toScalaFunction0[R]: Conversion[Function0[R], () => R]
+
+  /** A portable 1-argument function type that can be used across different platforms. */
+  type Function1[T1, R]
+
+  /** Portable functions at 1-argument can be converted to Scala's `T1 => R`. */
+  given toScalaFunction1[T1, R]: Conversion[Function1[T1, R], T1 => R]
 end PortableTypes

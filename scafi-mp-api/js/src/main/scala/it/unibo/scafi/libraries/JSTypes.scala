@@ -17,12 +17,6 @@ trait JSTypes extends PortableTypes:
   override type Tuple2[A, B] = js.Tuple2[A, B]
   override given [A, B] => Iso[Tuple2[A, B], (A, B)] = Iso[Tuple2[A, B], (A, B)](identity)(identity)
 
-  override type Function0[R] = js.Function0[R]
-  override given [R] => Conversion[Function0[R], () => R] = _.apply
-
-  override type Function1[T1, R] = js.Function1[T1, R]
-  override given [T1, R] => Conversion[Function1[T1, R], T1 => R] = _.apply
-
   override type Outcome[T] = js.Promise[T] | T
   override given [T] => Iso[Outcome[T], Future[T]] = Iso[Outcome[T], Future[T]] {
     case p: js.Promise[?] => p.toFuture.asInstanceOf[Future[T]]
@@ -34,4 +28,10 @@ trait JSTypes extends PortableTypes:
         case Success(value) => resolve(value)
         case Failure(exception) => reject(exception),
   )
+
+  override type Function0[R] = js.Function0[R]
+  given toScalaFunction0[R]: Conversion[Function0[R], () => R] = _.apply
+
+  override type Function1[T1, R] = js.Function1[T1, R]
+  given toScalaFunction1[T1, R]: Conversion[Function1[T1, R], T1 => R] = _.apply
 end JSTypes

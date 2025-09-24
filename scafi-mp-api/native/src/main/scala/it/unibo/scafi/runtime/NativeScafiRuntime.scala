@@ -3,7 +3,7 @@ package it.unibo.scafi.runtime
 import java.util.concurrent.Executors
 
 import scala.concurrent.ExecutionContext
-import scala.scalanative.unsafe.{ exported, Ptr }
+import scala.scalanative.unsafe.{ exported, CVoidPtr, Ptr }
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
 import it.unibo.scafi.libraries.FullLibrary
@@ -11,7 +11,6 @@ import it.unibo.scafi.message.UniversalCodable
 import it.unibo.scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
 import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 import it.unibo.scafi.types.{ ExportedNativeTypes, NativeTypes }
-import scala.scalanative.unsafe.CVoidPtr
 
 object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with ScafiEngineBinding with NativeTypes:
 
@@ -30,18 +29,18 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
   object NativeApi extends Api with NetworkBindings with EngineBindings with NativeRequirements:
 
     @exported("socket_network")
-    override def socketNetwork[ID](
-        deviceId: ID,
+    def nativeSocketNetwork(
+        deviceId: CVoidPtr,
         port: Int,
-        neighbors: Map[ID, Endpoint],
-    ): ConnectionOrientedNetworkManager[ID] = super.socketNetwork(deviceId, port, neighbors)
+        neighbors: Map[CVoidPtr, Endpoint],
+    ): ConnectionOrientedNetworkManager[CVoidPtr] = socketNetwork(deviceId, port, neighbors)
 
     @exported("engine")
-    def nativeEngine[ID, Result](
+    def nativeEngine(
         deviceId: CVoidPtr,
         network: ConnectionOrientedNetworkManager[CVoidPtr],
-        program: Function1[AggregateLibrary, Result],
-        onResult: Function1[Result, Outcome[Boolean]],
+        program: Function1[AggregateLibrary, CVoidPtr],
+        onResult: Function1[CVoidPtr, Outcome[Boolean]],
     ): Outcome[Unit] = engine(deviceId, network, program, onResult)
   end NativeApi
 end NativeScafiRuntime
