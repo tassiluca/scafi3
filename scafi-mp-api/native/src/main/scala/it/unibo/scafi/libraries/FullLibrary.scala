@@ -29,6 +29,7 @@ class FullLibrary(using
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
   def asNative: Ptr[ExportedNativeTypes.CAggregateLibrary] =
+    // TODO: handle freeing of the allocated memory
     libraryRef.set(this)
     val cAggregateLibrary: Ptr[CAggregateLibrary] = freshPointer[CAggregateLibrary]
     (!cAggregateLibrary)._1 = freshPointer[CFieldBasedSharedData]
