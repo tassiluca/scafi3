@@ -21,7 +21,7 @@ jobs:
       - name: Setup LLVM
         uses: aminya/setup-cpp@v1
         with:
-          compiler: llvm-17
+          compiler: llvm-19
           make: true
           clang: true
       - uses: nicolasfara/build-check-deploy-sbt-action@1.0.27
