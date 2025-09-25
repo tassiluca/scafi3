@@ -8,7 +8,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2025, macos-14, ubuntu-24.04]
+        include:
+          - os: windows-2025
+            llvm-version: 19
+          - os: macos-14
+            llvm-version: 17
+          - os: ubuntu-24.04
+            llvm-version: 17
     runs-on: ${{ matrix.os }}
     concurrency:
       group: build-${{ github.workflow }}-${{ matrix.os }}-${{ github.event.number || github.ref }}
@@ -21,7 +27,7 @@ jobs:
       - name: Setup LLVM
         uses: aminya/setup-cpp@v1
         with:
-          compiler: llvm-19
+          compiler: llvm-${{ matrix.llvm-version }}
           make: true
           clang: true
       - uses: nicolasfara/build-check-deploy-sbt-action@1.0.27
