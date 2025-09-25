@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
+        include: # see sn-bindgen requirements at https://sn-bindgen.indoorvivants.com/quickstart/index.html
           - os: windows-2025
             llvm-version: 19
           - os: macos-14
