@@ -3,14 +3,12 @@
 
 #include "field.h"
 
-typedef struct CommonLibrary {
-    BinaryCodable* (*local_id)(void);
-    SharedData* (*device_id)(void);
-} CommonLibrary;
-
 typedef struct AggregateLibrary {
-    FieldBasedSharedData* Field;
-    CommonLibrary* common;
+    FieldBasedSharedData Field;
+    struct {
+        BinaryCodable* (*local_id)(void);
+        SharedData* (*device_id)(void);
+    };
 } AggregateLibrary;
 
 #endif // LIBRARIES_H

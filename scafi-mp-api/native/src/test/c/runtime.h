@@ -19,8 +19,6 @@ ConnectionOrientedNetworkManager* socket_network(
     const Connections neighbors
 );
 
-char* test(void);
-
 void engine(
     const BinaryCodable* device_id,
     const ConnectionOrientedNetworkManager* network_manager,

@@ -18,7 +18,7 @@ import it.unibo.scafi.presentation.JSBinaryCodable.jsBinaryCodable
 class FullLibrary(using
     lang: AggregateFoundation & ExchangeSyntax & BranchingSyntax & FieldBasedSharedData,
 ) extends FullPortableLibrary
-    with PortableFieldBasedSharedData
+    with JSFieldBasedSharedData
     with JSTypes:
 
   override given valueCodable[Value, Format]: UniversalCodable[Value, Format] =

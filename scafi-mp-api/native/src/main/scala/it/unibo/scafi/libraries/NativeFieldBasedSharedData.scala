@@ -1,0 +1,51 @@
+package it.unibo.scafi.libraries
+
+import scala.scalanative.unsafe.{ CStruct2, CVoidPtr, Ptr }
+import scala.util.chaining.scalaUtilChainingOps
+
+import it.unibo.scafi.language.xc.FieldBasedSharedData
+import it.unibo.scafi.types.CMap
+import it.unibo.scafi.utils.CUtils.freshPointer
+
+import libscafi3.all.BinaryCodable
+
+/**
+ * A custom portable definition of a field-based `SharedData` structure for native platform.
+ */
+trait NativeFieldBasedSharedData extends PortableLibrary:
+  self: PortableTypes & PortableExchangeCalculusLibrary =>
+
+  override type Language <: AggregateFoundation & ExchangeSyntax & FieldBasedSharedData
+
+  type CNeighborhood = CMap
+
+  type CSharedData = CStruct2[
+    /* default_value */ Ptr[BinaryCodable],
+    /* neighbor_values */ CNeighborhood,
+  ]
+
+  override type SharedData[Value] = Ptr[CSharedData]
+
+  object Field:
+    /**
+     * @param default
+     *   the default value for the field
+     * @return
+     *   a new [[Field]] instance with the given default value and no neighbor values.
+     */
+    // @NativeExported
+    def of(default: CVoidPtr): SharedData[CVoidPtr] =
+      // todo: register to universal codable
+      language.sharedDataApplicative.pure(default)
+
+  override given [Value]: Iso[SharedData[Value], language.SharedData[Value]] =
+    Iso[SharedData[Value], language.SharedData[Value]](cField =>
+      val field = language.sharedDataApplicative.pure((!cField)._1.asInstanceOf[Value])
+      (!cField)._2.foldLeft(field)((f, n) => f.set(n._1.asInstanceOf[language.DeviceId], n._2.asInstanceOf[Value])),
+    )(f =>
+      freshPointer[CSharedData].tap: cField =>
+        cField._1 = f.default.asInstanceOf[Ptr[BinaryCodable]]
+        cField._2 = CMap(f.neighborValues.asInstanceOf[Map[CVoidPtr, CVoidPtr]]),
+    )
+
+end NativeFieldBasedSharedData

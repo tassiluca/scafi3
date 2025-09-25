@@ -16,7 +16,7 @@ bool on_result(const void* result) {
 
 const void* aggregate_program(const AggregateLibrary* lib) {
     sleep(1); // slow down a bit...
-    return lib->common->local_id();
+    return lib->local_id();
 }
 
 int main(void) {
@@ -29,8 +29,6 @@ int main(void) {
     printf("My device id is %d\n", * (int*) bin_device_id.data);
     const ConnectionOrientedNetworkManager* network = socket_network(&bin_device_id, 9000, Connections_empty());
     engine(&bin_device_id, network, aggregate_program, on_result);
-    const char* result = test();
-    printf("Test result: %s\n", result);
     printf("OK!\n");
     return 0;
 }
