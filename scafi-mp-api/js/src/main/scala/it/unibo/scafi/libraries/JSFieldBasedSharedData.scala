@@ -25,6 +25,7 @@ trait JSFieldBasedSharedData extends PortableLibrary:
     valueCodable.register(default)
     override def toString(): String = s"Field($default, ${neighborValues.toMap})"
 
+  @JSExport
   @JSExportAll
   object Field:
     /**
