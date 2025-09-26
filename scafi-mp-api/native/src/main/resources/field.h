@@ -9,7 +9,7 @@
 typedef struct BinaryCodable {
     void *data;
     char* type_name;
-    size_t (*encode)(void *data, uint8_t *buffer);
+    uint8_t* (*encode)(void *data, size_t *encoded_size);
     void* (*decode)(const uint8_t *buffer, size_t size);
 } BinaryCodable;
 
