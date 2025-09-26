@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <time.h>
 
 // --- Struct definitions ---
@@ -71,27 +72,44 @@ FullLibrary* create_full_library(void) {
     return lib;
 }
 
+// --- Branching tests ---
+
+void* branch(bool condition, void* (*then_branch)(void), void* (*else_branch)(void)) {
+    return condition ? then_branch() : else_branch();
+}
+
+void* left_branch(void) {
+    printf("Left branch taken!\n");
+    return "Left";
+}
+
+void* right_branch(void) {
+    printf("Right branch taken!\n");
+    return "Right";
+}
+
 // --- Test code ---
 
+// #define TEST_ANONYMOUS_STRUCTS
+
 int main(void) {
+#ifdef TEST_ANONYMOUS_STRUCTS
     srand((unsigned)time(NULL)); // seed random number generator
-
     FullLibrary* lib = create_full_library();
-
     const Person *p1 = lib->Person.of("Alice");
     const Person *p2 = lib->Person.of("Bob");
-
     printf("Created person: %s, age %d\n", p1->name, p1->age);
     printf("Created person: %s, age %d\n", p2->name, p2->age);
-
     printf("Today is %s\n", lib->today());
-
     // Free memory
     free((void*)p1->name);
     free((void*)p1);
     free((void*)p2->name);
     free((void*)p2);
     free(lib);
-
+#else
+    const void* result = branch(true, left_branch, right_branch);
+    printf("Branch result: %s\n", (const char*) result);
+#endif
     return 0;
 }

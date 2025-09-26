@@ -5,9 +5,12 @@
 
 typedef struct AggregateLibrary {
     FieldBasedSharedData Field;
-    struct {
+    struct { // Common library
         BinaryCodable* (*local_id)(void);
-        SharedData* (*device_id)(void);
+        SharedData* (*device)(void);
+    };
+    struct { // Branching library
+        void* (*branch)(bool condition, void* (*true_branch)(void), void* (*false_branch)(void));
     };
 } AggregateLibrary;
 

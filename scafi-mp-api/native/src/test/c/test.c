@@ -6,17 +6,38 @@
 #include "scafi3.h"
 
 int device_id = 100;
+int another_value = 42;
+
 int rounds = 10;
 
 bool on_result(const void* result) {
-    const BinaryCodable* local_id = (const BinaryCodable*) result;
-    printf("Result: local id is %d\n", *(int*) local_id->data);
+    printf("on_result called!\n");
+    const char* message = (const char*) result;
+    printf("Result: message is %s\n", message);
+    free((void*) message);
+    // const BinaryCodable* local_id = (const BinaryCodable*) result;
+    // printf("Result: local id is %d\n", *(int*) local_id->data);
     return rounds-- > 0;
+}
+
+void* true_branch(void) { 
+    char* message = malloc(5);
+    strcpy(message, "True");
+    printf("True branch taken %p\n", (void*) message);
+    return message; 
+}
+void* false_branch(void) { 
+    char* message = malloc(6);
+    strcpy(message, "False");
+    printf("False branch taken %p\n", (void*) message);
+    return message; 
 }
 
 const void* aggregate_program(const AggregateLibrary* lib) {
     sleep(1); // slow down a bit...
-    return lib->local_id();
+    const SharedData* sd = lib->device();
+    printf("Shared data: {default=%d}\n", *(int*) sd->default_value->data);
+    return lib->branch(device_id % 2 == 0, true_branch, false_branch);
 }
 
 int main(void) {

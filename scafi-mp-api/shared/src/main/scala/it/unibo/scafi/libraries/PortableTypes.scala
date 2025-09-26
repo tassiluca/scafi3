@@ -44,4 +44,16 @@ trait PortableTypes:
 
   /** Portable functions at 1-argument can be converted to Scala's `T1 => R`. */
   given toScalaFunction1[T1, R]: Conversion[Function1[T1, R], T1 => R]
+
+  /** A portable 2-argument function type that can be used across different platforms. */
+  type Function2[T1, T2, R]
+
+  /** Portable functions at 2-arguments can be converted to Scala's `(T1, T2) => R`. */
+  given toScalaFunction2[T1, T2, R]: Conversion[Function2[T1, T2, R], (T1, T2) => R]
+
+  /** A portable 3-argument function type that can be used across different platforms. */
+  type Function3[T1, T2, T3, R]
+
+  /** Portable functions at 3-arguments can be converted to Scala's `(T1, T2, T3) => R`. */
+  given toScalaFunction3[T1, T2, T3, R]: Conversion[Function3[T1, T2, T3, R], (T1, T2, T3) => R]
 end PortableTypes

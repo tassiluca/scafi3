@@ -34,4 +34,10 @@ trait JSTypes extends PortableTypes:
 
   override type Function1[T1, R] = js.Function1[T1, R]
   given toScalaFunction1[T1, R]: Conversion[Function1[T1, R], T1 => R] = _.apply
+
+  override type Function2[T1, T2, R] = js.Function2[T1, T2, R]
+  given toScalaFunction2[T1, T2, R]: Conversion[Function2[T1, T2, R], (T1, T2) => R] = _.apply
+
+  override type Function3[T1, T2, T3, R] = js.Function3[T1, T2, T3, R]
+  given toScalaFunction3[T1, T2, T3, R]: Conversion[Function3[T1, T2, T3, R], (T1, T2, T3) => R] = _.apply
 end JSTypes

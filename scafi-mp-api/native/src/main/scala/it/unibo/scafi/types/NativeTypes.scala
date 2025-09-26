@@ -2,7 +2,7 @@ package it.unibo.scafi.types
 
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration.Duration
-import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1, CVoidPtr }
+import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1, CFuncPtr2, CFuncPtr3, CVoidPtr }
 
 import it.unibo.scafi.libraries.PortableTypes
 
@@ -39,7 +39,17 @@ trait NativeTypes extends PortableTypes:
   given toScalaFunction0[R]: Conversion[Function0[R], () => R] with
     inline def apply(f: Function0[R]): () => R = f.apply
 
-  type Function1[T1, R] = CFuncPtr1[T1, R]
+  override type Function1[T1, R] = CFuncPtr1[T1, R]
   given toScalaFunction1[T1, R]: Conversion[Function1[T1, R], T1 => R] with
     inline def apply(f: Function1[T1, R]): T1 => R = f.apply
+
+  override type Function2[T1, T2, R] = CFuncPtr2[T1, T2, R]
+
+  given toScalaFunction2[T1, T2, R]: Conversion[Function2[T1, T2, R], (T1, T2) => R] with
+    inline def apply(f: Function2[T1, T2, R]): (T1, T2) => R = f.apply
+
+  override type Function3[T1, T2, T3, R] = CFuncPtr3[T1, T2, T3, R]
+
+  given toScalaFunction3[T1, T2, T3, R]: Conversion[Function3[T1, T2, T3, R], (T1, T2, T3) => R] with
+    inline def apply(f: Function3[T1, T2, T3, R]): (T1, T2, T3) => R = f.apply
 end NativeTypes

@@ -32,6 +32,7 @@ ThisBuild / developers := List(
   )
 )
 ThisBuild / scalacOptions ++= Seq(
+  "",
   "-Werror",
   "-Wunused:all",
   "-Wvalue-discard",
