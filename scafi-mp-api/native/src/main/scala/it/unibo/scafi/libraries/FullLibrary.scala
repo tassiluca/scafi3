@@ -26,6 +26,8 @@ class FullLibrary(using
     override def decode(data: Format): Value = ???
     override def register(value: Value): Unit = ???
 
+  type CReturnSending = ReturnSending[CVoidPtr]
+
   type CFieldBasedSharedData = CStruct1[
     /* of */ Function1[Ptr[BinaryCodable], Ptr[CSharedData]],
   ]
@@ -37,6 +39,10 @@ class FullLibrary(using
 
   type CBranchingLibrary = CStruct1[
     /* branch */ Function3[Boolean, Function0[CVoidPtr], Function0[CVoidPtr], CVoidPtr],
+  ]
+
+  type CExchangeLibrary = CStruct1[
+    /* exchange */ Function2[Ptr[CSharedData], Function1[Ptr[CSharedData], CReturnSending], Ptr[CSharedData]],
   ]
 
   type CAggregateLibrary = CStruct3[

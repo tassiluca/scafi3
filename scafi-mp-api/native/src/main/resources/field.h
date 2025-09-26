@@ -8,8 +8,9 @@
 // TODO: hash and equality functions?
 typedef struct BinaryCodable {
     void *data;
-    size_t (*serialize)(void *data, uint8_t *buffer);
-    void* (*deserialize)(const uint8_t *buffer, size_t size);
+    char* type_name;
+    size_t (*encode)(void *data, uint8_t *buffer);
+    void* (*decode)(const uint8_t *buffer, size_t size);
 } BinaryCodable;
 
 MAP_OF(Neighborhood, BinaryCodable, BinaryCodable)
