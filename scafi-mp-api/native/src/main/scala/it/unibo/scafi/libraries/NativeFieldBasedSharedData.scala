@@ -12,6 +12,7 @@ import libscafi3.all.BinaryCodable
 /**
  * A custom portable definition of a field-based `SharedData` structure for native platform.
  */
+@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait NativeFieldBasedSharedData extends PortableLibrary:
   self: PortableTypes & PortableExchangeCalculusLibrary =>
 

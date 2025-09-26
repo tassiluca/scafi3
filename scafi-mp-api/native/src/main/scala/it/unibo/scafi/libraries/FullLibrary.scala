@@ -15,6 +15,7 @@ import it.unibo.scafi.utils.CUtils.freshPointer
 
 import libscafi3.all.BinaryCodable
 
+@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 class FullLibrary(using
     lang: AggregateFoundation & ExchangeSyntax & BranchingSyntax & FieldBasedSharedData,
 ) extends FullPortableLibrary
