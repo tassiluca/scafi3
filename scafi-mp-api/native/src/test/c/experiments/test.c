@@ -92,6 +92,8 @@ void* right_branch(void) {
 
 // #define TEST_ANONYMOUS_STRUCTS
 
+// #define TEST_BRANCHING
+
 int main(void) {
 #ifdef TEST_ANONYMOUS_STRUCTS
     srand((unsigned)time(NULL)); // seed random number generator
@@ -107,9 +109,11 @@ int main(void) {
     free((void*)p2->name);
     free((void*)p2);
     free(lib);
-#else
+#elif defined(TEST_BRANCHING)
     const void* result = branch(true, left_branch, right_branch);
     printf("Branch result: %s\n", (const char*) result);
+#elif defined(TEST_EXCHANGE)
+    // Exchange test code would go here
 #endif
     return 0;
 }
