@@ -2,6 +2,7 @@ package it.unibo.scafi.types
 
 import scala.language.unsafeNulls
 import scala.scalanative.unsafe.{ exported, CVoidPtr }
+import scala.scalanative.unsafe.CFuncPtr2
 
 /**
  * A generic, C-interoperable map of elements. This map is heterogeneous: keys and values can be of different types.
@@ -16,7 +17,7 @@ import scala.scalanative.unsafe.{ exported, CVoidPtr }
  * @see
  *   companion object for exported functions callable from C/C++
  */
-class CMap(underlying: Map[CVoidPtr, CVoidPtr]) extends Map[CVoidPtr, CVoidPtr]:
+class CMap(underlying: Map[CVoidPtr, CVoidPtr]) extends scala.collection.immutable.Map[CVoidPtr, CVoidPtr]:
   export underlying.{ iterator, get, removed, updated }
 
 object CMap:
@@ -32,3 +33,11 @@ object CMap:
 
   @exported("map_get")
   def get(map: CMap, key: CVoidPtr): CVoidPtr = map.get(key).orNull
+
+  @exported("map_foreach")
+  def foreach(map: CMap, f: CFuncPtr2[CVoidPtr, CVoidPtr, Unit]): Unit =
+    println(s"> [map] iterating now...")
+    println(s"> [map] map size: ${map.size}")
+    map.iterator.foreach((k, v) => f(k, v))
+    println(s"> [map] iteration done.")
+end CMap

@@ -6,6 +6,10 @@
 
 typedef struct ReturnSendingImpl* ReturnSending;
 
+ReturnSending return_sending(void* value);
+
+ReturnSending returning_sending(void* returning, void* send);
+
 typedef struct AggregateLibrary {
     FieldBasedSharedData Field;
     struct { // Common library
@@ -19,5 +23,6 @@ typedef struct AggregateLibrary {
         SharedData* (*exchange)(const SharedData* initial, const ReturnSending (*f)(SharedData* in));
     };
 } AggregateLibrary;
+
 
 #endif // LIBRARIES_H

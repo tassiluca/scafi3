@@ -44,7 +44,7 @@ trait NativeFieldBasedSharedData extends PortableLibrary:
       val field = language.sharedDataApplicative.pure((!cField)._1.asInstanceOf[Value])
       (!cField)._2.foldLeft(field)((f, n) => f.set(n._1.asInstanceOf[language.DeviceId], n._2.asInstanceOf[Value])),
     )(f =>
-      freshPointer[CSharedData].tap: cField =>
+      freshPointer[CSharedData].tap: cField => // TODO: when to free this memory?
         cField._1 = f.default.asInstanceOf[Ptr[BinaryCodable]]
         cField._2 = CMap(f.neighborValues.asInstanceOf[Map[CVoidPtr, CVoidPtr]]),
     )

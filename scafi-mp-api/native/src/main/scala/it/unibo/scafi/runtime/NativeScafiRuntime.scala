@@ -3,11 +3,12 @@ package it.unibo.scafi.runtime
 import java.util.concurrent.Executors
 
 import scala.concurrent.ExecutionContext
-import scala.scalanative.unsafe.{ exported, CVoidPtr, Ptr }
+import scala.scalanative.unsafe.{ exported, CInt, CString, CStruct2, CVoidPtr, Ptr, fromCString }
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
 import it.unibo.scafi.libraries.FullLibrary
 import it.unibo.scafi.message.UniversalCodable
+import it.unibo.scafi.presentation.NativeBinaryCodable.nativeBinaryCodable
 import it.unibo.scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
 import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 import it.unibo.scafi.types.NativeTypes
@@ -19,21 +20,28 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
   trait NativeRequirements extends Requirements:
     type AggregateLibrary = Ptr[FullLibrary#CAggregateLibrary]
 
-    override given [Value, Format]: UniversalCodable[Value, Format] = new UniversalCodable[Value, Format]:
-      override def encode(value: Value): Format = ???
-      override def decode(data: Format): Value = ???
-      override def register(value: Value): Unit = ???
+    override given [Value, Format]: UniversalCodable[Value, Format] =
+      nativeBinaryCodable.asInstanceOf[UniversalCodable[Value, Format]]
 
     override def library[ID]: ExchangeAggregateContext[ID] ?=> AggregateLibrary = FullLibrary().asNative
 
   object NativeApi extends Api with NetworkBindings with EngineBindings with NativeRequirements:
 
+    type CEndpoint = CStruct2[
+      /* address */ CString,
+      /* port */ CInt,
+    ]
+
     @exported("socket_network")
     def nativeSocketNetwork(
         deviceId: CVoidPtr,
-        port: Int,
-        neighbors: Map[CVoidPtr, Endpoint],
-    ): ConnectionOrientedNetworkManager[CVoidPtr] = socketNetwork(deviceId, port, neighbors)
+        port: CInt,
+        neighbors: Map[CVoidPtr, Ptr[CEndpoint]],
+    ): ConnectionOrientedNetworkManager[CVoidPtr] =
+      val net = neighbors.map: (id, ep) =>
+        val e = ep.asInstanceOf[Ptr[CEndpoint]]
+        id -> Endpoint(fromCString(e._1), e._2)
+      socketNetwork(deviceId, port, net)
 
     @exported("engine")
     def nativeEngine(

@@ -80,9 +80,9 @@ lazy val commonDependencies =
 
 lazy val commonNativeSettings = Seq(
   nativeConfig ~= { defaultConfig =>
-    defaultConfig.withLTO(LTO.full)
-      .withMode(Mode.releaseSize)
-      .withGC(GC.immix)
+    defaultConfig.withLTO(LTO.none)
+      .withMode(Mode.debug)
+      .withGC(GC.none)
       .withBuildTarget(BuildTarget.libraryDynamic)
   },
   coverageEnabled := false,

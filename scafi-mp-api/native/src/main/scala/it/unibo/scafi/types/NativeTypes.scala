@@ -16,7 +16,7 @@ trait NativeTypes extends PortableTypes:
   override type Map[K, V] = CMap
   override given [K, V] => Iso[Map[K, V], collection.immutable.Map[K, V]] =
     Iso[Map[K, V], collection.immutable.Map[K, V]](
-      _.asInstanceOf[collection.immutable.Map[K, V]],
+      _.toMap.asInstanceOf[collection.immutable.Map[K, V]],
     )(m => CMap(m.asInstanceOf[collection.immutable.Map[CVoidPtr, CVoidPtr]]))
 
   override type Tuple2[A, B] = CTuple

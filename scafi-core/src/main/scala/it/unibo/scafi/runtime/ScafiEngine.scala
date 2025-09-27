@@ -19,6 +19,7 @@ final class ScafiEngine[
     val ctx: Context = factory(deviceId, network) // Here it is used the network (receive) for generate the context
     val result: Result = program(using ctx)
     val exportResult = ctx.exportFromOutboundMessages
+    println("> [engine] sending messages...")
     network.send(exportResult)
     AggregateResult(result, exportResult)
 

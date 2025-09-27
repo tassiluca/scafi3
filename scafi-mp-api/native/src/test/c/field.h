@@ -1,15 +1,16 @@
 #ifndef SCAFI3_FIELD_H
 #define SCAFI3_FIELD_H
 
-#include <stdint.h>
+#include <inttypes.h>
 #include <stddef.h>
 #include "utils.h"
 
 // TODO: hash and equality functions?
 typedef struct BinaryCodable {
     void *data;
-    size_t (*serialize)(void *data, uint8_t *buffer);
-    void* (*deserialize)(const uint8_t *buffer, size_t size);
+    char* type_name;
+    uint8_t* (*encode)(void *data, size_t *encoded_size);
+    struct BinaryCodable* (*decode)(const uint8_t *buffer, size_t size);
 } BinaryCodable;
 
 MAP_OF(Neighborhood, BinaryCodable, BinaryCodable)

@@ -23,11 +23,14 @@
     static inline Map NAME##_put(Map map, KEYS_TYPE* key, VALUES_TYPE* value) { \
         return map_put(map, (void*)key, (void*)value);                          \
     }                                                                           \
-    static inline VALUES_TYPE* NAME##_get(const Map map, KEYS_TYPE* key) {      \
+    static inline VALUES_TYPE* NAME##_get(Map map, KEYS_TYPE* key) {            \
         return (VALUES_TYPE*)map_get(map, (void*)key);                          \
     }                                                                           \
     static inline Map NAME##_remove(Map map, KEYS_TYPE* key) {                  \
         return map_remove(map, (void*)key);                                     \
+    }                                                                           \
+    static inline void NAME##_foreach(Map map, void (*f)(KEYS_TYPE* key, VALUES_TYPE* value)) { \
+        map_foreach(map, (void (*)(void*, void*))f);                          \
     }                                                                           \
     static inline Map NAME##_of(Tuple2* entries, size_t size) {                 \
         Map map = map_empty();                                                  \
