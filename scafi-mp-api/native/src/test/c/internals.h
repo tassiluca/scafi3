@@ -1,18 +1,16 @@
 #ifndef INTERNALS_H
 #define INTERNALS_H
 
-typedef struct Tuple2Impl* Tuple2;
-
-Tuple2 pair(void* first, void* second);
-void* fst(const Tuple2 tuple);
-void* snd(const Tuple2 tuple);
+#include <stdlib.h>
+#include <stdbool.h>
 
 typedef struct MapImpl* Map;
 
-Map map_empty();
-Map map_put(Map map, void* key, void* value);
-Map map_remove(Map map, void* key);
-void* map_get(const Map map, void* key);
-void map_foreach(const Map map, void (*f)(void* key, void* value));
+Map map_empty(bool (*compare_keys)(const void* key1, const void* key2));
+void map_put(Map map, const void* key, const void* value);
+void* map_get(const Map map, const void* key);
+size_t map_size(const Map map);
+void map_foreach(const Map map, void (*f)(const void* key, const void* value));
+void map_free(Map map);
 
 #endif // INTERNALS_H

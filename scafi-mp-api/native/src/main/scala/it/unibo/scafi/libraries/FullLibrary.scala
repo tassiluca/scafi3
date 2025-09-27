@@ -2,7 +2,7 @@ package it.unibo.scafi.libraries
 
 import java.util.concurrent.atomic.AtomicReference
 
-import scala.scalanative.unsafe.{ CFuncPtr0, CStruct1, CStruct2, CStruct4, CVoidPtr, Ptr }
+import scala.scalanative.unsafe.{ exported, CFuncPtr0, CFuncPtr2, CStruct1, CStruct2, CStruct4, CVoidPtr, Ptr }
 import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.language.AggregateFoundation
@@ -15,7 +15,6 @@ import it.unibo.scafi.types.{ CMap, NativeTypes }
 import it.unibo.scafi.utils.CUtils.freshPointer
 
 import libscafi3.all.BinaryCodable
-import scala.scalanative.unsafe.exported
 
 class FullLibrary(using
     lang: AggregateFoundation & ExchangeSyntax & BranchingSyntax & FieldBasedSharedData,
@@ -58,11 +57,14 @@ class FullLibrary(using
   def asNative: Ptr[CAggregateLibrary] =
     libraryRef.set(this)
     val cAggregateLibrary: Ptr[CAggregateLibrary] = freshPointer[CAggregateLibrary] // TODO: free memory
-    cAggregateLibrary._1._1 = ??? // (local: Ptr[BinaryCodable]) =>
-    // nativeBinaryCodable.register(local)
-    // freshPointer[CSharedData].tap: sd => // TODO: memory leak here
-    //   sd._1 = local
-    //   sd._2 = CMap.empty
+    cAggregateLibrary._1._1 = (local: Ptr[BinaryCodable]) =>
+      nativeBinaryCodable.register(local)
+      freshPointer[CSharedData].tap: sd => // TODO: memory leak here
+        sd._1 = local
+        sd._2 = CMap.of(
+          collection.mutable.Map.empty,
+          (!local).are_equals.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
+        )
     cAggregateLibrary._2._1 = () => libraryRef.get().localId.asInstanceOf[Ptr[BinaryCodable]]
     cAggregateLibrary._2._2 = () => libraryRef.get().device
     cAggregateLibrary._3._1 = (condition: Boolean, trueBranch: Function0[CVoidPtr], falseBranch: Function0[CVoidPtr]) =>

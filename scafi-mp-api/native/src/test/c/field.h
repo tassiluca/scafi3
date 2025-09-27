@@ -5,15 +5,17 @@
 #include <stddef.h>
 #include "utils.h"
 
-// TODO: hash and equality functions?
 typedef struct BinaryCodable {
     void *data;
     char* type_name;
     uint8_t* (*encode)(void *data, size_t *encoded_size);
-    struct BinaryCodable* (*decode)(const uint8_t *buffer, size_t size);
+    void* (*decode)(const uint8_t *buffer, size_t size);
+    bool (*are_equals)(const void* a, const void* b);
 } BinaryCodable;
 
-MAP_OF(Neighborhood, BinaryCodable, BinaryCodable)
+extern const BinaryCodable DEVICE_ID;
+
+MAP_OF(Neighborhood, BinaryCodable, BinaryCodable, DEVICE_ID.are_equals)
 
 typedef struct {
     const BinaryCodable* default_value;

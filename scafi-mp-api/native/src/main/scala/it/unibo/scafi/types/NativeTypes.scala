@@ -5,6 +5,9 @@ import scala.concurrent.duration.Duration
 import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1, CFuncPtr2, CFuncPtr3 }
 
 import it.unibo.scafi.libraries.PortableTypes
+import scala.scalanative.unsafe.CVoidPtr
+import libscafi3.structs.BinaryCodable
+import scala.scalanative.unsafe.Ptr
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait NativeTypes extends PortableTypes:
@@ -14,10 +17,18 @@ trait NativeTypes extends PortableTypes:
    */
 
   override type Map[K, V] = CMap
-  override given [K, V] => Iso[Map[K, V], collection.immutable.Map[K, V]] = ???
-  // Iso[Map[K, V], collection.immutable.Map[K, V]](
-  //   _.toMap.asInstanceOf[collection.immutable.Map[K, V]],
-  // )(m => CMap(m.asInstanceOf[collection.immutable.Map[CVoidPtr, CVoidPtr]]))
+  override given [K, V] => Iso[Map[K, V], collection.immutable.Map[K, V]] =
+    Iso[Map[K, V], collection.immutable.Map[K, V]](
+      _.toMap.asInstanceOf[collection.immutable.Map[K, V]],
+    )(m =>
+      println("!!!!")
+      CMap.of(
+        collection.mutable.Map.from(m.asInstanceOf[collection.immutable.Map[CVoidPtr, CVoidPtr]]),
+        if m.isEmpty then (_: CVoidPtr, _: CVoidPtr) => false
+        else
+          (!m.head._1.asInstanceOf[Ptr[BinaryCodable]]).are_equals.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
+      ),
+    )
 
   override type Outcome[T] = T
   override given [T] => Iso[Outcome[T], Future[T]] =

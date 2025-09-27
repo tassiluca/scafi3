@@ -11,7 +11,7 @@ struct Endpoint {
     uint16_t port;
 };
 
-MAP_OF(Connections, BinaryCodable, struct Endpoint)
+MAP_OF(Connections, BinaryCodable, struct Endpoint, DEVICE_ID.are_equals)
 
 ConnectionOrientedNetworkManager socket_network(
     const BinaryCodable* device_id,

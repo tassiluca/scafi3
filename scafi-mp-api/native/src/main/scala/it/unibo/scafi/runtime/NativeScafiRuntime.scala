@@ -3,7 +3,7 @@ package it.unibo.scafi.runtime
 import java.util.concurrent.Executors
 
 import scala.concurrent.ExecutionContext
-import scala.scalanative.unsafe.{ exported, CInt, CString, CStruct2, CVoidPtr, Ptr }
+import scala.scalanative.unsafe.{ exported, CInt, CString, CStruct2, CVoidPtr, Ptr, fromCString }
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
 import it.unibo.scafi.libraries.FullLibrary
@@ -37,11 +37,11 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
         deviceId: CVoidPtr,
         port: CInt,
         neighbors: Map[CVoidPtr, Ptr[CEndpoint]],
-    ): ConnectionOrientedNetworkManager[CVoidPtr] = ???
-    // val net = neighbors.map: (id, ep) =>
-    //   val e = ep.asInstanceOf[Ptr[CEndpoint]]
-    //   id -> Endpoint(fromCString(e._1), e._2)
-    // socketNetwork(deviceId, port, net)
+    ): ConnectionOrientedNetworkManager[CVoidPtr] =
+      val net = neighbors.toMap.map: (id, ep) =>
+        val e = ep.asInstanceOf[Ptr[CEndpoint]]
+        id -> Endpoint(fromCString(e._1), e._2)
+      socketNetwork(deviceId, port, net)
 
     @exported("engine")
     def nativeEngine(

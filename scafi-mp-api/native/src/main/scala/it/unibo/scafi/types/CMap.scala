@@ -19,11 +19,11 @@ import scala.scalanative.unsafe.Size.intToSize
  * @see
  *   companion object for exported functions callable from C/C++
  */
-class CMap(
+class CMap private (
     underlying: collection.mutable.Map[CVoidPtr, CVoidPtr],
     areEquals: CFuncPtr2[CVoidPtr, CVoidPtr, CBool],
 ):
-  export underlying.{ size, foreach, foldLeft }
+  export underlying.{ size, foreach }
 
   def update(key: CVoidPtr, value: CVoidPtr): Unit =
     findBy(key).fold(underlying.put(key, value))(k => underlying.update(k, value)): Unit
@@ -31,11 +31,21 @@ class CMap(
   def get(key: CVoidPtr): CVoidPtr = findBy(key).fold(null: CVoidPtr)(k => underlying(k))
 
   private def findBy(key: CVoidPtr): Option[CVoidPtr] = underlying.keys.find(areEquals(_, key))
+
+  def toMap: Map[CVoidPtr, CVoidPtr] = underlying.view.toMap
 object CMap:
 
   /* NOTE: Scala objects are tracked by Garbage Collector. To avoid them being collected while still in use from C
    * side (the collector cannot be aware of), we keep a reference to them in this set. */
   private val activeRefs = ConcurrentHashMap.newKeySet[CMap]()
+
+  def of(
+      underlying: collection.mutable.Map[CVoidPtr, CVoidPtr],
+      areEquals: CFuncPtr2[CVoidPtr, CVoidPtr, CBool],
+  ): CMap =
+    val map = CMap(underlying, areEquals)
+    activeRefs.add(map)
+    map
 
   @exported("map_empty")
   def empty(compareFun: CFuncPtr2[CVoidPtr, CVoidPtr, CBool]): CMap =
