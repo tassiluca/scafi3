@@ -1,8 +1,10 @@
 package it.unibo.scafi.types
 
+import java.util.concurrent.ConcurrentHashMap
+
 import scala.language.unsafeNulls
-import scala.scalanative.unsafe.{ exported, CVoidPtr }
-import scala.scalanative.unsafe.CFuncPtr2
+import scala.scalanative.unsafe.{ exported, CBool, CFuncPtr2, CSize, CVoidPtr }
+import scala.scalanative.unsafe.Size.intToSize
 
 /**
  * A generic, C-interoperable map of elements. This map is heterogeneous: keys and values can be of different types.
@@ -17,26 +19,42 @@ import scala.scalanative.unsafe.CFuncPtr2
  * @see
  *   companion object for exported functions callable from C/C++
  */
-class CMap(underlying: Map[CVoidPtr, CVoidPtr]) extends scala.collection.immutable.Map[CVoidPtr, CVoidPtr]:
-  export underlying.{ iterator, get, removed, updated }
+class CMap(
+    underlying: collection.mutable.Map[CVoidPtr, CVoidPtr],
+    areEquals: CFuncPtr2[CVoidPtr, CVoidPtr, CBool],
+):
+  export underlying.{ size, foreach, foldLeft }
 
+  def update(key: CVoidPtr, value: CVoidPtr): Unit =
+    findBy(key).fold(underlying.put(key, value))(k => underlying.update(k, value)): Unit
+
+  def get(key: CVoidPtr): CVoidPtr = findBy(key).fold(null: CVoidPtr)(k => underlying(k))
+
+  private def findBy(key: CVoidPtr): Option[CVoidPtr] = underlying.keys.find(areEquals(_, key))
 object CMap:
 
+  /* NOTE: Scala objects are tracked by Garbage Collector. To avoid them being collected while still in use from C
+   * side (the collector cannot be aware of), we keep a reference to them in this set. */
+  private val activeRefs = ConcurrentHashMap.newKeySet[CMap]()
+
   @exported("map_empty")
-  def empty: CMap = CMap(Map.empty)
+  def empty(compareFun: CFuncPtr2[CVoidPtr, CVoidPtr, CBool]): CMap =
+    val map = CMap(collection.mutable.Map.empty, compareFun)
+    activeRefs.add(map)
+    map
 
   @exported("map_put")
-  def put(map: CMap, key: CVoidPtr, value: CVoidPtr): CMap = CMap(map.updated(key, value))
-
-  @exported("map_remove")
-  def remove(map: CMap, key: CVoidPtr): CMap = CMap(map.removed(key))
+  def put(map: CMap, key: CVoidPtr, value: CVoidPtr): Unit = map.update(key, value)
 
   @exported("map_get")
-  def get(map: CMap, key: CVoidPtr): CVoidPtr = map.get(key).orNull
+  def get(map: CMap, key: CVoidPtr): CVoidPtr = map.get(key)
+
+  @exported("map_size")
+  def size(map: CMap): CSize = map.size.toCSize
 
   @exported("map_foreach")
-  def foreach(map: CMap, f: CFuncPtr2[CVoidPtr, CVoidPtr, Unit]): Unit =
-    println(s"> [map] map size: ${map.size}")
-    map.iterator.foreach((k, v) => f(k, v))
-    println(s"> [map] iteration done.")
+  def foreach(map: CMap, f: CFuncPtr2[CVoidPtr, CVoidPtr, Unit]): Unit = map.foreach(f.apply)
+
+  @exported("map_free")
+  def free(map: CMap): Unit = activeRefs.remove(map): Unit
 end CMap

@@ -32,14 +32,13 @@ ThisBuild / developers := List(
   )
 )
 ThisBuild / scalacOptions ++= Seq(
-  "",
   "-Werror",
   "-Wunused:all",
   "-Wvalue-discard",
   "-Wnonunit-statement",
   "-Yexplicit-nulls",
   "-Wsafe-init",
-  "-Ycheck-reentrant",
+  //"-Ycheck-reentrant",
   "-Xcheck-macros",
   "-rewrite",
   "-indent",
