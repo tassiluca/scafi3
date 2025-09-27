@@ -19,10 +19,6 @@ trait NativeTypes extends PortableTypes:
       _.toMap.asInstanceOf[collection.immutable.Map[K, V]],
     )(m => CMap(m.asInstanceOf[collection.immutable.Map[CVoidPtr, CVoidPtr]]))
 
-  override type Tuple2[A, B] = CTuple
-  override given [A, B] => Iso[Tuple2[A, B], (A, B)] =
-    Iso[Tuple2[A, B], (A, B)](_.asInstanceOf[(A, B)])(t => CTuple(t.asInstanceOf[(CVoidPtr, CVoidPtr)]))
-
   override type Outcome[T] = T
   override given [T] => Iso[Outcome[T], Future[T]] =
     Iso[Outcome[T], Future[T]](Future.successful)(Await.result(_, Duration.Inf))

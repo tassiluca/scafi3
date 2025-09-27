@@ -14,9 +14,6 @@ trait JSTypes extends PortableTypes:
   override given [K, V] => Iso[Map[K, V], collection.immutable.Map[K, V]] =
     Iso[Map[K, V], collection.immutable.Map[K, V]](_.toMap)(m => js.Map(m.toSeq*))
 
-  override type Tuple2[A, B] = js.Tuple2[A, B]
-  override given [A, B] => Iso[Tuple2[A, B], (A, B)] = Iso[Tuple2[A, B], (A, B)](identity)(identity)
-
   override type Outcome[T] = js.Promise[T] | T
   override given [T] => Iso[Outcome[T], Future[T]] = Iso[Outcome[T], Future[T]] {
     case p: js.Promise[?] => p.toFuture.asInstanceOf[Future[T]]

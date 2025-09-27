@@ -82,7 +82,7 @@ lazy val commonNativeSettings = Seq(
   nativeConfig ~= { defaultConfig =>
     defaultConfig.withLTO(LTO.none)
       .withMode(Mode.debug)
-      .withGC(GC.none)
+      .withGC(GC.immix)
       .withBuildTarget(BuildTarget.libraryDynamic)
   },
   coverageEnabled := false,

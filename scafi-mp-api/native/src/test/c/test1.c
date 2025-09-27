@@ -30,7 +30,6 @@ void print_neighbor(BinaryCodable* neighbor, BinaryCodable* in) {
     printf("printing neighbor\n");
     printf("  neighbor %d\n", *(int*) neighbor->data);
     printf("  has value %d\n", *(int*) in->data);
-    printf("  leaving print_neighbor\n");
     fflush(stdout);
 }
 

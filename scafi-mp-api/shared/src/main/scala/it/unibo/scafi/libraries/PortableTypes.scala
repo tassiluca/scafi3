@@ -18,12 +18,6 @@ trait PortableTypes:
   /** Portable maps are isomorphic to Scala's `collection.Map`. */
   given [K, V] => Iso[Map[K, V], collection.immutable.Map[K, V]] = compiletime.deferred
 
-  /** A portable tuple of 2 elements that can be used across different platforms. */
-  type Tuple2[A, B]
-
-  /** Portable tuples of 2 elements are isomorphic to Scala's `(A, B)`. */
-  given [A, B] => Iso[Tuple2[A, B], (A, B)] = compiletime.deferred
-
   /**
    * A portable type representing a blocking computation that will eventually produce a value of type `T` that can be
    * used both in synchronous and asynchronous platforms where blocking is not possible.

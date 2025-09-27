@@ -26,7 +26,6 @@ object NativeBinaryCodable:
       override def register(value: Ptr[BinaryCodable]): Unit = registry = registry.register(value)
 
       override def encode(value: Ptr[BinaryCodable]): Array[Byte] = Zone:
-        println(">>> Encode!")
         val typeName = fromCString((!value).type_name)
         val encodedSize = alloc[size_t]()
         val rawData = (!value).encode((!value).data, encodedSize)

@@ -36,7 +36,6 @@ object CMap:
 
   @exported("map_foreach")
   def foreach(map: CMap, f: CFuncPtr2[CVoidPtr, CVoidPtr, Unit]): Unit =
-    println(s"> [map] iterating now...")
     println(s"> [map] map size: ${map.size}")
     map.iterator.foreach((k, v) => f(k, v))
     println(s"> [map] iteration done.")
