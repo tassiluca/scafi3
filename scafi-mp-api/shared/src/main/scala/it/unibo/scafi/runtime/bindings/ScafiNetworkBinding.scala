@@ -23,13 +23,10 @@ trait ScafiNetworkBinding extends PortableRuntime:
         deviceId: ID,
         port: Int,
         neighbors: Map[ID, Endpoint],
-    ): ConnectionOrientedNetworkManager[ID] = SocketNetworkManager
-      .withFixedNeighbors(deviceId, port.refineUnsafe, neighbors.view.mapValues(endpointIso.get).toMap)
+    ): ConnectionOrientedNetworkManager[ID] =
+      val net = neighbors.view.mapValues(asInetEndpoint).toMap
+      SocketNetworkManager.withFixedNeighbors(deviceId, port.refineUnsafe, net)
 
     given ConnectionConfiguration = ConnectionConfiguration.basic
-
-    given endpointIso: Iso[Endpoint, scafi.runtime.network.sockets.InetTypes.Endpoint] = Iso((e: Endpoint) =>
-      scafi.runtime.network.sockets.InetTypes.Endpoint(e.address.refineUnsafe, e.port.refineUnsafe),
-    )(e => Endpoint(e.address, e.port))
   end NetworkBindings
 end ScafiNetworkBinding

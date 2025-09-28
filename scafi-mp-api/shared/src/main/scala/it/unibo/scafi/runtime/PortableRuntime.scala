@@ -1,9 +1,11 @@
 package it.unibo.scafi.runtime
 
-import it.unibo.scafi.context.xc.ExchangeAggregateContext
-import it.unibo.scafi.libraries.PortableTypes
-import it.unibo.scafi.message.UniversalCodable
-import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
+import it.unibo.scafi
+
+import scafi.context.xc.ExchangeAggregateContext
+import scafi.libraries.PortableTypes
+import scafi.message.UniversalCodable
+import scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 
 /**
  * Portable runtime API entry point.
@@ -26,8 +28,10 @@ trait PortableRuntime:
   trait Adts:
 
     /** A network endpoint consisting of an [[address]] and a [[port]]. */
-    @JSExport @JSExportAll
-    case class Endpoint(address: String, port: Int)
+    type Endpoint
+
+    /** Endpoint is isomorphic to [[scafi.runtime.network.sockets.InetTypes.Endpoint]]. */
+    given asInetEndpoint: Conversion[Endpoint, scafi.runtime.network.sockets.InetTypes.Endpoint] = compiletime.deferred
 
   /** The portable runtime API. */
   trait Api extends Adts:

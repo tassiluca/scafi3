@@ -43,8 +43,11 @@ object CMap:
       underlying: collection.mutable.Map[CVoidPtr, CVoidPtr],
       areEquals: CFuncPtr2[CVoidPtr, CVoidPtr, CBool],
   ): CMap =
-    val map = CMap(underlying, areEquals)
+    println("Underlying map has size " + underlying.size)
+    val map = empty(areEquals)
     activeRefs.add(map)
+    underlying.foreach(map.update)
+    println("Created map with size " + map.size)
     map
 
   @exported("map_empty")

@@ -2,7 +2,7 @@ package it.unibo.scafi.utils
 
 import scala.reflect.ClassTag
 import scala.scalanative.libc.stdlib
-import scala.scalanative.unsafe.{ alloc, sizeOf, Ptr, Zone }
+import scala.scalanative.unsafe.{ sizeOf, Ptr }
 import scala.scalanative.unsafe.Size.byteToSize
 
 import libscafi3.aliases.{ size_t, uint8_t }
@@ -57,8 +57,8 @@ object CUtils:
      * @note
      *   the pointer is allocated in the given zone and will be freed when the zone is closed.
      */
-    def toUint8Array(using Zone): Ptr[uint8_t] =
-      val ptr = alloc[uint8_t](bytes.length)
+    def toUint8Array: Ptr[uint8_t] =
+      val ptr: Ptr[uint8_t] = freshPointer[uint8_t](bytes.length)
       for i <- bytes.indices do !(ptr + i) = bytes(i).toUByte
       ptr
 

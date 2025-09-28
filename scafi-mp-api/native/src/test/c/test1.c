@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/time.h>
+#include <time.h>
 #include "scafi3.h"
 
 #define NODE1
@@ -22,7 +24,31 @@
 int local_device_id = LOCAL_ID;
 int other_device_id = OTHER_ID;
 
+// ------------------------------- UTILS -------------------------------
+
+char *get_formatted_time() {
+    static char buffer[16];  // hh:mm:ss:ms -> max 12 caratteri
+    struct timeval tv;
+    struct tm *tm_info;
+    gettimeofday(&tv, NULL);
+    tm_info = localtime(&tv.tv_sec);
+    int milliseconds = tv.tv_usec / 1000;
+    snprintf(buffer, sizeof(buffer), "%02d:%02d:%02d:%03d",
+             tm_info->tm_hour,
+             tm_info->tm_min,
+             tm_info->tm_sec,
+             milliseconds);
+    return buffer;
+}
+
 // ------------------------------- SERIALIZATION -------------------------------
+
+bool int_compare(const void* key1, const void* key2) {
+    printf("Comparing %p and %p\n", key1, key2);
+    const BinaryCodable* k1 = (const BinaryCodable*)key1;
+    const BinaryCodable* k2 = (const BinaryCodable*)key2;
+    return *(int*)k1->data == *(int*)k2->data;
+}
 
 static uint8_t* encode_int(void *data, size_t *encoded_size) {
     if (!data || !encoded_size) return NULL;
@@ -51,6 +77,7 @@ static void* decode_int(const uint8_t *buffer, size_t size) {
     bc->type_name = "int";
     bc->encode = encode_int;
     bc->decode = decode_int;
+    bc->are_equals = int_compare;
     return bc;
 }
 
@@ -75,10 +102,7 @@ const BinaryCodable OTHER_DEVICE_ID = {
 int rounds = 50;
 
 void print_neighbor(const BinaryCodable* neighbor, const BinaryCodable* in) {
-    printf("printing neighbor\n");
-    printf("  neighbor %d\n", *(int*) neighbor->data);
-    printf("  has value %d\n", *(int*) in->data);
-    fflush(stdout);
+    printf("  neighbor %d -> %d\n", *(int*) neighbor->data, *(int*) in->data);
 }
 
 void print_connections(const BinaryCodable* neighbor, const struct Endpoint* endpoint) {
@@ -86,7 +110,7 @@ void print_connections(const BinaryCodable* neighbor, const struct Endpoint* end
 }
 
 bool on_result(const void* result) {
-    printf("[%d] on_result called!\n", rounds);
+    printf("[%d] on_result called @ %s!\n", rounds, get_formatted_time());
     const SharedData* in = (const SharedData*) result;
     printf("  default value is %d\n", *(int*) in->default_value->data);
     Neighborhood_foreach(in->neighbor_values, print_neighbor);
@@ -95,14 +119,11 @@ bool on_result(const void* result) {
 }
 
 const ReturnSending on_xc(SharedData* in) {
-    printf("on_xc called!\n");
-    printf("  default value is %d\n", *(int*) in->default_value->data);
-    Neighborhood_foreach(in->neighbor_values, print_neighbor);
     return return_sending(in);
 }
 
 const void* aggregate_program(const AggregateLibrary* lib) {
-    usleep(500 * 1000);  // sleep 500 ms (500,000 microseconds)
+    usleep(1000 * 1000);  // sleep 1000 ms (1,000,000 microseconds)
     const SharedData* sd = lib->Field.of(lib->local_id());
     const SharedData* result = lib->exchange(sd, on_xc);
     free((void*) lib); // TODO: manage memory better / automatically
