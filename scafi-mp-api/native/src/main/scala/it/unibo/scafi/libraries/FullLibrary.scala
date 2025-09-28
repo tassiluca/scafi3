@@ -53,7 +53,6 @@ class FullLibrary(using
     /* exchange */ CExchangeLibrary,
   ]
 
-  @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
   def asNative: Ptr[CAggregateLibrary] =
     libraryRef.set(this)
     val cAggregateLibrary: Ptr[CAggregateLibrary] = freshPointer[CAggregateLibrary] // TODO: free memory

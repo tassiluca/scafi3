@@ -2,8 +2,8 @@ package it.unibo.scafi.utils
 
 import scala.reflect.ClassTag
 import scala.scalanative.libc.stddef.size_t
-import scala.scalanative.posix.inttypes.uint8_t
 import scala.scalanative.libc.stdlib.malloc
+import scala.scalanative.posix.inttypes.uint8_t
 import scala.scalanative.unsafe.{ alloc, sizeOf, Ptr, Zone }
 import scala.scalanative.unsafe.Size.byteToSize
 
