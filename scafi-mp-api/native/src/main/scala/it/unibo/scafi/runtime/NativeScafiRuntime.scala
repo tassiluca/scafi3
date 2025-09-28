@@ -6,6 +6,9 @@ import scala.concurrent.ExecutionContext
 import scala.scalanative.unsafe.{ exported, fromCString, CInt, CString, CStruct2, CVoidPtr, Ptr }
 
 import it.unibo.scafi
+
+import io.github.iltotore.iron.refineUnsafe
+
 import scafi.context.xc.ExchangeAggregateContext
 import scafi.libraries.FullLibrary
 import scafi.message.UniversalCodable
@@ -14,8 +17,7 @@ import scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
 import scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 import scafi.types.NativeTypes
 
-import io.github.iltotore.iron.refineUnsafe
-
+@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with ScafiEngineBinding with NativeTypes:
 
   given ExecutionContext = ExecutionContext.fromExecutor(Executors.newCachedThreadPool())

@@ -2,12 +2,11 @@ package it.unibo.scafi.types
 
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration.Duration
-import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1, CFuncPtr2, CFuncPtr3 }
+import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1, CFuncPtr2, CFuncPtr3, CVoidPtr, Ptr }
 
 import it.unibo.scafi.libraries.PortableTypes
-import scala.scalanative.unsafe.CVoidPtr
+
 import libscafi3.structs.BinaryCodable
-import scala.scalanative.unsafe.Ptr
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait NativeTypes extends PortableTypes:

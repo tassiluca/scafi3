@@ -28,11 +28,12 @@ class CMap private (
   def update(key: CVoidPtr, value: CVoidPtr): Unit =
     findBy(key).fold(underlying.put(key, value))(k => underlying.update(k, value)): Unit
 
-  def get(key: CVoidPtr): CVoidPtr = findBy(key).fold(null: CVoidPtr)(k => underlying(k))
+  def get(key: CVoidPtr): Option[CVoidPtr] = findBy(key).map(underlying)
 
   private def findBy(key: CVoidPtr): Option[CVoidPtr] = underlying.keys.find(areEquals(_, key))
 
   def toMap: Map[CVoidPtr, CVoidPtr] = underlying.view.toMap
+
 object CMap:
 
   /* NOTE: Scala objects are tracked by Garbage Collector. To avoid them being collected while still in use from C
@@ -60,7 +61,7 @@ object CMap:
   def put(map: CMap, key: CVoidPtr, value: CVoidPtr): Unit = map.update(key, value)
 
   @exported("map_get")
-  def get(map: CMap, key: CVoidPtr): CVoidPtr = map.get(key)
+  def get(map: CMap, key: CVoidPtr): CVoidPtr = map.get(key).orNull
 
   @exported("map_size")
   def size(map: CMap): CSize = map.size.toCSize
