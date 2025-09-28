@@ -8,6 +8,7 @@ import it.unibo.scafi.types.CMap
 import it.unibo.scafi.utils.CUtils.freshPointer
 
 import libscafi3.all.BinaryCodable
+import it.unibo.scafi.types.EqPtr
 
 /**
  * A custom portable definition of a field-based `SharedData` structure for native platform.
@@ -42,21 +43,20 @@ trait NativeFieldBasedSharedData extends PortableLibrary:
   override given [Value]: Iso[SharedData[Value], language.SharedData[Value]] =
     Iso[SharedData[Value], language.SharedData[Value]](cField =>
       val field = language.sharedDataApplicative.pure((!cField)._1.asInstanceOf[Value])
-      (!cField)._2.toMap.foldLeft(field)((f, n) =>
+      (!cField)._2.toScalaMap.foldLeft(field)((f, n) =>
         f.set(n._1.asInstanceOf[language.DeviceId], n._2.asInstanceOf[Value]),
       ),
     )(f =>
-      freshPointer[CSharedData].tap:
-        cField => // TODO: when to free this memory?
-          cField._1 = f.default.asInstanceOf[Ptr[BinaryCodable]]
-          cField._2 = CMap.of(
-            collection.mutable.Map.from(f.neighborValues.asInstanceOf[collection.immutable.Map[CVoidPtr, CVoidPtr]]),
-            if f.neighborValues.isEmpty
-            then (_: CVoidPtr, _: CVoidPtr) => false
-            else
-              (!f.neighborValues.head._1.asInstanceOf[Ptr[BinaryCodable]]).are_equals
-                .asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
-          ),
+      freshPointer[CSharedData].tap: cField => // TODO: when to free this memory?
+        cField._1 = f.default.asInstanceOf[Ptr[BinaryCodable]]
+        cField._2 = CMap.of(
+          collection.mutable.Map
+            .from(f.neighborValues.asInstanceOf[collection.immutable.Map[EqPtr, CVoidPtr]])
+            .map((k, v) => (k.ptr, v)),
+          if f.neighborValues.isEmpty
+          then (_: CVoidPtr, _: CVoidPtr) => false
+          else f.neighborValues.head._1.asInstanceOf[EqPtr].areEquals,
+        ),
     )
 
 end NativeFieldBasedSharedData

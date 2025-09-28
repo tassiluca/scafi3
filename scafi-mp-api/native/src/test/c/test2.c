@@ -10,13 +10,13 @@
 #define NODE2
 
 #ifdef NODE1
-    #define LOCAL_ID 100
-    #define OTHER_ID 200
+    #define LOCAL_ID 1
+    #define OTHER_ID 2
     #define PORT 9000
     #define OTHER_PORT 9001
 #else
-    #define LOCAL_ID 200
-    #define OTHER_ID 100
+    #define LOCAL_ID 2
+    #define OTHER_ID 1
     #define PORT 9001
     #define OTHER_PORT 9000
 #endif
@@ -44,7 +44,6 @@ char *get_formatted_time() {
 // ------------------------------- SERIALIZATION -------------------------------
 
 bool int_compare(const void* key1, const void* key2) {
-    printf("Comparing %p and %p\n", key1, key2);
     const BinaryCodable* k1 = (const BinaryCodable*)key1;
     const BinaryCodable* k2 = (const BinaryCodable*)key2;
     return *(int*)k1->data == *(int*)k2->data;

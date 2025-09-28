@@ -3,11 +3,13 @@ package it.unibo.scafi.runtime
 import java.util.concurrent.Executors
 
 import scala.concurrent.ExecutionContext
-import scala.scalanative.unsafe.{ exported, fromCString, CInt, CString, CStruct2, CVoidPtr, Ptr }
+import scala.scalanative.unsafe.{ exported, fromCString, CFuncPtr2, CInt, CString, CStruct2, CVoidPtr, Ptr }
 
 import it.unibo.scafi
+import it.unibo.scafi.types.EqPtr
 
 import io.github.iltotore.iron.refineUnsafe
+import libscafi3.structs.BinaryCodable
 
 import scafi.context.xc.ExchangeAggregateContext
 import scafi.libraries.FullLibrary
@@ -25,10 +27,26 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
   trait NativeRequirements extends Requirements:
     type AggregateLibrary = Ptr[FullLibrary#CAggregateLibrary]
 
-    override given [Value, Format]: UniversalCodable[Value, Format] =
-      nativeBinaryCodable.asInstanceOf[UniversalCodable[Value, Format]]
+    override given [Value, Format]: UniversalCodable[Value, Format] = new UniversalCodable[Value, Format]:
+      override def register(value: Value): Unit = value match
+        case eq: EqPtr => nativeBinaryCodable.register(eq.ptr.asInstanceOf[Ptr[BinaryCodable]])
+        case _ =>
+          scribe.warn("Registering a Ptr[?] without EqPtr. This should not happen")
+          ???
+      override def encode(value: Value): Format = value match
+        case eq: EqPtr => nativeBinaryCodable.encode(eq.ptr.asInstanceOf[Ptr[BinaryCodable]]).asInstanceOf[Format]
+        case _ =>
+          scribe.warn("Encoding a Ptr[?] without EqPtr. This should not happen")
+          ???
+      override def decode(bytes: Format): Value =
+        val binaryCodableInstance = nativeBinaryCodable.decode(bytes.asInstanceOf[Array[Byte]])
+        EqPtr(
+          binaryCodableInstance.asInstanceOf[CVoidPtr],
+          (!binaryCodableInstance).are_equals.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
+        ).asInstanceOf[Value]
 
     override def library[ID]: ExchangeAggregateContext[ID] ?=> AggregateLibrary = FullLibrary().asNative
+  end NativeRequirements
 
   trait NativeAdts extends Adts:
     override type Endpoint = Ptr[
@@ -48,14 +66,29 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
         deviceId: CVoidPtr,
         port: CInt,
         neighbors: Map[CVoidPtr, Endpoint],
-    ): ConnectionOrientedNetworkManager[CVoidPtr] = socketNetwork(deviceId, port, neighbors)
+    ): ConnectionOrientedNetworkManager[EqPtr] = socketNetwork(
+      EqPtr(
+        deviceId,
+        (!deviceId.asInstanceOf[Ptr[BinaryCodable]]).are_equals.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
+      ),
+      port,
+      neighbors,
+    )
 
     @exported("engine")
     def nativeEngine(
         deviceId: CVoidPtr,
-        network: ConnectionOrientedNetworkManager[CVoidPtr],
+        network: ConnectionOrientedNetworkManager[EqPtr],
         program: Function1[AggregateLibrary, CVoidPtr],
         onResult: Function1[CVoidPtr, Outcome[Boolean]],
-    ): Outcome[Unit] = engine(deviceId, network, program, onResult)
+    ): Outcome[Unit] = engine(
+      EqPtr(
+        deviceId,
+        (!deviceId.asInstanceOf[Ptr[BinaryCodable]]).are_equals.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
+      ),
+      network,
+      program,
+      onResult,
+    )
   end NativeApi
 end NativeScafiRuntime

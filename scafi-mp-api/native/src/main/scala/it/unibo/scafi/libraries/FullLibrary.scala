@@ -15,6 +15,7 @@ import it.unibo.scafi.types.{ CMap, NativeTypes }
 import it.unibo.scafi.utils.CUtils.freshPointer
 
 import libscafi3.all.BinaryCodable
+import it.unibo.scafi.types.EqPtr
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 class FullLibrary(using
@@ -66,7 +67,7 @@ class FullLibrary(using
           collection.mutable.Map.empty,
           (!local).are_equals.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
         )
-    cAggregateLibrary._2._1 = () => libraryRef.get().localId.asInstanceOf[Ptr[BinaryCodable]]
+    cAggregateLibrary._2._1 = () => libraryRef.get().localId.asInstanceOf[EqPtr].ptr.asInstanceOf[Ptr[BinaryCodable]]
     cAggregateLibrary._2._2 = () => libraryRef.get().device
     cAggregateLibrary._3._1 = (condition: Boolean, trueBranch: Function0[CVoidPtr], falseBranch: Function0[CVoidPtr]) =>
       libraryRef.get().branch_(condition)(trueBranch)(falseBranch)

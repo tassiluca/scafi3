@@ -6,6 +6,13 @@ import scala.language.unsafeNulls
 import scala.scalanative.unsafe.{ exported, CBool, CFuncPtr2, CSize, CVoidPtr }
 import scala.scalanative.unsafe.Size.intToSize
 
+class EqPtr(val ptr: CVoidPtr, val areEquals: CFuncPtr2[CVoidPtr, CVoidPtr, CBool]):
+  override def equals(obj: Any): Boolean = obj match
+    case other: EqPtr => areEquals(this.ptr, other.ptr)
+    case _ => false
+  override def hashCode(): Int = 42 // consistent with equals but bad for hash distribution
+  override def toString: String = s"EquivalentPtr($ptr)"
+
 /**
  * A generic, C-interoperable map of elements. This map is heterogeneous: keys and values can be of different types.
  * Internally, it only stores raw `void*` pointers to the actual values, so callers are responsible for ensuring that
@@ -32,7 +39,8 @@ class CMap private (
 
   private def findBy(key: CVoidPtr): Option[CVoidPtr] = underlying.keys.find(areEquals(_, key))
 
-  def toMap: Map[CVoidPtr, CVoidPtr] = underlying.view.toMap
+  def toScalaMap: Map[EqPtr, CVoidPtr] = underlying.view.map((k, v) => (EqPtr(k, areEquals), v)).toMap
+end CMap
 
 object CMap:
 
