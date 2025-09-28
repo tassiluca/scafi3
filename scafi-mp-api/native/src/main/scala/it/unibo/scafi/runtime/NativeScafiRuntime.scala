@@ -3,13 +3,13 @@ package it.unibo.scafi.runtime
 import java.util.concurrent.Executors
 
 import scala.concurrent.ExecutionContext
-import scala.scalanative.unsafe.{ exported, fromCString, CFuncPtr2, CInt, CString, CStruct2, CVoidPtr, Ptr }
+import scala.scalanative.unsafe.{ exported, fromCString, CInt, CString, CStruct2, CVoidPtr, Ptr }
 
 import it.unibo.scafi
-import it.unibo.scafi.types.EqPtr
+import it.unibo.scafi.types.{ CBinaryCodable, EqPtr }
+import it.unibo.scafi.types.CBinaryCodable.equalsFn
 
 import io.github.iltotore.iron.refineUnsafe
-import libscafi3.structs.BinaryCodable
 
 import scafi.context.xc.ExchangeAggregateContext
 import scafi.libraries.FullLibrary
@@ -29,12 +29,12 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
 
     override given [Value, Format]: UniversalCodable[Value, Format] = new UniversalCodable[Value, Format]:
       override def register(value: Value): Unit = value match
-        case eq: EqPtr => nativeBinaryCodable.register(eq.ptr.asInstanceOf[Ptr[BinaryCodable]])
+        case eq: EqPtr => nativeBinaryCodable.register(eq.ptr.asInstanceOf[Ptr[CBinaryCodable]])
         case _ =>
           scribe.warn("Registering a Ptr[?] without EqPtr. This should not happen")
           ???
       override def encode(value: Value): Format = value match
-        case eq: EqPtr => nativeBinaryCodable.encode(eq.ptr.asInstanceOf[Ptr[BinaryCodable]]).asInstanceOf[Format]
+        case eq: EqPtr => nativeBinaryCodable.encode(eq.ptr.asInstanceOf[Ptr[CBinaryCodable]]).asInstanceOf[Format]
         case _ =>
           scribe.warn("Encoding a Ptr[?] without EqPtr. This should not happen")
           ???
@@ -42,7 +42,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
         val binaryCodableInstance = nativeBinaryCodable.decode(bytes.asInstanceOf[Array[Byte]])
         EqPtr(
           binaryCodableInstance.asInstanceOf[CVoidPtr],
-          (!binaryCodableInstance).equals_fn.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
+          binaryCodableInstance.equalsFn,
         ).asInstanceOf[Value]
 
     override def library[ID]: ExchangeAggregateContext[ID] ?=> AggregateLibrary = FullLibrary().asNative
@@ -66,14 +66,8 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
         deviceId: CVoidPtr,
         port: CInt,
         neighbors: Map[CVoidPtr, Endpoint],
-    ): ConnectionOrientedNetworkManager[EqPtr] = socketNetwork(
-      EqPtr(
-        deviceId,
-        (!deviceId.asInstanceOf[Ptr[BinaryCodable]]).equals_fn.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
-      ),
-      port,
-      neighbors,
-    )
+    ): ConnectionOrientedNetworkManager[EqPtr] =
+      socketNetwork(EqPtr(deviceId, deviceId.asInstanceOf[Ptr[CBinaryCodable]].equalsFn), port, neighbors)
 
     @exported("engine")
     def nativeEngine(
@@ -81,14 +75,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
         network: ConnectionOrientedNetworkManager[EqPtr],
         program: Function1[AggregateLibrary, CVoidPtr],
         onResult: Function1[CVoidPtr, Outcome[Boolean]],
-    ): Outcome[Unit] = engine(
-      EqPtr(
-        deviceId,
-        (!deviceId.asInstanceOf[Ptr[BinaryCodable]]).equals_fn.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
-      ),
-      network,
-      program,
-      onResult,
-    )
+    ): Outcome[Unit] =
+      engine(EqPtr(deviceId, deviceId.asInstanceOf[Ptr[CBinaryCodable]].equalsFn), network, program, onResult)
   end NativeApi
 end NativeScafiRuntime

@@ -1,4 +1,3 @@
-import bindgen.interface.Binding
 import org.scalajs.linker.interface.OutputPatterns
 import scala.scalanative.build.*
 import sbtcrossproject.CrossProject
@@ -132,18 +131,7 @@ lazy val `scafi-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .in(file("scafi-mp-api"))
   .dependsOn(`scafi-core` % "compile->compile;test->test", `scafi-distributed`)
-  .nativeConfigure {
-    _.settings(
-      commonNativeSettings,
-      commonBindgenSettings,
-      bindgenBindings ++= Seq(
-        Binding(
-          header = (Compile / resourceDirectory).value / s"${(ThisBuild / name).value}.h",
-          packageName = s"lib${(ThisBuild / name).value}"
-        ),
-      )
-    ).enablePlugins(BindgenPlugin)
-  }
+  .nativeSettings(commonNativeSettings)
   .jsSettings(commonJsSettings)
   .settings(commonDependencies)
   .settings(

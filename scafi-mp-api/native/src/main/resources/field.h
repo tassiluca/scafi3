@@ -9,14 +9,13 @@ typedef struct BinaryCodable {
     void *data;
     char* type_name;
     uint8_t* (*encode)(void *data, size_t *encoded_size);
-    void* (*decode)(const uint8_t *buffer, size_t size);
-    bool (*equals_fn)(const void* a, const void* b);
-    size_t (*hash_fn)(const void* a);
+    struct BinaryCodable* (*decode)(const uint8_t *buffer, size_t size);
+    bool (*equals)(const void* a, const void* b);
 } BinaryCodable;
 
 extern const BinaryCodable DEVICE_ID;
 
-MAP_OF(Neighborhood, BinaryCodable, BinaryCodable, DEVICE_ID.equals_fn)
+MAP_OF(Neighborhood, BinaryCodable, BinaryCodable, DEVICE_ID.equals)
 
 typedef struct {
     const BinaryCodable* default_value;

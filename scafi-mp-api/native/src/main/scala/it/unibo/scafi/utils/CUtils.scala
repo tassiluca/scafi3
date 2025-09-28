@@ -2,10 +2,10 @@ package it.unibo.scafi.utils
 
 import scala.reflect.ClassTag
 import scala.scalanative.libc.stddef.size_t
+import scala.scalanative.posix.inttypes.uint8_t
 import scala.scalanative.libc.stdlib.malloc
 import scala.scalanative.unsafe.{ alloc, sizeOf, Ptr, Zone }
 import scala.scalanative.unsafe.Size.byteToSize
-import scala.scalanative.unsigned.UByte
 
 /** A bunch of utilities for C interop. */
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf", "scalafix:DisableSyntax.null"))
@@ -57,12 +57,12 @@ object CUtils:
      * @note
      *   the pointer is allocated in the given zone and will be freed when the zone is closed.
      */
-    def toUint8Array(using Zone): Ptr[UByte] =
-      val ptr = alloc[UByte](bytes.length)
+    def toUint8Array(using Zone): Ptr[uint8_t] =
+      val ptr = alloc[uint8_t](bytes.length)
       for i <- bytes.indices do !(ptr + i) = bytes(i).toUByte
       ptr
 
-  extension (ptr: Ptr[UByte])
+  extension (ptr: Ptr[uint8_t])
 
     /**
      * Convert a pointer to `uint8_t` to an array of bytes.

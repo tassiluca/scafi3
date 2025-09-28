@@ -11,10 +11,9 @@ import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
 import it.unibo.scafi.libraries.FullLibrary.libraryRef
 import it.unibo.scafi.presentation.NativeBinaryCodable.nativeBinaryCodable
-import it.unibo.scafi.types.{ CMap, EqPtr, NativeTypes }
+import it.unibo.scafi.types.{ CBinaryCodable, CMap, EqPtr, NativeTypes }
+import it.unibo.scafi.types.CBinaryCodable.equalsFn
 import it.unibo.scafi.utils.CUtils.freshPointer
-
-import libscafi3.all.BinaryCodable
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 class FullLibrary(using
@@ -29,11 +28,11 @@ class FullLibrary(using
   type CReturnSending[T] = ReturnSending[T]
 
   type CFieldBasedSharedData = CStruct1[
-    /* of */ Function1[Ptr[BinaryCodable], Ptr[CSharedData]],
+    /* of */ Function1[Ptr[CBinaryCodable], Ptr[CSharedData]],
   ]
 
   type CCommonLibrary = CStruct2[
-    /* local_id */ Function0[Ptr[BinaryCodable]],
+    /* local_id */ Function0[Ptr[CBinaryCodable]],
     /* device_id */ Function0[Ptr[CSharedData]],
   ]
 
@@ -58,15 +57,15 @@ class FullLibrary(using
   def asNative: Ptr[CAggregateLibrary] =
     libraryRef.set(this)
     val cAggregateLibrary: Ptr[CAggregateLibrary] = freshPointer[CAggregateLibrary] // TODO: free memory
-    cAggregateLibrary._1._1 = (local: Ptr[BinaryCodable]) =>
+    cAggregateLibrary._1._1 = (local: Ptr[CBinaryCodable]) =>
       nativeBinaryCodable.register(local)
       freshPointer[CSharedData].tap: sd => // TODO: memory leak here
         sd._1 = local
         sd._2 = CMap(
           collection.mutable.Map.empty,
-          (!local).equals_fn.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
+          local.equalsFn.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
         )
-    cAggregateLibrary._2._1 = () => libraryRef.get().localId.asInstanceOf[EqPtr].ptr.asInstanceOf[Ptr[BinaryCodable]]
+    cAggregateLibrary._2._1 = () => libraryRef.get().localId.asInstanceOf[EqPtr].ptr.asInstanceOf[Ptr[CBinaryCodable]]
     cAggregateLibrary._2._2 = () => libraryRef.get().device
     cAggregateLibrary._3._1 = (condition: Boolean, trueBranch: Function0[CVoidPtr], falseBranch: Function0[CVoidPtr]) =>
       libraryRef.get().branch_(condition)(trueBranch)(falseBranch)

@@ -3,10 +3,6 @@
 
 #include "internals.h"
 
-bool int_compare(const void* key1, const void* key2) {
-    return *(int*)key1 == *(int*)key2;
-}
-
 #define MAP_OF(Name, KeysType, ValuesType, CompareFunc)                                     \
     typedef Map Name;                                                                       \
     static inline Name Name##_empty() {                                                     \
