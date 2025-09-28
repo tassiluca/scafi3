@@ -19,10 +19,10 @@ trait NativeTypes extends PortableTypes:
       _.toScalaMap.asInstanceOf[collection.immutable.Map[K, V]],
     )(m =>
       println("!!!!")
-      CMap.of(
+      CMap(
         collection.mutable.Map.from(m.asInstanceOf[collection.immutable.Map[EqPtr, CVoidPtr]].map(_.ptr -> _)),
         if m.isEmpty then (_: CVoidPtr, _: CVoidPtr) => false
-        else m.head._1.asInstanceOf[EqPtr].areEquals,
+        else m.head._1.asInstanceOf[EqPtr].equals,
       ),
     )
 

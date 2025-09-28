@@ -42,7 +42,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
         val binaryCodableInstance = nativeBinaryCodable.decode(bytes.asInstanceOf[Array[Byte]])
         EqPtr(
           binaryCodableInstance.asInstanceOf[CVoidPtr],
-          (!binaryCodableInstance).are_equals.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
+          (!binaryCodableInstance).equals_fn.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
         ).asInstanceOf[Value]
 
     override def library[ID]: ExchangeAggregateContext[ID] ?=> AggregateLibrary = FullLibrary().asNative
@@ -69,7 +69,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
     ): ConnectionOrientedNetworkManager[EqPtr] = socketNetwork(
       EqPtr(
         deviceId,
-        (!deviceId.asInstanceOf[Ptr[BinaryCodable]]).are_equals.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
+        (!deviceId.asInstanceOf[Ptr[BinaryCodable]]).equals_fn.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
       ),
       port,
       neighbors,
@@ -84,7 +84,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
     ): Outcome[Unit] = engine(
       EqPtr(
         deviceId,
-        (!deviceId.asInstanceOf[Ptr[BinaryCodable]]).are_equals.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
+        (!deviceId.asInstanceOf[Ptr[BinaryCodable]]).equals_fn.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
       ),
       network,
       program,

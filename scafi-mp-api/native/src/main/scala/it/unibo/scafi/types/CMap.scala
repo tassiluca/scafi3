@@ -5,31 +5,25 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.language.unsafeNulls
 import scala.scalanative.unsafe.{ exported, CBool, CFuncPtr2, CSize, CVoidPtr }
 import scala.scalanative.unsafe.Size.intToSize
-
-class EqPtr(val ptr: CVoidPtr, val areEquals: CFuncPtr2[CVoidPtr, CVoidPtr, CBool]):
-  override def equals(obj: Any): Boolean = obj match
-    case other: EqPtr => areEquals(this.ptr, other.ptr)
-    case _ => false
-  override def hashCode(): Int = 42 // consistent with equals but bad for hash distribution
-  override def toString: String = s"EquivalentPtr($ptr)"
+import scala.util.chaining.scalaUtilChainingOps
 
 /**
- * A generic, C-interoperable map of elements. This map is heterogeneous: keys and values can be of different types.
- * Internally, it only stores raw `void*` pointers to the actual values, so callers are responsible for ensuring that
- * the pointers are of coherent types. Dereferencing or misinterpreting these pointers can result in undefined or unsafe
- * behavior.
+ * A generic, C-interoperable map of elements. This map is heterogeneous: values can be of different types. Internally,
+ * it only stores raw `void*` pointers to the actual values, so callers are responsible for ensuring that the pointers
+ * are of coherent types. Dereferencing or misinterpreting these pointers can result in undefined or unsafe behavior. To
+ * allow for key comparison, a function pointer is provided that defines how to compare two keys for equality.
  * @note
  *   Unlike Scala's `Map`, this container does not enforce type safety at compile time and is intended primarily as a
  *   low-level, flexible utility for C/C++ interoperability.
  * @param underlying
  *   the underlying Scala Native map implementation delegating the operations to
+ * @param areEquals
+ *   a function pointer to compare two keys for equality. This function should return true if the keys are equal, false
+ *   otherwise.
  * @see
- *   companion object for exported functions callable from C/C++
+ *   companion object for exported functions callable from C/C++.
  */
-class CMap private (
-    underlying: collection.mutable.Map[CVoidPtr, CVoidPtr],
-    areEquals: CFuncPtr2[CVoidPtr, CVoidPtr, CBool],
-):
+class CMap private (underlying: collection.mutable.Map[CVoidPtr, CVoidPtr], equals: CEquals):
   export underlying.{ size, foreach }
 
   def update(key: CVoidPtr, value: CVoidPtr): Unit =
@@ -37,9 +31,9 @@ class CMap private (
 
   def get(key: CVoidPtr): Option[CVoidPtr] = findBy(key).map(underlying)
 
-  private def findBy(key: CVoidPtr): Option[CVoidPtr] = underlying.keys.find(areEquals(_, key))
+  private def findBy(key: CVoidPtr): Option[CVoidPtr] = underlying.keys.find(equals(_, key))
 
-  def toScalaMap: Map[EqPtr, CVoidPtr] = underlying.view.map((k, v) => (EqPtr(k, areEquals), v)).toMap
+  def toScalaMap: Map[EqPtr, CVoidPtr] = underlying.view.map(EqPtr(_, equals) -> _).toMap
 end CMap
 
 object CMap:
@@ -48,22 +42,14 @@ object CMap:
    * side (the collector cannot be aware of), we keep a reference to them in this set. */
   private val activeRefs = ConcurrentHashMap.newKeySet[CMap]()
 
-  def of(
-      underlying: collection.mutable.Map[CVoidPtr, CVoidPtr],
-      areEquals: CFuncPtr2[CVoidPtr, CVoidPtr, CBool],
-  ): CMap =
-    println("Underlying map has size " + underlying.size)
-    val map = empty(areEquals)
-    activeRefs.add(map)
-    underlying.foreach(map.update)
-    println("Created map with size " + map.size)
-    map
+  def apply(underlying: collection.mutable.Map[CVoidPtr, CVoidPtr], equals: CEquals): CMap =
+    empty(equals).tap: map =>
+      activeRefs.add(map)
+      underlying.foreach(map.update)
 
   @exported("map_empty")
   def empty(compareFun: CFuncPtr2[CVoidPtr, CVoidPtr, CBool]): CMap =
-    val map = CMap(collection.mutable.Map.empty, compareFun)
-    activeRefs.add(map)
-    map
+    new CMap(collection.mutable.Map.empty, compareFun).tap(activeRefs.add)
 
   @exported("map_put")
   def put(map: CMap, key: CVoidPtr, value: CVoidPtr): Unit = map.update(key, value)

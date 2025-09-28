@@ -62,9 +62,9 @@ class FullLibrary(using
       nativeBinaryCodable.register(local)
       freshPointer[CSharedData].tap: sd => // TODO: memory leak here
         sd._1 = local
-        sd._2 = CMap.of(
+        sd._2 = CMap(
           collection.mutable.Map.empty,
-          (!local).are_equals.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
+          (!local).equals_fn.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
         )
     cAggregateLibrary._2._1 = () => libraryRef.get().localId.asInstanceOf[EqPtr].ptr.asInstanceOf[Ptr[BinaryCodable]]
     cAggregateLibrary._2._2 = () => libraryRef.get().device

@@ -48,13 +48,13 @@ trait NativeFieldBasedSharedData extends PortableLibrary:
     )(f =>
       freshPointer[CSharedData].tap: cField => // TODO: when to free this memory?
         cField._1 = f.default.asInstanceOf[Ptr[BinaryCodable]]
-        cField._2 = CMap.of(
+        cField._2 = CMap(
           collection.mutable.Map
             .from(f.neighborValues.asInstanceOf[collection.immutable.Map[EqPtr, CVoidPtr]])
             .map((k, v) => (k.ptr, v)),
           if f.neighborValues.isEmpty
           then (_: CVoidPtr, _: CVoidPtr) => false
-          else f.neighborValues.head._1.asInstanceOf[EqPtr].areEquals,
+          else f.neighborValues.head._1.asInstanceOf[EqPtr].equals,
         ),
     )
 
