@@ -11,11 +11,10 @@ import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
 import it.unibo.scafi.libraries.FullLibrary.libraryRef
 import it.unibo.scafi.presentation.NativeBinaryCodable.nativeBinaryCodable
-import it.unibo.scafi.types.{ CMap, NativeTypes }
+import it.unibo.scafi.types.{ CMap, EqPtr, NativeTypes }
 import it.unibo.scafi.utils.CUtils.freshPointer
 
 import libscafi3.all.BinaryCodable
-import it.unibo.scafi.types.EqPtr
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 class FullLibrary(using

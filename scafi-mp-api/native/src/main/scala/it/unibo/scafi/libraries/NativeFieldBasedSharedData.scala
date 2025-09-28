@@ -4,11 +4,10 @@ import scala.scalanative.unsafe.{ CFuncPtr2, CStruct2, CVoidPtr, Ptr }
 import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
-import it.unibo.scafi.types.CMap
+import it.unibo.scafi.types.{ CMap, EqPtr }
 import it.unibo.scafi.utils.CUtils.freshPointer
 
 import libscafi3.all.BinaryCodable
-import it.unibo.scafi.types.EqPtr
 
 /**
  * A custom portable definition of a field-based `SharedData` structure for native platform.
