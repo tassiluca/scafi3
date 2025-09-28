@@ -32,7 +32,7 @@ object NativeBinaryCodable:
         val data = rawData.toByteArray(!encodedSize)
         Cbor.encode(typeName, Format.Binary, data).toByteArray
 
-      override def decode(bytes: Array[Byte]): Ptr[BinaryCodable] =
+      override def decode(bytes: Array[Byte]): Ptr[BinaryCodable] = Zone:
         val (typeName, format, encodedData) = Cbor.decode(bytes).to[(String, Format, Array[Byte])].value
         registry.get(typeName) match
           case Some(codable) =>

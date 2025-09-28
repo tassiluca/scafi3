@@ -1,11 +1,11 @@
 package it.unibo.scafi.utils
 
 import scala.reflect.ClassTag
-import scala.scalanative.libc.stdlib
-import scala.scalanative.unsafe.{ sizeOf, Ptr }
+import scala.scalanative.libc.stddef.size_t
+import scala.scalanative.libc.stdlib.malloc
+import scala.scalanative.unsafe.{ alloc, sizeOf, Ptr, Zone }
 import scala.scalanative.unsafe.Size.byteToSize
-
-import libscafi3.aliases.{ size_t, uint8_t }
+import scala.scalanative.unsigned.UByte
 
 /** A bunch of utilities for C interop. */
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf", "scalafix:DisableSyntax.null"))
@@ -30,7 +30,7 @@ object CUtils:
    *   a [[Ptr]] pointing to the allocated memory
    */
   inline def freshPointer[T](factor: Int): Ptr[T] =
-    requireNonNull(stdlib.malloc(sizeOf[T] * factor).asInstanceOf[Ptr[T]])
+    requireNonNull(malloc(sizeOf[T] * factor).asInstanceOf[Ptr[T]])
 
   /**
    * Check whether an object is null, throwing a [[NullPointerException]] if it is.
@@ -57,12 +57,12 @@ object CUtils:
      * @note
      *   the pointer is allocated in the given zone and will be freed when the zone is closed.
      */
-    def toUint8Array: Ptr[uint8_t] =
-      val ptr: Ptr[uint8_t] = freshPointer[uint8_t](bytes.length)
+    def toUint8Array(using Zone): Ptr[UByte] =
+      val ptr = alloc[UByte](bytes.length)
       for i <- bytes.indices do !(ptr + i) = bytes(i).toUByte
       ptr
 
-  extension (ptr: Ptr[uint8_t])
+  extension (ptr: Ptr[UByte])
 
     /**
      * Convert a pointer to `uint8_t` to an array of bytes.
@@ -78,20 +78,4 @@ object CUtils:
       val array = new Array[Byte](size.toInt)
       for i <- 0 until size.toInt do array(i) = (!(ptr + i)).toByte
       array
-
-  /**
-   * Safely execute a block of code, logging any exceptions that are thrown.
-   * @param block
-   *   the block of code to execute
-   * @tparam T
-   *   the return type of the block
-   * @return
-   *   the result of the block
-   */
-  inline def withLogging[T](block: => T): T =
-    try block
-    catch
-      case e =>
-        scribe.error(e.getMessage)
-        stdlib.exit(1).asInstanceOf[T]
 end CUtils
