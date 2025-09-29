@@ -60,6 +60,7 @@ ThisBuild / scalacOptions ++= Seq(
 ThisBuild / coverageEnabled := true
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+Global / onChangedBuildSource := ReloadOnSourceChanges
 
 val ExclusiveTestTag = Tags.Tag("exclusive-test")
 Global / concurrentRestrictions += Tags.exclusive(ExclusiveTestTag)
@@ -77,17 +78,19 @@ lazy val commonDependencies =
   )
 
 lazy val commonNativeSettings = Seq(
-  nativeConfig ~= { defaultConfig =>
-    defaultConfig.withLTO(LTO.none)
-      .withMode(Mode.debug)
+  nativeConfig := {
+    nativeConfig.value
+      .withLTO(LTO.full)
+      .withMode(Mode.releaseSize)
       .withGC(GC.immix)
       .withBuildTarget(BuildTarget.libraryDynamic)
+      // .withCheck(true)
+      // .withCheckFatalWarnings(true)
+      // .withCheckFeatures(true)
+      // .withSanitizer(Sanitizer.UndefinedBehaviourSanitizer)
   },
-  coverageEnabled := false,
-)
-
-lazy val commonBindgenSettings = Seq(
   scalacOptions ++= Seq("-Wconf:msg=unused import&src=.*[\\\\/]src_managed[\\\\/].*:silent"),
+  coverageEnabled := false,
 )
 
 lazy val commonJsSettings = Seq(
@@ -147,7 +150,10 @@ lazy val `scafi-integration` = project
   .settings(commonDependencies)
   .settings(
     publish / skip := true,
-    Test / test := (Test / test).dependsOn(`scafi-mp-api`.js / Compile / fullLinkJS).tag(ExclusiveTestTag).value,
+    Test / test := (Test / test)
+      .dependsOn(`scafi-mp-api`.js / Compile / fullLinkJS, `scafi-mp-api`.native / Compile / nativeLink)
+      .tag(ExclusiveTestTag)
+      .value,
   )
 
 //val alchemistVersion = "42.1.0"

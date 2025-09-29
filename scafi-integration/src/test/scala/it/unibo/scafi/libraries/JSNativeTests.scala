@@ -5,7 +5,7 @@ import java.util.concurrent.Executors
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.Future.sequence
 
-import it.unibo.scafi.integration.JSPlatformTest
+import it.unibo.scafi.integration.JSTests
 import it.unibo.scafi.integration.PlatformTest.ProgramOutput
 import it.unibo.scafi.test.environment.Grids.vonNeumannGrid
 import it.unibo.scafi.utils.FreePortFinder
@@ -15,7 +15,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.time.{ Seconds, Span }
 
-class JSNativeTests extends AnyFlatSpec with JSPlatformTest with ScalaFutures:
+class JSNativeTests extends AnyFlatSpec with JSTests with ScalaFutures:
 
   given ExecutionContext = ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
 

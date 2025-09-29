@@ -12,7 +12,7 @@ import io.github.iltotore.iron.:|
 import io.github.iltotore.iron.constraint.string.{ EndWith, StartWith }
 import org.scalatest.matchers.should
 
-trait PlatformTest extends should.Matchers with FileSystem:
+trait PlatformTest extends should.Matchers with OS with FileSystem:
   export PlatformTest.->
   export io.github.iltotore.iron.autoRefine
 
