@@ -4,7 +4,7 @@
  * inject the aggregate program to be tested.
  */
 
-const { Runtime, returning, returnSending } = await import(process.env.SCAFI3);
+const { Runtime, returning, returnSending } = await import("./main.mjs");
 
 const deviceId = {{ deviceId }};
 const port = {{ port }};

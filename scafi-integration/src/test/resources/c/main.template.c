@@ -8,13 +8,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-
 #ifdef _WIN32
     #include <windows.h>
     #define sleep(x) Sleep((x) * 1000)
 #else
     #include <unistd.h>
 #endif
+#include "scafi3.h"
 
 #define ITERATIONS 10
 #define PORT {{ port }}
@@ -89,6 +89,8 @@ BinaryCodable int_codable_of(int value) {
 BinaryCodable DEVICE_ID;
 
 // ------------------------------- TEST PROGRAM -------------------------------
+
+const void* aggregate_program(const AggregateLibrary* lang);
 
 bool on_result(const void* result) {
     last_result = result;

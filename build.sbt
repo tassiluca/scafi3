@@ -111,6 +111,8 @@ lazy val commonJsSettings = Seq(
     _.withModuleKind(ModuleKind.ESModule)
       .withOutputPatterns(OutputPatterns.fromJSFile("%s.mjs"))
       .withOptimizer(true)
+      .withMinify(true)
+      .withCheckIR(true)
   },
   Compile / fastLinkJS / scalaJSLinkerOutputDirectory := target.value / "fastLinkJS",
   Compile / fullLinkJS / scalaJSLinkerOutputDirectory := target.value / "fullLinkJS",
