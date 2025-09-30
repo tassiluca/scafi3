@@ -1,5 +1,5 @@
 ########################################################################################################################
-# Makefile for building the C integration test with the ScaFi library.
+# Makefile for building the C integration test with the ScaFi3 native library.
 ########################################################################################################################
 
 # Detect OS
