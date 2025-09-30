@@ -7,8 +7,8 @@ ifeq ($(OS),Windows_NT)
 	EXE = main.exe
 	LIB_EXT = dll
 	RPATH =
-	CC ?= gcc
-	LIBLINK = libscafi3.lib # MSVC linker looks for scafi3.lib when you use -lscafi3
+	CC = gcc
+	LIBLINK = scafi3.lib # MSVC linker looks for scafi3.lib when you use -lscafi3
 else ifeq ($(shell uname -s),Darwin)
 	EXE = main
 	LIB_EXT = dylib
@@ -29,7 +29,7 @@ else
 	EXE = main
 	LIB_EXT = so
 	RPATH = -Wl,-rpath,.
-	CC ?= gcc
+	CC = gcc
 	LIBLINK = -L. -lscafi3 $(RPATH)
 endif
 
@@ -50,7 +50,7 @@ endif
 	@echo "Compiler: $(CC)"
 	@echo "Flags: $(CFLAGS)"
 
-$(EXE): main.c libscafi3.$(LIB_EXT)
+$(EXE): main.c
 	$(CC) $(CFLAGS) main.c -I. $(LIBLINK) -o $(EXE)
 
 clean:

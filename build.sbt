@@ -91,10 +91,16 @@ lazy val commonNativeSettings = Seq(
     val out = (Compile / nativeLink).value
     val linkerOutputDir = target.value / "nativeLink"
     IO.createDirectory(linkerOutputDir)
-    val targetFile = linkerOutputDir / s"lib${(ThisBuild / name).value}.$nativeLibExtension"
-    IO.move(out, targetFile)
-    if (os == Windows) IO.move(target.value / "scala-3.7.2" / "scafi3.lib", linkerOutputDir / "libscafi3.lib")
-    targetFile
+    if (os == Windows) {
+      val targetFile = linkerOutputDir / s"${(ThisBuild / name).value}.$nativeLibExtension"
+      IO.move(out, targetFile)
+      IO.move(target.value / "scala-3.7.2" / "scafi3.lib", linkerOutputDir / "scafi3.lib")
+      targetFile
+    } else {
+      val targetFile = linkerOutputDir / s"lib${(ThisBuild / name).value}.$nativeLibExtension"
+      IO.move(out, targetFile)
+      targetFile
+    }
   },
   scalacOptions ++= Seq("-Wconf:msg=unused import&src=.*[\\\\/]src_managed[\\\\/].*:silent"),
   coverageEnabled := false,
