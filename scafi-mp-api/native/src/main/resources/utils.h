@@ -3,6 +3,14 @@
 
 #include "internals.h"
 
+#define lambda(ret, args, body) \
+    ({ \
+    ret __fn__ args body \
+    &__fn__; \
+    })
+
+#define fn lambda
+
 #define MAP_OF(Name, KeysType, ValuesType, CompareFunc)                                     \
     typedef Map Name;                                                                       \
     static inline Name Name##_empty() {                                                     \

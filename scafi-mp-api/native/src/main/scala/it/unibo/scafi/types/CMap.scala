@@ -17,7 +17,7 @@ import scala.util.chaining.scalaUtilChainingOps
  *   low-level, flexible utility for C/C++ interoperability.
  * @param underlying
  *   the underlying Scala Native map implementation delegating the operations to
- * @param areEquals
+ * @param equals
  *   a function pointer to compare two keys for equality. This function should return true if the keys are equal, false
  *   otherwise.
  * @see

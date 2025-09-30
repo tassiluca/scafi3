@@ -11,15 +11,16 @@ typedef struct BinaryCodable {
     uint8_t* (*encode)(void *data, size_t *encoded_size);
     struct BinaryCodable* (*decode)(const uint8_t *buffer, size_t size);
     bool (*equals)(const void* a, const void* b);
+    char* (*to_str)(const void* data);
 } BinaryCodable;
 
-extern const BinaryCodable DEVICE_ID;
+extern BinaryCodable DEVICE_ID;
 
-MAP_OF(Neighborhood, BinaryCodable, BinaryCodable, DEVICE_ID.equals)
+MAP_OF(NValues, BinaryCodable, BinaryCodable, DEVICE_ID.equals)
 
 typedef struct {
     const BinaryCodable* default_value;
-    const Neighborhood neighbor_values;
+    const NValues neighbor_values;
 } SharedData;
 
 char* shared_data_to_string(const SharedData* field);

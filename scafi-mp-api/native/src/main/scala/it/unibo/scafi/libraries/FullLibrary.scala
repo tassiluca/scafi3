@@ -79,14 +79,14 @@ object FullLibrary:
 
   /**
    * Singleton reference to the full library instance. Unfortunately, due to limitations in C, it is not possible to
-   * close a function pointer over local state paramaters, so we need to store the instance in a global variable.
+   * close a function pointer over local state parameters, so we need to store the instance in a global variable.
    *
    * This is not ideal, but does not cause issues in practice since rounds are executed sequentially and independently.
    */
   private[FullLibrary] val libraryRef = new AtomicReference[FullLibrary]()
 
-  @exported("return_sending")
+  @exported("retsend")
   def returnSending(value: CVoidPtr): ReturnSending[CVoidPtr] = ReturnSending(value, value)
 
-  @exported("returning_sending")
-  def returningSending(returning: CVoidPtr, send: CVoidPtr): ReturnSending[CVoidPtr] = ReturnSending(returning, send)
+  @exported("return_sending")
+  def returnSending(returning: CVoidPtr, send: CVoidPtr): ReturnSending[CVoidPtr] = ReturnSending(returning, send)

@@ -1,6 +1,7 @@
 import org.scalajs.linker.interface.OutputPatterns
-import scala.scalanative.build.*
+import scala.scalanative.build.{ BuildTarget, GC, LTO, Mode }
 import sbtcrossproject.CrossProject
+import BuildUtils.{ nativeLibExtension, os, Windows }
 
 val scala3Version = "3.7.2"
 
@@ -80,14 +81,20 @@ lazy val commonDependencies =
 lazy val commonNativeSettings = Seq(
   nativeConfig := {
     nativeConfig.value
-      .withLTO(LTO.full)
-      .withMode(Mode.releaseSize)
+      .withLTO(LTO.none)
+      .withMode(Mode.debug)
       .withGC(GC.immix)
       .withBuildTarget(BuildTarget.libraryDynamic)
-      // .withCheck(true)
-      // .withCheckFatalWarnings(true)
-      // .withCheckFeatures(true)
-      // .withSanitizer(Sanitizer.UndefinedBehaviourSanitizer)
+      .withBaseName((ThisBuild / name).value)
+  },
+  Compile / nativeLink := {
+    val out = (Compile / nativeLink).value
+    val linkerOutputDir = target.value / "nativeLink"
+    IO.createDirectory(linkerOutputDir)
+    val targetFile = linkerOutputDir / s"lib${(ThisBuild / name).value}.$nativeLibExtension"
+    IO.move(out, targetFile)
+    if (os == Windows) IO.move(target.value / "scala-3.7.2" / "scafi3.lib", linkerOutputDir / "libscafi3.lib")
+    targetFile
   },
   scalacOptions ++= Seq("-Wconf:msg=unused import&src=.*[\\\\/]src_managed[\\\\/].*:silent"),
   coverageEnabled := false,

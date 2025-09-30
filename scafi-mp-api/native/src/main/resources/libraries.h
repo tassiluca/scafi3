@@ -6,23 +6,22 @@
 
 typedef struct ReturnSendingImpl* ReturnSending;
 
-ReturnSending return_sending(void* value);
+ReturnSending retsend(const SharedData* value);
 
-ReturnSending returning_sending(void* returning, void* send);
+ReturnSending return_sending(const SharedData* returning, const SharedData* send);
 
 typedef struct AggregateLibrary {
     FieldBasedSharedData Field;
     struct { // Common library
-        BinaryCodable* (*local_id)(void);
-        SharedData* (*device)(void);
+        const BinaryCodable* (*local_id)(void);
+        const SharedData* (*device)(void);
     };
     struct { // Branching library
-        void* (*branch)(bool condition, void* (*true_branch)(void), void* (*false_branch)(void));
+        const void* (*branch)(bool condition, const void* (*true_branch)(void), const void* (*false_branch)(void));
     };
     struct { // Exchange library
-        SharedData* (*exchange)(const SharedData* initial, const ReturnSending (*f)(SharedData* in));
+        const SharedData* (*exchange)(const SharedData* initial, ReturnSending (*f)(const SharedData* in));
     };
 } AggregateLibrary;
-
 
 #endif // LIBRARIES_H

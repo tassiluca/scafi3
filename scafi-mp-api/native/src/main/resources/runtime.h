@@ -8,15 +8,15 @@ typedef struct ConnectionOrientedNetworkManagerImpl* ConnectionOrientedNetworkMa
 
 struct Endpoint {
     char* address;
-    uint16_t port;
+    int port;
 };
 
-MAP_OF(Connections, BinaryCodable, struct Endpoint, DEVICE_ID.equals)
+MAP_OF(Neighborhood, BinaryCodable, struct Endpoint, DEVICE_ID.equals)
 
 ConnectionOrientedNetworkManager socket_network(
     const BinaryCodable* device_id,
     int port, 
-    const Connections neighbors
+    const Neighborhood neighbors
 );
 
 void engine(
