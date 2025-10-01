@@ -35,6 +35,19 @@ trait NativeTests extends AnyFlatSpec with PlatformTest with ScalaFutures with s
         3 -> fieldRepr(default = 3, neighbors = Map(1 -> 1, 2 -> 2)),
       )
 
+  def sensorExchangeTestWith(format: String): Unit =
+    def sensorRepr(id: Int): String = s"Sensor(id=#$id, temp=${id * 10}.00)"
+
+    "Exchange aggregate program" should s"correctly exchange $format messages" in:
+      sequence:
+        aggregateResult(s"${format}-exchange", rows = 2, cols = 2)
+      .futureValue should contain theSameElementsAs Seq(
+        0 -> fieldRepr(default = sensorRepr(0), neighbors = Map(1 -> sensorRepr(1), 2 -> sensorRepr(2))),
+        1 -> fieldRepr(default = sensorRepr(1), neighbors = Map(0 -> sensorRepr(0), 3 -> sensorRepr(3))),
+        2 -> fieldRepr(default = sensorRepr(2), neighbors = Map(0 -> sensorRepr(0), 3 -> sensorRepr(3))),
+        3 -> fieldRepr(default = sensorRepr(3), neighbors = Map(1 -> sensorRepr(1), 2 -> sensorRepr(2))),
+      )
+
   protected def aggregateResult(testName: String, rows: Int, cols: Int): Seq[Future[(Int, ProgramOutput)]] =
     val ports = FreePortFinder.get(rows * cols)
     vonNeumannGrid(rows, cols): (id, neighbors) =>

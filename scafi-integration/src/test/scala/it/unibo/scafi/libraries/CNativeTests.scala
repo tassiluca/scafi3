@@ -1,7 +1,5 @@
 package it.unibo.scafi.libraries
 
-import scala.concurrent.Future.sequence
-
 import it.unibo.scafi.integration.CTests
 import it.unibo.scafi.integration.PlatformTest.ProgramOutput
 import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
@@ -12,16 +10,7 @@ class CNativeTests extends NativeTests with CTests:
 
   it should behave like neighborsDiscoveryTest()
 
-  "Protobuf exchange aggregate program" should "correctly exchange protobuf messages" in:
-    def cSensor(id: Int): String = s"Sensor(id=#$id, temp=${id * 10}.00)"
-    sequence:
-      aggregateResult("protobuf-exchange", rows = 2, cols = 2)
-    .futureValue should contain theSameElementsAs Seq(
-      0 -> fieldRepr(default = cSensor(0), neighbors = Map(1 -> cSensor(1), 2 -> cSensor(2))),
-      1 -> fieldRepr(default = cSensor(1), neighbors = Map(0 -> cSensor(0), 3 -> cSensor(3))),
-      2 -> fieldRepr(default = cSensor(2), neighbors = Map(0 -> cSensor(0), 3 -> cSensor(3))),
-      3 -> fieldRepr(default = cSensor(3), neighbors = Map(1 -> cSensor(1), 2 -> cSensor(2))),
-    )
+  it should behave like sensorExchangeTestWith("protobuf")
 
   override def neighborsAsCode(id: ID, neighbors: Set[ID], ports: Seq[Port]): ProgramOutput = neighbors
     .map(nid => s"""

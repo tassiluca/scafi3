@@ -1,7 +1,4 @@
-#include "scafi3.h"
 #include "messages.pb-c.h"
-#include <stdio.h>
-#include <string.h>
 
 static uint8_t* temp_sensor_encode(void* data, size_t* encoded_size) {
     if (!data || !encoded_size) return NULL;

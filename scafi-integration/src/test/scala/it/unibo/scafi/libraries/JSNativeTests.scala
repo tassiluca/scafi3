@@ -23,20 +23,9 @@ class JSNativeTests extends NativeTests with JSTests:
       3 -> fieldRepr(default = false, neighbors = Map(1 -> false)),
     )
 
-  "Protobuf exchange aggregate program" should "correctly exchange protobuf messages" in sensorTestWith("protobuf")
+  it should behave like sensorExchangeTestWith("protobuf")
 
-  "JSON exchange aggregate program" should "correctly exchange JSON messages" in sensorTestWith("json")
-
-  inline def sensorTestWith(format: String): Assertion =
-    def jsSensor(id: Int): String = s"Sensor(id=#$id, temp=${id * 10}.00)"
-    sequence:
-      aggregateResult(s"${format}-exchange", rows = 2, cols = 2)
-    .futureValue should contain theSameElementsAs Seq(
-      0 -> fieldRepr(default = jsSensor(0), neighbors = Map(1 -> jsSensor(1), 2 -> jsSensor(2))),
-      1 -> fieldRepr(default = jsSensor(1), neighbors = Map(0 -> jsSensor(0), 3 -> jsSensor(3))),
-      2 -> fieldRepr(default = jsSensor(2), neighbors = Map(0 -> jsSensor(0), 3 -> jsSensor(3))),
-      3 -> fieldRepr(default = jsSensor(3), neighbors = Map(1 -> jsSensor(1), 2 -> jsSensor(2))),
-    )
+  it should behave like sensorExchangeTestWith("json")
 
   override def neighborsAsCode(id: ID, neighbors: Set[ID], ports: Seq[Port]): ProgramOutput = neighbors
     .map(nid => s"[$nid, Runtime.Endpoint('localhost', ${ports(nid)})]")
