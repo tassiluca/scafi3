@@ -12,8 +12,6 @@ import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
 import it.unibo.scafi.libraries.FullLibrary.libraryRef
 import it.unibo.scafi.presentation.NativeBinaryCodable.nativeBinaryCodable
 import it.unibo.scafi.types.{ CBinaryCodable, CMap, EqPtr, NativeTypes }
-import it.unibo.scafi.types.CBinaryCodable.{ equalsFn, hashFn }
-import it.unibo.scafi.utils.CUtils.freshPointer
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 class FullLibrary(using
@@ -27,11 +25,11 @@ class FullLibrary(using
 
   type CReturnSending[T] = ReturnSending[T]
 
-  type CFieldBasedSharedData = CStruct1[ /* of */ Function1[Ptr[CBinaryCodable], Ptr[CSharedData]]]
+  type CFieldBasedSharedData = CStruct1[ /* of */ Function1[Ptr[CBinaryCodable], Ptr[CField]]]
 
   type CCommonLibrary = CStruct2[
     /* local_id */ Function0[Ptr[CBinaryCodable]],
-    /* device_id */ Function0[Ptr[CSharedData]],
+    /* device_id */ Function0[Ptr[CField]],
   ]
 
   type CBranchingLibrary =
@@ -39,9 +37,9 @@ class FullLibrary(using
 
   type CExchangeLibrary = CStruct1[
     /* exchange */ Function2[
-      Ptr[CSharedData],
-      Function1[Ptr[CSharedData], CReturnSending[Ptr[CSharedData]]],
-      Ptr[CSharedData],
+      Ptr[CField],
+      Function1[Ptr[CField], CReturnSending[Ptr[CField]]],
+      Ptr[CField],
     ],
   ]
 
@@ -55,19 +53,13 @@ class FullLibrary(using
   def asNative(using Zone): Ptr[CAggregateLibrary] =
     libraryRef.set(this)
     alloc[CAggregateLibrary]().tap: lib =>
-      lib._1._1 = (local: Ptr[CBinaryCodable]) =>
-        nativeBinaryCodable.register(local)
-        // memory needs to be freed by the caller
-        freshPointer[CSharedData].tap: sd =>
-          sd._1 = local
-          sd._2 = CMap(collection.mutable.Map.empty, local.equalsFn, local.hashFn)
+      lib._1._1 = (default: Ptr[CBinaryCodable]) => NativeFieldBasedSharedData.of(default, CMap.empty)
       lib._2._1 = () => libraryRef.get().localId.asInstanceOf[EqPtr].ptr.asInstanceOf[Ptr[CBinaryCodable]]
       lib._2._2 = () => libraryRef.get().device
       lib._3._1 = (condition: Boolean, trueBranch: Function0[CVoidPtr], falseBranch: Function0[CVoidPtr]) =>
         libraryRef.get().branch_(condition)(trueBranch)(falseBranch)
-      lib._4._1 = (initial: Ptr[CSharedData], f: Function1[Ptr[CSharedData], CReturnSending[Ptr[CSharedData]]]) =>
+      lib._4._1 = (initial: Ptr[CField], f: Function1[Ptr[CField], CReturnSending[Ptr[CField]]]) =>
         libraryRef.get().exchange_(initial)(f)
-  end asNative
 end FullLibrary
 
 object FullLibrary:

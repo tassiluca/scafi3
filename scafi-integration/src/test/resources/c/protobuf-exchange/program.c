@@ -98,7 +98,7 @@ static void temp_sensor_free(void* data) {
 
 const void* aggregate_program(const AggregateLibrary* lang) {
     BinaryCodable* temperature = sense_temperature();
-    return lang->exchange(lang->Field.of(temperature), lambda(ReturnSending, (const SharedData* in), {
-        return return_sending(in, lang->Field.of(temperature));
+    return lang->exchange(lang->Field.of(temperature), lambda(ReturnSending, (const Field* f), {
+        return return_sending(f, lang->Field.of(temperature));
     }));
 }

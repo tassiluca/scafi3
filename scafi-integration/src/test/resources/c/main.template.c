@@ -94,6 +94,6 @@ int main(void) {
     {{ neighbors }}
     ConnectionOrientedNetworkManager network = socket_network(DEVICE_ID, {{ port }}, neighbors);
     engine(DEVICE_ID, network, aggregate_program, on_result);
-    printf("%s", shared_data_to_string((const SharedData*) last_round_result));
+    printf("%s", field_to_str((const Field*) last_round_result));
     return 0;
 }

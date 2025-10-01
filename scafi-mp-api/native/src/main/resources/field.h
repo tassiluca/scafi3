@@ -22,15 +22,15 @@ MAP_OF(NValues, BinaryCodable, BinaryCodable, DEVICE_ID->equals, DEVICE_ID->hash
 typedef struct {
     const BinaryCodable* default_value;
     const NValues neighbor_values;
-} SharedData;
+} Field;
 
 /**
- * Converts a SharedData instance to a string representation.
- * @param field The SharedData instance to convert.
- * @return char* A string representation of the SharedData instance.
+ * Converts a Field instance to a string representation.
+ * @param field The Field instance to convert.
+ * @return char* A string representation of the Field instance.
  * @note The returned string must be freed by the caller when no longer needed.
  */
-char* shared_data_to_string(const SharedData* field);
+char* field_to_str(const Field* field);
 
 /**
  * Field-based shared data factory.
@@ -38,11 +38,11 @@ char* shared_data_to_string(const SharedData* field);
 typedef struct {
     /**
      * Creates a new field-based shared data instance.
-     * @param default_value The default value for the shared data.
-     * @return A pointer to the newly created SharedData instance. 
+     * @param default_value The default value for the field.
+     * @return A pointer to the newly created Field instance.
      * @note The returned instance must be freed by the caller when no longer needed.
      */
-    const SharedData* (*of)(const BinaryCodable* default_value);
+    const Field* (*of)(const BinaryCodable* default_value);
 } FieldBasedSharedData;
 
 #endif // SCAFI3_FIELD_H

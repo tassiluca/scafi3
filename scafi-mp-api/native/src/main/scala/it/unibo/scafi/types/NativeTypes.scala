@@ -19,7 +19,6 @@ trait NativeTypes extends PortableTypes:
     Iso[Map[K, V], collection.immutable.Map[K, V]](
       _.toScalaMap.asInstanceOf[collection.immutable.Map[K, V]],
     )(m =>
-      println("!!!!")
       CMap(
         collection.mutable.Map.from(m.asInstanceOf[collection.immutable.Map[EqPtr, CVoidPtr]].map(_.ptr -> _)),
         if m.isEmpty then (_: CVoidPtr, _: CVoidPtr) => false

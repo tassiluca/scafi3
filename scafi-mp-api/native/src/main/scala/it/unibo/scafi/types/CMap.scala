@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.language.unsafeNulls
 import scala.scalanative.unsafe.{ exported, CFuncPtr2, CSize, CVoidPtr }
 import scala.scalanative.unsafe.Size.intToSize
+import scala.scalanative.unsigned.UInt
 import scala.util.chaining.scalaUtilChainingOps
 
 /**
@@ -37,6 +38,13 @@ class CMap private (underlying: collection.mutable.Map[CVoidPtr, CVoidPtr], equa
 end CMap
 
 object CMap:
+
+  opaque type ImmutableCMap = CMap
+
+  given Conversion[ImmutableCMap, CMap] = identity
+
+  def empty: ImmutableCMap =
+    new CMap(collection.mutable.Map.empty, (_: CVoidPtr, _: CVoidPtr) => false, (_: CVoidPtr) => UInt.valueOf(0))
 
   /* NOTE: Scala objects are tracked by Garbage Collector. To avoid them being collected while still in use from C
    * side (the collector cannot be aware of), we keep a reference to them in this set. */
