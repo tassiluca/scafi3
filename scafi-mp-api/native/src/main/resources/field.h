@@ -14,9 +14,9 @@ typedef struct BinaryCodable {
     char* (*to_str)(const void* data);
 } BinaryCodable;
 
-extern BinaryCodable DEVICE_ID;
+extern BinaryCodable* DEVICE_ID;
 
-MAP_OF(NValues, BinaryCodable, BinaryCodable, DEVICE_ID.equals)
+MAP_OF(NValues, BinaryCodable, BinaryCodable, DEVICE_ID->equals)
 
 typedef struct {
     const BinaryCodable* default_value;

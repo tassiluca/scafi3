@@ -2,17 +2,13 @@
 # Makefile for building the C integration test with the ScaFi3 native library.
 ########################################################################################################################
 
-# Detect OS
 ifeq ($(OS),Windows_NT)
 	EXE = main.exe
-	LIB_EXT = dll
-	RPATH =
 	CC = gcc
-	LIBLINK = scafi3.lib # MSVC linker looks for scafi3.lib when you use -lscafi3
+	SCAFI3_LIB = scafi3.dll scafi3.lib
+	LIBLINK = scafi3.lib
 else ifeq ($(shell uname -s),Darwin)
 	EXE = main
-	LIB_EXT = dylib
-	RPATH = -Wl,-rpath,.
     # On MacOS, usually gcc is an alias to clang, so we try to find a real GCC installation
 	CC := $(shell \
 		if gcc --version 2>/dev/null | grep -q "^gcc"; then \
@@ -24,33 +20,20 @@ else ifeq ($(shell uname -s),Darwin)
 	ifeq ($(CC),NOT_FOUND)
 		$(error GCC not found. Install: brew install gcc)
 	endif
-	LIBLINK = -L. -lscafi3 $(RPATH)
+	SCAFI3_LIB = libscafi3.dylib
+	LIBLINK = -L. -Wl,-rpath,. -lscafi3
 else
 	EXE = main
-	LIB_EXT = so
-	RPATH = -Wl,-rpath,.
 	CC = gcc
-	LIBLINK = -L. -lscafi3 $(RPATH)
+	SCAFI3_LIB = libscafi3.so
+	LIBLINK = -L. -Wl,-rpath,. -lscafi3
 endif
 
 CFLAGS = -std=gnu11 -Wall -Wextra -Werror
 
-all: debug $(EXE)
+all: $(EXE)
 
-debug:
-	@echo "Building executable for $(EXE)"
-	@echo "Current directory:"
-	@cd
-	@echo "Files in current directory:"
-ifeq ($(OS),Windows_NT)
-	@dir *.lib *.dll *.a 2>nul || echo "No library files found"
-else
-	@ls -la
-endif
-	@echo "Compiler: $(CC)"
-	@echo "Flags: $(CFLAGS)"
-
-$(EXE): main.c
+$(EXE): main.c $(SCAFI3_LIB)
 	$(CC) $(CFLAGS) main.c -I. $(LIBLINK) -o $(EXE)
 
 clean:
