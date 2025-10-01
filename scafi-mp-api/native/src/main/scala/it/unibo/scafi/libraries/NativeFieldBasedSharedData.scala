@@ -6,9 +6,10 @@ import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.presentation.NativeBinaryCodable.nativeBinaryCodable
-import it.unibo.scafi.types.{ CBinaryCodable, CMap, EqPtr, NativeTypes }
+import it.unibo.scafi.types.{ CBinaryCodable, CMap, NativeTypes }
 import it.unibo.scafi.types.CBinaryCodable.toStr
 import it.unibo.scafi.utils.CUtils.freshPointer
+import NativeFieldBasedSharedData.neighborValues
 
 /**
  * A custom portable definition of a field-based `SharedData` structure for native platform.
@@ -26,14 +27,9 @@ trait NativeFieldBasedSharedData extends PortableLibrary:
   override given [Value] => Iso[SharedData[Value], language.SharedData[Value]] =
     Iso[SharedData[Value], language.SharedData[Value]](cField =>
       val field = language.sharedDataApplicative.pure((!cField)._1.asInstanceOf[Value])
-      (!cField)._2.toScalaMap.foldLeft(field): (f, n) =>
+      cField.neighborValues.toScalaMap.foldLeft(field): (f, n) =>
         f.set(n._1.asInstanceOf[language.DeviceId], n._2.asInstanceOf[Value]),
-    )(f =>
-      val default = f.default.asInstanceOf[Ptr[CBinaryCodable]]
-      NativeFieldBasedSharedData.of(default, f.neighborValues),
-    )
-
-end NativeFieldBasedSharedData
+    )(f => NativeFieldBasedSharedData.of(f.default.asInstanceOf[Ptr[CBinaryCodable]], f.neighborValues))
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object NativeFieldBasedSharedData:
@@ -57,7 +53,7 @@ object NativeFieldBasedSharedData:
     val defaultStr = fromCString(sd.default.toStr(sd.default))
     val neighborsStr = sd.neighborValues.toScalaMap
       .map: (nid, nv) =>
-        nid.asInstanceOf[EqPtr].ptr.asInstanceOf[Ptr[CBinaryCodable]] -> nv.asInstanceOf[Ptr[CBinaryCodable]]
+        nid.ptr.asInstanceOf[Ptr[CBinaryCodable]] -> nv.asInstanceOf[Ptr[CBinaryCodable]]
       .map: (nid, nv) =>
         fromCString(nid.toStr(nid)) + " -> " + fromCString(nv.toStr(nv))
       .toList

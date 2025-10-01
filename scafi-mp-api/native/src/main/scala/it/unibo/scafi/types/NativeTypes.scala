@@ -1,9 +1,9 @@
 package it.unibo.scafi.types
 
+import scala.collection.mutable
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration.Duration
 import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1, CFuncPtr2, CFuncPtr3, CVoidPtr }
-import scala.scalanative.unsigned.UInt
 
 import it.unibo.scafi.libraries.PortableTypes
 
@@ -19,13 +19,13 @@ trait NativeTypes extends PortableTypes:
     Iso[Map[K, V], collection.immutable.Map[K, V]](
       _.toScalaMap.asInstanceOf[collection.immutable.Map[K, V]],
     )(m =>
-      CMap(
-        collection.mutable.Map.from(m.asInstanceOf[collection.immutable.Map[EqPtr, CVoidPtr]].map(_.ptr -> _)),
-        if m.isEmpty then (_: CVoidPtr, _: CVoidPtr) => false
-        else m.head._1.asInstanceOf[EqPtr].equals,
-        if m.isEmpty then (_: CVoidPtr) => UInt.valueOf(0)
-        else m.head._1.asInstanceOf[EqPtr].hash,
-      ),
+      if m.isEmpty then CMap.empty
+      else
+        CMap(
+          mutable.Map.from(m.asInstanceOf[collection.immutable.Map[EqPtr, CVoidPtr]].map(_.ptr -> _)),
+          m.head._1.asInstanceOf[EqPtr].equals,
+          m.head._1.asInstanceOf[EqPtr].hash,
+        ),
     )
 
   override type Outcome[T] = T
