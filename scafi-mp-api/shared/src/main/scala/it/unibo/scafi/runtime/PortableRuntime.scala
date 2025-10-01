@@ -14,7 +14,7 @@ trait PortableRuntime:
   self: PortableTypes =>
 
   /** The requirements that must be satisfied by any concrete implementation of the runtime. */
-  trait Requirements:
+  trait Requirements extends MemorySafeContext:
 
     /** The universal codable instance used for encoding and decoding values to be sent over the network. */
     given [Value, Format]: UniversalCodable[Value, Format] = compiletime.deferred
@@ -23,7 +23,7 @@ trait PortableRuntime:
     type AggregateLibrary
 
     /** @return the concrete portable aggregate library instance. */
-    def library[ID]: ExchangeAggregateContext[ID] ?=> AggregateLibrary
+    def library[ID](using Context): ExchangeAggregateContext[ID] ?=> AggregateLibrary
 
   trait Adts:
 

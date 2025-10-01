@@ -24,9 +24,24 @@ typedef struct {
     const NValues neighbor_values;
 } SharedData;
 
+/**
+ * Converts a SharedData instance to a string representation.
+ * @param field The SharedData instance to convert.
+ * @return char* A string representation of the SharedData instance.
+ * @note The returned string must be freed by the caller when no longer needed.
+ */
 char* shared_data_to_string(const SharedData* field);
 
+/**
+ * Field-based shared data factory.
+ */
 typedef struct {
+    /**
+     * Creates a new field-based shared data instance.
+     * @param default_value The default value for the shared data.
+     * @return A pointer to the newly created SharedData instance. 
+     * @note The returned instance must be freed by the caller when no longer needed.
+     */
     const SharedData* (*of)(const BinaryCodable* default_value);
 } FieldBasedSharedData;
 

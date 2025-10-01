@@ -24,7 +24,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
 
   given ExecutionContext = ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
 
-  trait NativeRequirements extends Requirements:
+  trait NativeRequirements extends Requirements with AutoMemoryAllocator:
     type AggregateLibrary = Ptr[FullLibrary#CAggregateLibrary]
 
     override given [Value, Format]: UniversalCodable[Value, Format] = new UniversalCodable[Value, Format]:
@@ -46,7 +46,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
           binaryCodableInstance.hashFn,
         ).asInstanceOf[Value]
 
-    override def library[ID]: ExchangeAggregateContext[ID] ?=> AggregateLibrary = FullLibrary().asNative
+    override def library[ID](using Context): ExchangeAggregateContext[ID] ?=> AggregateLibrary = FullLibrary().asNative
   end NativeRequirements
 
   trait NativeAdts extends Adts:

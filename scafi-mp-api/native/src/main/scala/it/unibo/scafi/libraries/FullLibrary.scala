@@ -2,7 +2,7 @@ package it.unibo.scafi.libraries
 
 import java.util.concurrent.atomic.AtomicReference
 
-import scala.scalanative.unsafe.{ exported, CFuncPtr0, CFuncPtr2, CStruct1, CStruct2, CStruct4, CVoidPtr, Ptr }
+import scala.scalanative.unsafe.{ alloc, exported, CStruct1, CStruct2, CStruct4, CVoidPtr, Ptr, Zone }
 import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.language.AggregateFoundation
@@ -27,23 +27,22 @@ class FullLibrary(using
 
   type CReturnSending[T] = ReturnSending[T]
 
-  type CFieldBasedSharedData = CStruct1[
-    /* of */ Function1[Ptr[CBinaryCodable], Ptr[CSharedData]],
-  ]
+  type CFieldBasedSharedData = CStruct1[ /* of */ Function1[Ptr[CBinaryCodable], Ptr[CSharedData]]]
 
   type CCommonLibrary = CStruct2[
     /* local_id */ Function0[Ptr[CBinaryCodable]],
     /* device_id */ Function0[Ptr[CSharedData]],
   ]
 
-  type CBranchingLibrary = CStruct1[
-    /* branch */ Function3[Boolean, Function0[CVoidPtr], Function0[CVoidPtr], CVoidPtr],
-  ]
+  type CBranchingLibrary =
+    CStruct1[ /* branch */ Function3[Boolean, Function0[CVoidPtr], Function0[CVoidPtr], CVoidPtr]]
 
   type CExchangeLibrary = CStruct1[
-    /* exchange */ Function2[Ptr[CSharedData], Function1[Ptr[CSharedData], CReturnSending[Ptr[CSharedData]]], Ptr[
-      CSharedData,
-    ]],
+    /* exchange */ Function2[
+      Ptr[CSharedData],
+      Function1[Ptr[CSharedData], CReturnSending[Ptr[CSharedData]]],
+      Ptr[CSharedData],
+    ],
   ]
 
   type CAggregateLibrary = CStruct4[
@@ -53,22 +52,21 @@ class FullLibrary(using
     /* exchange */ CExchangeLibrary,
   ]
 
-  def asNative: Ptr[CAggregateLibrary] =
+  def asNative(using Zone): Ptr[CAggregateLibrary] =
     libraryRef.set(this)
-    val cAggregateLibrary: Ptr[CAggregateLibrary] = freshPointer[CAggregateLibrary] // TODO: free memory
-    cAggregateLibrary._1._1 = (local: Ptr[CBinaryCodable]) =>
-      nativeBinaryCodable.register(local)
-      freshPointer[CSharedData].tap: sd => // TODO: memory leak here
-        sd._1 = local
-        sd._2 = CMap(collection.mutable.Map.empty, local.equalsFn, local.hashFn)
-    cAggregateLibrary._2._1 = () => libraryRef.get().localId.asInstanceOf[EqPtr].ptr.asInstanceOf[Ptr[CBinaryCodable]]
-    cAggregateLibrary._2._2 = () => libraryRef.get().device
-    cAggregateLibrary._3._1 = (condition: Boolean, trueBranch: Function0[CVoidPtr], falseBranch: Function0[CVoidPtr]) =>
-      libraryRef.get().branch_(condition)(trueBranch)(falseBranch)
-    cAggregateLibrary._4._1 =
-      (initial: Ptr[CSharedData], f: Function1[Ptr[CSharedData], CReturnSending[Ptr[CSharedData]]]) =>
+    alloc[CAggregateLibrary]().tap: lib =>
+      lib._1._1 = (local: Ptr[CBinaryCodable]) =>
+        nativeBinaryCodable.register(local)
+        // memory needs to be freed by the caller
+        freshPointer[CSharedData].tap: sd =>
+          sd._1 = local
+          sd._2 = CMap(collection.mutable.Map.empty, local.equalsFn, local.hashFn)
+      lib._2._1 = () => libraryRef.get().localId.asInstanceOf[EqPtr].ptr.asInstanceOf[Ptr[CBinaryCodable]]
+      lib._2._2 = () => libraryRef.get().device
+      lib._3._1 = (condition: Boolean, trueBranch: Function0[CVoidPtr], falseBranch: Function0[CVoidPtr]) =>
+        libraryRef.get().branch_(condition)(trueBranch)(falseBranch)
+      lib._4._1 = (initial: Ptr[CSharedData], f: Function1[Ptr[CSharedData], CReturnSending[Ptr[CSharedData]]]) =>
         libraryRef.get().exchange_(initial)(f)
-    cAggregateLibrary
   end asNative
 end FullLibrary
 

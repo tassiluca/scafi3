@@ -17,21 +17,17 @@ import it.unibo.scafi.utils.CUtils.freshPointer
 trait NativeFieldBasedSharedData extends PortableLibrary:
   self: PortableTypes & PortableExchangeCalculusLibrary =>
 
-  override type Language <: AggregateFoundation & ExchangeSyntax & FieldBasedSharedData
+  export NativeFieldBasedSharedData.CSharedData
 
-  type CSharedData = CStruct2[
-    /* default_value */ Ptr[CBinaryCodable],
-    /* neighbor_values */ CMap,
-  ]
+  override type Language <: AggregateFoundation & ExchangeSyntax & FieldBasedSharedData
 
   override type SharedData[Value] = Ptr[CSharedData]
 
   override given [Value]: Iso[SharedData[Value], language.SharedData[Value]] =
     Iso[SharedData[Value], language.SharedData[Value]](cField =>
       val field = language.sharedDataApplicative.pure((!cField)._1.asInstanceOf[Value])
-      (!cField)._2.toScalaMap.foldLeft(field)((f, n) =>
+      (!cField)._2.toScalaMap.foldLeft(field): (f, n) =>
         f.set(n._1.asInstanceOf[language.DeviceId], n._2.asInstanceOf[Value]),
-      ),
     )(f =>
       freshPointer[CSharedData].tap:
         cField => // TODO: when to free this memory?
@@ -52,22 +48,22 @@ end NativeFieldBasedSharedData
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object NativeFieldBasedSharedData:
 
-  type CSharedData = CStruct2[
-    /* default_value */ Ptr[CBinaryCodable],
-    /* neighbor_values */ CMap,
-  ]
+  type CSharedData = CStruct2[ /* default_value */ Ptr[CBinaryCodable], /* neighbor_values */ CMap]
+
+  extension (sd: Ptr[CSharedData])
+    def default: Ptr[CBinaryCodable] = (!sd)._1
+    def neighborValues: CMap = (!sd)._2
 
   @exported("shared_data_to_string")
-  def sharedDataToString(sd: Ptr[CSharedData]): CString = Zone:
-    // todo: free memory
-    val defaultStr = fromCString(sd._1.toStr(sd._1))
-    val neighborsStr = sd._2.toScalaMap
-      .map(n =>
-        n._1.asInstanceOf[EqPtr].ptr.asInstanceOf[Ptr[CBinaryCodable]] -> n._2.asInstanceOf[Ptr[CBinaryCodable]],
-      )
-      .map((nid, nv) => fromCString(nid.toStr(nid)) + " -> " + fromCString(nv.toStr(nv)))
+  def sharedDataToString(sd: Ptr[CSharedData]): CString =
+    val defaultStr = fromCString(sd.default.toStr(sd.default))
+    val neighborsStr = sd.neighborValues.toScalaMap
+      .map: (nid, nv) =>
+        nid.asInstanceOf[EqPtr].ptr.asInstanceOf[Ptr[CBinaryCodable]] -> nv.asInstanceOf[Ptr[CBinaryCodable]]
+      .map: (nid, nv) =>
+        fromCString(nid.toStr(nid)) + " -> " + fromCString(nv.toStr(nv))
       .toList
       .sorted
       .mkString("[", ", ", "]")
-    strdup(toCString(s"Field($defaultStr, $neighborsStr)"))
+    Zone(strdup(toCString(s"Field($defaultStr, $neighborsStr)"))) // memory needs to be freed by the caller
 end NativeFieldBasedSharedData

@@ -17,10 +17,8 @@ trait ScafiEngineBinding extends PortableRuntime:
   trait EngineBindings(using ExecutionContext) extends Api:
     self: Requirements =>
 
-    /*
-     * WARNING: Inline is needed here for native platform to ensure function pointers are correctly handled at
-     * call site. Removing it does not lead to compilation errors but to runtime segfaults!
-     */
+    /* WARNING: Inline is needed here for native platform to ensure function pointers are correctly handled at
+     * call site. Removing it does not lead to compilation errors but to runtime segfaults! */
     inline override def engine[ID, Result](
         deviceId: ID,
         network: ConnectionOrientedNetworkManager[ID],
@@ -29,7 +27,7 @@ trait ScafiEngineBinding extends PortableRuntime:
     ): Outcome[Unit] =
       def round: Future[Unit] =
         for
-          engine = ScafiEngine(deviceId, network, exchangeContextFactory)(program(library))
+          engine = ScafiEngine(deviceId, network, exchangeContextFactory)(safelyRun(program(library)))
           result <- Future(engine.cycle())
           continue <- onResult(result)
           _ <- if continue then round else Future(network.close())
