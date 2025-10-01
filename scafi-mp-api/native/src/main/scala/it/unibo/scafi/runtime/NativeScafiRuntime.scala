@@ -67,6 +67,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
         port: CInt,
         neighbors: Map[CVoidPtr, Endpoint],
     ): ConnectionOrientedNetworkManager[EqPtr] =
+      nativeBinaryCodable.register(deviceId.asInstanceOf[Ptr[CBinaryCodable]])
       socketNetwork(EqPtr(deviceId, deviceId.asInstanceOf[Ptr[CBinaryCodable]].equalsFn), port, neighbors)
 
     @exported("engine")

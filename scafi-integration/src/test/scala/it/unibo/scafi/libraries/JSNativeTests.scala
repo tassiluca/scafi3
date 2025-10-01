@@ -28,7 +28,7 @@ class JSNativeTests extends NativeTests with JSTests:
   "JSON exchange aggregate program" should "correctly exchange JSON messages" in sensorTestWith("json")
 
   inline def sensorTestWith(format: String): Assertion =
-    def jsSensor(id: Int): String = s"Sensor(id=#$id, temp=${id * 10})"
+    def jsSensor(id: Int): String = s"Sensor(id=#$id, temp=${id * 10}.00)"
     sequence:
       aggregateResult(s"${format}-exchange", rows = 2, cols = 2)
     .futureValue should contain theSameElementsAs Seq(
