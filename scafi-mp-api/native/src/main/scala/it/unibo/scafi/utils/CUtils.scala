@@ -48,14 +48,11 @@ object CUtils:
 
     /**
      * Convert an array of bytes to a pointer to `uint8_t`.
-     * @param bytes
-     *   the array of bytes to convert
-     * @param z
-     *   the zone to allocate the pointer in
      * @return
      *   a pointer to `uint8_t` representing the array of bytes
      * @note
-     *   the pointer is allocated in the given zone and will be freed when the zone is closed.
+     *   the pointer is allocated in the given zone and will be automatically freed when the zone is closed. Accessing
+     *   it outside the zone will lead to undefined behavior.
      */
     def toUint8Array(using Zone): Ptr[uint8_t] =
       val ptr = alloc[uint8_t](bytes.length)

@@ -12,7 +12,7 @@ import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
 import it.unibo.scafi.libraries.FullLibrary.libraryRef
 import it.unibo.scafi.presentation.NativeBinaryCodable.nativeBinaryCodable
 import it.unibo.scafi.types.{ CBinaryCodable, CMap, EqPtr, NativeTypes }
-import it.unibo.scafi.types.CBinaryCodable.equalsFn
+import it.unibo.scafi.types.CBinaryCodable.{ equalsFn, hashFn }
 import it.unibo.scafi.utils.CUtils.freshPointer
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
@@ -60,10 +60,7 @@ class FullLibrary(using
       nativeBinaryCodable.register(local)
       freshPointer[CSharedData].tap: sd => // TODO: memory leak here
         sd._1 = local
-        sd._2 = CMap(
-          collection.mutable.Map.empty,
-          local.equalsFn.asInstanceOf[CFuncPtr2[CVoidPtr, CVoidPtr, Boolean]],
-        )
+        sd._2 = CMap(collection.mutable.Map.empty, local.equalsFn, local.hashFn)
     cAggregateLibrary._2._1 = () => libraryRef.get().localId.asInstanceOf[EqPtr].ptr.asInstanceOf[Ptr[CBinaryCodable]]
     cAggregateLibrary._2._2 = () => libraryRef.get().device
     cAggregateLibrary._3._1 = (condition: Boolean, trueBranch: Function0[CVoidPtr], falseBranch: Function0[CVoidPtr]) =>

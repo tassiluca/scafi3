@@ -11,7 +11,7 @@ struct Endpoint {
     int port;
 };
 
-MAP_OF(Neighborhood, BinaryCodable, struct Endpoint, DEVICE_ID->equals)
+MAP_OF(Neighborhood, BinaryCodable, struct Endpoint, DEVICE_ID->equals, DEVICE_ID->hash)
 
 ConnectionOrientedNetworkManager socket_network(
     const BinaryCodable* device_id,

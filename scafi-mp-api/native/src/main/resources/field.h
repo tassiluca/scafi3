@@ -11,12 +11,13 @@ typedef struct BinaryCodable {
     uint8_t* (*encode)(void *data, size_t *encoded_size);
     struct BinaryCodable* (*decode)(const uint8_t *buffer, size_t size);
     bool (*equals)(const void* a, const void* b);
+    uint32_t (*hash)(const void* data);
     char* (*to_str)(const void* data);
 } BinaryCodable;
 
 extern BinaryCodable* DEVICE_ID;
 
-MAP_OF(NValues, BinaryCodable, BinaryCodable, DEVICE_ID->equals)
+MAP_OF(NValues, BinaryCodable, BinaryCodable, DEVICE_ID->equals, DEVICE_ID->hash)
 
 typedef struct {
     const BinaryCodable* default_value;

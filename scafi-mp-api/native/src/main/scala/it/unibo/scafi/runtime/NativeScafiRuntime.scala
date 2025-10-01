@@ -7,7 +7,7 @@ import scala.scalanative.unsafe.{ exported, fromCString, CInt, CString, CStruct2
 
 import it.unibo.scafi
 import it.unibo.scafi.types.{ CBinaryCodable, EqPtr }
-import it.unibo.scafi.types.CBinaryCodable.equalsFn
+import it.unibo.scafi.types.CBinaryCodable.{ equalsFn, hashFn }
 
 import io.github.iltotore.iron.refineUnsafe
 
@@ -43,6 +43,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
         EqPtr(
           binaryCodableInstance.asInstanceOf[CVoidPtr],
           binaryCodableInstance.equalsFn,
+          binaryCodableInstance.hashFn,
         ).asInstanceOf[Value]
 
     override def library[ID]: ExchangeAggregateContext[ID] ?=> AggregateLibrary = FullLibrary().asNative
@@ -67,8 +68,9 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
         port: CInt,
         neighbors: Map[CVoidPtr, Endpoint],
     ): ConnectionOrientedNetworkManager[EqPtr] =
-      nativeBinaryCodable.register(deviceId.asInstanceOf[Ptr[CBinaryCodable]])
-      socketNetwork(EqPtr(deviceId, deviceId.asInstanceOf[Ptr[CBinaryCodable]].equalsFn), port, neighbors)
+      val deviceIdAsBinaryCodable = deviceId.asInstanceOf[Ptr[CBinaryCodable]]
+      nativeBinaryCodable.register(deviceIdAsBinaryCodable)
+      socketNetwork(EqPtr(deviceId, deviceIdAsBinaryCodable.equalsFn, deviceIdAsBinaryCodable.hashFn), port, neighbors)
 
     @exported("engine")
     def nativeEngine(
@@ -77,6 +79,12 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
         program: Function1[AggregateLibrary, CVoidPtr],
         onResult: Function1[CVoidPtr, Outcome[Boolean]],
     ): Outcome[Unit] =
-      engine(EqPtr(deviceId, deviceId.asInstanceOf[Ptr[CBinaryCodable]].equalsFn), network, program, onResult)
+      val deviceIdAsBinaryCodable = deviceId.asInstanceOf[Ptr[CBinaryCodable]]
+      engine(
+        EqPtr(deviceId, deviceIdAsBinaryCodable.equalsFn, deviceIdAsBinaryCodable.hashFn),
+        network,
+        program,
+        onResult,
+      )
   end NativeApi
 end NativeScafiRuntime

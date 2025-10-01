@@ -3,7 +3,7 @@ package it.unibo.scafi.types
 import java.util.concurrent.ConcurrentHashMap
 
 import scala.language.unsafeNulls
-import scala.scalanative.unsafe.{ exported, CBool, CFuncPtr2, CSize, CVoidPtr }
+import scala.scalanative.unsafe.{ exported, CFuncPtr2, CSize, CVoidPtr }
 import scala.scalanative.unsafe.Size.intToSize
 import scala.util.chaining.scalaUtilChainingOps
 
@@ -11,7 +11,7 @@ import scala.util.chaining.scalaUtilChainingOps
  * A generic, C-interoperable map of elements. This map is heterogeneous: values can be of different types. Internally,
  * it only stores raw `void*` pointers to the actual values, so callers are responsible for ensuring that the pointers
  * are of coherent types. Dereferencing or misinterpreting these pointers can result in undefined or unsafe behavior. To
- * allow for key comparison, a function pointer is provided that defines how to compare two keys for equality.
+ * allow for key comparison, a function pointer is provided defining how to compare two keys for equality.
  * @note
  *   Unlike Scala's `Map`, this container does not enforce type safety at compile time and is intended primarily as a
  *   low-level, flexible utility for C/C++ interoperability.
@@ -23,7 +23,7 @@ import scala.util.chaining.scalaUtilChainingOps
  * @see
  *   companion object for exported functions callable from C/C++.
  */
-class CMap private (underlying: collection.mutable.Map[CVoidPtr, CVoidPtr], equals: CEquals):
+class CMap private (underlying: collection.mutable.Map[CVoidPtr, CVoidPtr], equals: CEquals, hash: CHash):
   export underlying.{ size, foreach }
 
   def update(key: CVoidPtr, value: CVoidPtr): Unit =
@@ -33,7 +33,7 @@ class CMap private (underlying: collection.mutable.Map[CVoidPtr, CVoidPtr], equa
 
   private def findBy(key: CVoidPtr): Option[CVoidPtr] = underlying.keys.find(equals(_, key))
 
-  def toScalaMap: Map[EqPtr, CVoidPtr] = underlying.view.map(EqPtr(_, equals) -> _).toMap
+  def toScalaMap: Map[EqPtr, CVoidPtr] = underlying.view.map(EqPtr(_, equals, hash) -> _).toMap
 end CMap
 
 object CMap:
@@ -42,14 +42,14 @@ object CMap:
    * side (the collector cannot be aware of), we keep a reference to them in this set. */
   private val activeRefs = ConcurrentHashMap.newKeySet[CMap]()
 
-  def apply(underlying: collection.mutable.Map[CVoidPtr, CVoidPtr], equals: CEquals): CMap =
-    empty(equals).tap: map =>
+  def apply(underlying: collection.mutable.Map[CVoidPtr, CVoidPtr], equals: CEquals, hash: CHash): CMap =
+    empty(equals, hash).tap: map =>
       activeRefs.add(map)
       underlying.foreach(map.update)
 
   @exported("map_empty")
-  def empty(compareFun: CFuncPtr2[CVoidPtr, CVoidPtr, CBool]): CMap =
-    new CMap(collection.mutable.Map.empty, compareFun).tap(activeRefs.add)
+  def empty(equals: CEquals, hash: CHash): CMap =
+    new CMap(collection.mutable.Map.empty, equals, hash).tap(activeRefs.add)
 
   @exported("map_put")
   def put(map: CMap, key: CVoidPtr, value: CVoidPtr): Unit = map.update(key, value)

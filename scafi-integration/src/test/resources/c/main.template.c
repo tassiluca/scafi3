@@ -23,6 +23,11 @@ static bool codable_int_compare(const void* a, const void* b) {
     return *(int*) bc_a->data == *(int*) bc_b->data;
 }
 
+static uint32_t codable_int_hash(const void* a) {
+    const BinaryCodable *bc_a = (const BinaryCodable*)a;
+    return (uint32_t)(*(int*) bc_a->data);
+}
+
 static uint8_t* encode_int(void* data, size_t* encoded_size) {
     if (!data || !encoded_size) return NULL;
     *encoded_size = sizeof(int);
@@ -48,6 +53,7 @@ static BinaryCodable* decode_int(const uint8_t* buffer, size_t size) {
     bc->encode = encode_int;
     bc->decode = decode_int;
     bc->equals = codable_int_compare;
+    bc->hash = codable_int_hash;
     bc->to_str = codable_int_str;
     return bc;
 }
@@ -61,6 +67,7 @@ BinaryCodable* codable_int(int value) {
     bc->encode = encode_int;
     bc->decode = decode_int;
     bc->equals = codable_int_compare;
+    bc->hash = codable_int_hash;
     bc->to_str = codable_int_str;
     return bc;
 }

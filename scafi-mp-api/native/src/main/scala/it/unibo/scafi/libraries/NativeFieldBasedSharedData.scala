@@ -2,6 +2,7 @@ package it.unibo.scafi.libraries
 
 import scala.scalanative.posix.string.strdup
 import scala.scalanative.unsafe.{ exported, fromCString, toCString, CFuncPtr2, CString, CStruct2, CVoidPtr, Ptr, Zone }
+import scala.scalanative.unsigned.UInt
 import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
@@ -32,15 +33,18 @@ trait NativeFieldBasedSharedData extends PortableLibrary:
         f.set(n._1.asInstanceOf[language.DeviceId], n._2.asInstanceOf[Value]),
       ),
     )(f =>
-      freshPointer[CSharedData].tap: cField => // TODO: when to free this memory?
-        cField._1 = f.default.asInstanceOf[Ptr[CBinaryCodable]]
-        cField._2 = CMap(
-          collection.mutable.Map
-            .from(f.neighborValues.asInstanceOf[collection.immutable.Map[EqPtr, CVoidPtr]])
-            .map(_.ptr -> _),
-          if f.neighborValues.isEmpty then (_: CVoidPtr, _: CVoidPtr) => false
-          else f.neighborValues.head._1.asInstanceOf[EqPtr].equals,
-        ),
+      freshPointer[CSharedData].tap:
+        cField => // TODO: when to free this memory?
+          cField._1 = f.default.asInstanceOf[Ptr[CBinaryCodable]]
+          cField._2 = CMap(
+            collection.mutable.Map
+              .from(f.neighborValues.asInstanceOf[collection.immutable.Map[EqPtr, CVoidPtr]])
+              .map(_.ptr -> _),
+            if f.neighborValues.isEmpty then (_: CVoidPtr, _: CVoidPtr) => false
+            else f.neighborValues.head._1.asInstanceOf[EqPtr].equals,
+            if f.neighborValues.isEmpty then (_: CVoidPtr) => UInt.valueOf(0)
+            else f.neighborValues.head._1.asInstanceOf[EqPtr].hash,
+          ),
     )
 
 end NativeFieldBasedSharedData

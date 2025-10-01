@@ -14,10 +14,10 @@
 
 #define fn lambda
 
-#define MAP_OF(Name, KeysType, ValuesType, CompareFunc)                                     \
+#define MAP_OF(Name, KeysType, ValuesType, CompareFunc, HashFunc)                           \
     typedef Map Name;                                                                       \
     static inline Name Name##_empty() {                                                     \
-        return map_empty(CompareFunc);                                                      \
+        return map_empty(CompareFunc, HashFunc);                                            \
     }                                                                                       \
     static inline void Name##_put(Name map, const KeysType* key, const ValuesType* value) { \
         map_put(map, key, value);                                                           \
