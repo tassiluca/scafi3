@@ -1,7 +1,7 @@
 import org.scalajs.linker.interface.OutputPatterns
-import scala.scalanative.build.{ BuildTarget, GC, LTO, Mode }
+import scala.scalanative.build.{ BuildTarget, GC, LTO, Mode, Sanitizer }
 import sbtcrossproject.CrossProject
-import BuildUtils.{ nativeLibExtension, os, Windows }
+import BuildUtils.{ Windows, nativeLibExtension, os }
 
 val scala3Version = "3.7.2"
 
@@ -87,6 +87,8 @@ lazy val commonNativeSettings = Seq(
       .withBuildTarget(BuildTarget.libraryDynamic)
       .withBaseName((ThisBuild / name).value)
       .withCheck(true)
+      .withCheckFeatures(true)
+      .withCheckFatalWarnings(true)
   },
   Compile / nativeLink := {
     val out = (Compile / nativeLink).value

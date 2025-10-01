@@ -1,7 +1,7 @@
 package it.unibo.scafi.types
 
-import scala.language.unsafeNulls
 import scala.collection.mutable
+import scala.language.unsafeNulls
 import scala.scalanative.unsafe.{ exported, CFuncPtr2, CSize, CVoidPtr }
 import scala.scalanative.unsafe.Size.intToSize
 import scala.scalanative.unsigned.UInt
