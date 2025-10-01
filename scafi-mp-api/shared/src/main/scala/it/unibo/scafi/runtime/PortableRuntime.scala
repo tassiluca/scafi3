@@ -17,7 +17,7 @@ trait PortableRuntime:
   trait Requirements extends MemorySafeContext:
 
     /** The universal codable instance used for encoding and decoding values to be sent over the network. */
-    given [Value, Format]: UniversalCodable[Value, Format] = compiletime.deferred
+    given valuesCodable[Value, Format]: UniversalCodable[Value, Format] = compiletime.deferred
 
     /** The aggregate library entry point. */
     type AggregateLibrary

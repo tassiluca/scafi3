@@ -38,7 +38,7 @@ ThisBuild / scalacOptions ++= Seq(
   "-Wnonunit-statement",
   "-Yexplicit-nulls",
   "-Wsafe-init",
-  //"-Ycheck-reentrant",
+  "-Ycheck-reentrant",
   "-Xcheck-macros",
   "-rewrite",
   "-indent",
@@ -86,21 +86,21 @@ lazy val commonNativeSettings = Seq(
       .withGC(GC.immix)
       .withBuildTarget(BuildTarget.libraryDynamic)
       .withBaseName((ThisBuild / name).value)
+      .withCheck(true)
   },
   Compile / nativeLink := {
     val out = (Compile / nativeLink).value
     val linkerOutputDir = target.value / "nativeLink"
     IO.createDirectory(linkerOutputDir)
+    val libName = (ThisBuild / name).value
+    val prefix = if (os == Windows) "" else "lib"
+    val targetFile = linkerOutputDir / s"$prefix$libName.$nativeLibExtension"
+    IO.move(out, targetFile)
     if (os == Windows) {
-      val targetFile = linkerOutputDir / s"${(ThisBuild / name).value}.$nativeLibExtension"
-      IO.move(out, targetFile)
-      IO.move(target.value / "scala-3.7.2" / "scafi3.lib", linkerOutputDir / "scafi3.lib")
-      targetFile
-    } else {
-      val targetFile = linkerOutputDir / s"lib${(ThisBuild / name).value}.$nativeLibExtension"
-      IO.move(out, targetFile)
-      targetFile
+      val libFile = out.getParentFile / s"$libName.lib"
+      IO.move(libFile, linkerOutputDir / s"$libName.lib")
     }
+    targetFile
   },
   scalacOptions ++= Seq("-Wconf:msg=unused import&src=.*[\\\\/]src_managed[\\\\/].*:silent"),
   coverageEnabled := false,

@@ -20,7 +20,7 @@ object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with Scaf
   trait JSRequirements extends Requirements with NoMemorySafeContext:
     type AggregateLibrary = FullLibrary
 
-    override given [Value, Format]: UniversalCodable[Value, Format] =
+    override given valuesCodable[Value, Format]: UniversalCodable[Value, Format] =
       jsBinaryCodable.asInstanceOf[UniversalCodable[Value, Format]]
 
     override def library[ID](using Context): ExchangeAggregateContext[ID] ?=> FullLibrary = FullLibrary()

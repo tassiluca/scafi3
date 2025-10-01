@@ -25,6 +25,7 @@ trait ScafiEngineBinding extends PortableRuntime:
         program: Function1[AggregateLibrary, Result],
         onResult: Function1[Result, Outcome[Boolean]],
     ): Outcome[Unit] =
+      valuesCodable.register(deviceId)
       def round: Future[Unit] =
         for
           engine = ScafiEngine(deviceId, network, exchangeContextFactory)(safelyRun(program(library)))

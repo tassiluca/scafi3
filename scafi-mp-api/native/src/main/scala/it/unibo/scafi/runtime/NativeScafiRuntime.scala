@@ -27,7 +27,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
   trait NativeRequirements extends Requirements with AutoMemoryAllocator:
     type AggregateLibrary = Ptr[FullLibrary#CAggregateLibrary]
 
-    override given [Value, Format]: UniversalCodable[Value, Format] = new UniversalCodable[Value, Format]:
+    override given valuesCodable[Value, Format]: UniversalCodable[Value, Format] = new UniversalCodable[Value, Format]:
       override def register(value: Value): Unit = value match
         case eq: EqPtr => nativeBinaryCodable.register(eq.ptr.asInstanceOf[Ptr[CBinaryCodable]])
         case _ =>
@@ -69,7 +69,6 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
         neighbors: Map[CVoidPtr, Endpoint],
     ): ConnectionOrientedNetworkManager[EqPtr] =
       val deviceIdAsBinaryCodable = deviceId.asInstanceOf[Ptr[CBinaryCodable]]
-      nativeBinaryCodable.register(deviceIdAsBinaryCodable)
       socketNetwork(EqPtr(deviceId, deviceIdAsBinaryCodable.equalsFn, deviceIdAsBinaryCodable.hashFn), port, neighbors)
 
     @exported("engine")
