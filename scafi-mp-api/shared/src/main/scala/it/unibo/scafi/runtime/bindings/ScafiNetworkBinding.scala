@@ -9,7 +9,6 @@ import io.github.iltotore.iron.refineUnsafe
 import scafi.runtime.PortableRuntime
 import scafi.libraries.PortableTypes
 import scafi.runtime.network.sockets.{ ConnectionConfiguration, ConnectionOrientedNetworkManager, SocketNetworkManager }
-import it.unibo.scafi.runtime.network.sockets.InetTypes
 
 /**
  * Provides a concrete implementation of the portable runtime API for the ScaFi network.
@@ -25,10 +24,7 @@ trait ScafiNetworkBinding extends PortableRuntime:
         port: Int,
         neighbors: Map[ID, Endpoint],
     ): ConnectionOrientedNetworkManager[DeviceId] =
-      val net = neighbors.view
-        .map((id, e) => (id, toInetEndpoint(e)))
-        .toMap
-        .asInstanceOf[collection.immutable.Map[DeviceId, InetTypes.Endpoint]]
+      val net = neighbors.view.map((id, e) => (deviceIdIso.reverseGet(id), toInetEndpoint(e))).toMap
       SocketNetworkManager.withFixedNeighbors(deviceId, port.refineUnsafe, net)
 
     given ConnectionConfiguration = ConnectionConfiguration.basic

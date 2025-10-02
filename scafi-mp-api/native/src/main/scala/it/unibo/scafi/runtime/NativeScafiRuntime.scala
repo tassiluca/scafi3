@@ -29,10 +29,11 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
     override type Endpoint = Ptr[CStruct2[ /* address */ CString, /* port */ CInt]]
 
     override given deviceIdIso[ID]: Iso[DeviceId, ID] =
-      Iso((id: EqPtr) => id.ptr.asInstanceOf[ID])((ptr: ID) =>
-        val codable = ptr.asInstanceOf[Ptr[CBinaryCodable]]
-        EqPtr(codable, codable.equalsFn, codable.hashFn),
-      )
+      Iso[EqPtr, ID](_.ptr.asInstanceOf[ID]):
+        case p: Ptr[?] =>
+          val codable = p.asInstanceOf[Ptr[CBinaryCodable]]
+          EqPtr(codable, codable.equalsFn, codable.hashFn)
+        case e: EqPtr => e
 
     override given toInetEndpoint: Conversion[Endpoint, scafi.runtime.network.sockets.InetTypes.Endpoint] =
       e => scafi.runtime.network.sockets.InetTypes.Endpoint(fromCString(e._1).refineUnsafe, e._2.refineUnsafe)

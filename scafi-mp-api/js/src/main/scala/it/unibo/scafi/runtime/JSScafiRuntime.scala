@@ -24,8 +24,7 @@ object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with Scaf
     @JSExport @JSExportAll
     case class Endpoint(address: String, port: Int)
 
-    override given deviceIdIso[ID]: Iso[DeviceId, ID] =
-      Iso((id: DeviceId) => id.asInstanceOf[ID])((id: ID) => id.asInstanceOf[DeviceId])
+    override given deviceIdIso[ID]: Iso[DeviceId, ID] = Iso[DeviceId, ID](_.asInstanceOf[ID])(_.asInstanceOf[DeviceId])
 
     override given toInetEndpoint: Conversion[Endpoint, scafi.runtime.network.sockets.InetTypes.Endpoint] = e =>
       scafi.runtime.network.sockets.InetTypes.Endpoint(e.address.refineUnsafe, e.port.refineUnsafe)
