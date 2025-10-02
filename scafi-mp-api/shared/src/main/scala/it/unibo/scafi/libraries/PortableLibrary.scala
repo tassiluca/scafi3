@@ -4,7 +4,7 @@ package it.unibo.scafi.libraries
  * The root base trait for all portable libraries.
  */
 trait PortableLibrary:
-  ctx: PortableTypes =>
+  self: PortableTypes =>
   export it.unibo.scafi.language.AggregateFoundation
   export it.unibo.scafi.message.UniversalCodable
 

@@ -4,7 +4,7 @@ package it.unibo.scafi.libraries
  * The portable library providing common utility functions that are often used in programs and libraries.
  */
 trait PortableCommonLibrary extends PortableLibrary:
-  ctx: PortableTypes =>
+  self: PortableTypes =>
 
   /**
    * @return

@@ -23,17 +23,17 @@ import scala.util.chaining.scalaUtilChainingOps
  * @see
  *   companion object for exported functions callable from C/C++.
  */
-class CMap private (underlying: mutable.Map[CVoidPtr, CVoidPtr], equals: CEquals, hash: CHash):
+class CMap private (underlying: mutable.Map[EqPtr, CVoidPtr], equals: CEquals, hash: CHash):
   export underlying.{ size, foreach }
 
   def update(key: CVoidPtr, value: CVoidPtr): Unit =
-    findBy(key).fold(underlying.put(key, value))(k => underlying.update(k, value)): Unit
+    findBy(key).fold(underlying.put(EqPtr(key, equals, hash), value))(k => underlying.update(k, value)): Unit
 
   def get(key: CVoidPtr): Option[CVoidPtr] = findBy(key).map(underlying)
 
-  private def findBy(key: CVoidPtr): Option[CVoidPtr] = underlying.keys.find(equals(_, key))
+  private def findBy(key: CVoidPtr): Option[EqPtr] = underlying.keys.find(_.equals(key))
 
-  def toScalaMap: Map[EqPtr, CVoidPtr] = underlying.view.map(EqPtr(_, equals, hash) -> _).toMap
+  def toScalaMap: Map[EqPtr, CVoidPtr] = underlying.view.toMap
 end CMap
 
 object CMap:
@@ -63,7 +63,7 @@ object CMap:
   def size(map: CMap): CSize = map.size.toCSize
 
   @exported("map_foreach")
-  def foreach(map: CMap, f: CFuncPtr2[CVoidPtr, CVoidPtr, Unit]): Unit = map.foreach(f.apply)
+  def foreach(map: CMap, f: CFuncPtr2[CVoidPtr, CVoidPtr, Unit]): Unit = map.foreach((k, v) => f(k.ptr, v))
 
   @exported("map_free")
   def free(map: CMap): Unit = synchronized(activeRefs.remove(map): Unit)

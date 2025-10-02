@@ -2,6 +2,6 @@ package it.unibo.scafi.runtime
 
 trait NoMemorySafeContext extends MemorySafeContext:
 
-  type Context = Unit
+  type Arena = Unit
 
-  override def safelyRun[R](f: Context ?=> R): R = f(using ())
+  inline override def safelyRun[R](f: Arena ?=> R): R = f(using ())

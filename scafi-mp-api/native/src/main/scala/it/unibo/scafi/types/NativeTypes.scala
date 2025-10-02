@@ -16,9 +16,7 @@ trait NativeTypes extends PortableTypes:
 
   override type Map[K, V] = CMap
   override given [K, V] => Iso[Map[K, V], collection.immutable.Map[K, V]] =
-    Iso[Map[K, V], collection.immutable.Map[K, V]](
-      _.toScalaMap.asInstanceOf[collection.immutable.Map[K, V]],
-    )(m =>
+    Iso[Map[K, V], collection.immutable.Map[K, V]](_.toScalaMap.asInstanceOf[collection.immutable.Map[K, V]])(m =>
       if m.isEmpty then CMap.empty
       else
         CMap(

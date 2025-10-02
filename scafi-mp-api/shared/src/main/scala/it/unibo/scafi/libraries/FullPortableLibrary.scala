@@ -13,7 +13,7 @@ trait FullPortableLibrary[Lang <: AggregateFoundation & BranchingSyntax & Exchan
     extends PortableCommonLibrary
     with PortableBranchingLibrary
     with PortableExchangeCalculusLibrary:
-  ctx: PortableTypes =>
+  self: PortableTypes =>
 
   override type Language = Lang
 
