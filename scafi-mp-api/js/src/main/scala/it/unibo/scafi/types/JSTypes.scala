@@ -1,4 +1,4 @@
-package it.unibo.scafi.libraries
+package it.unibo.scafi.types
 
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success }

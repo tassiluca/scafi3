@@ -7,8 +7,8 @@ import it.unibo.scafi
 import io.github.iltotore.iron.refineUnsafe
 
 import scafi.runtime.PortableRuntime
-import scafi.libraries.PortableTypes
 import scafi.runtime.network.sockets.{ ConnectionConfiguration, ConnectionOrientedNetworkManager, SocketNetworkManager }
+import it.unibo.scafi.types.PortableTypes
 
 /**
  * Provides a concrete implementation of the portable runtime API for the ScaFi network.

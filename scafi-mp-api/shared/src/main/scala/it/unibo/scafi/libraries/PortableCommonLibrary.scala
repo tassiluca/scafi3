@@ -1,4 +1,5 @@
 package it.unibo.scafi.libraries
+import it.unibo.scafi.types.PortableTypes
 
 /**
  * The portable library providing common utility functions that are often used in programs and libraries.

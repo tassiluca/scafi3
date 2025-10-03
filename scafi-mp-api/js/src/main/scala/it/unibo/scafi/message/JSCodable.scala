@@ -1,8 +1,8 @@
-package it.unibo.scafi.presentation
+package it.unibo.scafi.message
 
 import scala.scalajs.js
 
-import it.unibo.scafi.presentation.protobufjs.ProtobufJSType.fromProtobufJsMessage
+import it.unibo.scafi.message.protobufjs.ProtobufJSType.fromProtobufJsMessage
 import it.unibo.scafi.utils.JSUtils.{ asDynamic, hasFunctions, hasProps, typed }
 
 /**

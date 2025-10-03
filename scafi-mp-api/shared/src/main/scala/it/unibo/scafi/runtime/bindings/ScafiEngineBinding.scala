@@ -4,7 +4,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Try }
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
-import it.unibo.scafi.libraries.PortableTypes
+import it.unibo.scafi.types.PortableTypes
 import it.unibo.scafi.runtime.{ PortableRuntime, ScafiEngine }
 import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 

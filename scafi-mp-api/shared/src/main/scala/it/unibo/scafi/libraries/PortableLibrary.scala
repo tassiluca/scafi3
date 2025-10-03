@@ -1,4 +1,5 @@
 package it.unibo.scafi.libraries
+import it.unibo.scafi.types.PortableTypes
 
 /**
  * The root base trait for all portable libraries.

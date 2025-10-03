@@ -30,7 +30,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
 
     override given deviceIdIso[ID]: Iso[DeviceId, ID] =
       Iso[EqPtr, ID](_.ptr.asInstanceOf[ID]):
-        case p: Ptr[?] =>
+        case p: CVoidPtr =>
           val codable = p.asInstanceOf[Ptr[CBinaryCodable]]
           EqPtr(codable, codable.equalsFn, codable.hashFn)
         case e: EqPtr => e

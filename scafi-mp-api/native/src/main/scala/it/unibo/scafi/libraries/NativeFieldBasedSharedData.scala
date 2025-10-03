@@ -10,6 +10,7 @@ import it.unibo.scafi.types.{ CBinaryCodable, CMap, NativeTypes }
 import it.unibo.scafi.types.CBinaryCodable.toStr
 import it.unibo.scafi.utils.CUtils.freshPointer
 import NativeFieldBasedSharedData.neighborValues
+import it.unibo.scafi.types.PortableTypes
 
 /**
  * A custom portable definition of a field-based `SharedData` structure for native platform.

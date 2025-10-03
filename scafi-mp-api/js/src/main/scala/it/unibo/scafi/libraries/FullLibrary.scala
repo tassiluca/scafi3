@@ -6,7 +6,8 @@ import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
-import it.unibo.scafi.presentation.JSBinaryCodable.jsBinaryCodable
+import it.unibo.scafi.message.JSBinaryCodable.jsBinaryCodable
+import it.unibo.scafi.types.JSTypes
 
 /**
  * A JavaScript version of the full Scafi library.

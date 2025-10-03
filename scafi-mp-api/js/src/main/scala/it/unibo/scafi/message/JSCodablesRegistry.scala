@@ -1,4 +1,4 @@
-package it.unibo.scafi.presentation
+package it.unibo.scafi.message
 
 import it.unibo.scafi.message.CodablesRegistry
 

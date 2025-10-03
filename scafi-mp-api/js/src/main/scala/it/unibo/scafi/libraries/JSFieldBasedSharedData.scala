@@ -1,6 +1,7 @@
 package it.unibo.scafi.libraries
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
+import it.unibo.scafi.types.PortableTypes
 
 /**
  * A custom portable definition of a field-based `SharedData` structure for js platform.

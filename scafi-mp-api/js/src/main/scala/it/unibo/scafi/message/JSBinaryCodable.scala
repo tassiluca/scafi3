@@ -1,4 +1,4 @@
-package it.unibo.scafi.presentation
+package it.unibo.scafi.message
 
 import java.nio.charset.StandardCharsets
 
@@ -6,7 +6,7 @@ import scala.scalajs.js
 import scala.scalajs.js.typedarray.Uint8Array
 
 import it.unibo.scafi.message.UniversalCodable
-import it.unibo.scafi.presentation.primitive.PrimitiveCodables.{ asPrimitiveCodable, primitiveCodables }
+import it.unibo.scafi.message.primitive.PrimitiveCodables.{ asPrimitiveCodable, primitiveCodables }
 import it.unibo.scafi.utils.JSUtils.{ toByteArray, toUint8Array }
 
 import io.bullet.borer.{ Cbor, Codec }

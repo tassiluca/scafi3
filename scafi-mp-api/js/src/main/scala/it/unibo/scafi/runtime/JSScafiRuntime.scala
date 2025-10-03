@@ -9,9 +9,10 @@ import io.github.iltotore.iron.refineUnsafe
 
 import scafi.context.xc.ExchangeAggregateContext
 import scafi.message.UniversalCodable
-import scafi.presentation.JSBinaryCodable.jsBinaryCodable
+import scafi.message.JSBinaryCodable.jsBinaryCodable
 import scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
-import scafi.libraries.{ FullLibrary, JSTypes }
+import scafi.libraries.FullLibrary
+import it.unibo.scafi.types.JSTypes
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with ScafiEngineBinding with JSTypes:

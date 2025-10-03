@@ -1,6 +1,6 @@
-package it.unibo.scafi.presentation.protobufjs
+package it.unibo.scafi.message.protobufjs
 
-import it.unibo.scafi.presentation.JSCodable
+import it.unibo.scafi.message.JSCodable
 import it.unibo.scafi.utils.JSUtils.{ asDynamic, hasFunctions }
 
 import scalajs.js

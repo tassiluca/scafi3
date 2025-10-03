@@ -1,7 +1,7 @@
 package it.unibo.scafi.libraries
 
 import java.util.concurrent.atomic.AtomicReference
-import scala.scalanative.unsafe.{CStruct1, CStruct2, CStruct4, CVoidPtr, Ptr, Zone, alloc, exported}
+import scala.scalanative.unsafe.{ CStruct1, CStruct2, CStruct4, CVoidPtr, Ptr, Zone, alloc, exported }
 import scala.util.chaining.scalaUtilChainingOps
 import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
@@ -9,7 +9,7 @@ import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
 import it.unibo.scafi.libraries.FullLibrary.libraryRef
 import it.unibo.scafi.presentation.NativeBinaryCodable.nativeBinaryCodable
-import it.unibo.scafi.types.{CBinaryCodable, CMap, EqPtr, NativeTypes}
+import it.unibo.scafi.types.{ CBinaryCodable, CMap, EqPtr, NativeTypes }
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 class FullLibrary(using

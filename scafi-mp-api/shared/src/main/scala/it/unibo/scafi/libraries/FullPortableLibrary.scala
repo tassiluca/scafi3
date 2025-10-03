@@ -3,6 +3,7 @@ package it.unibo.scafi.libraries
 import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
+import it.unibo.scafi.types.PortableTypes
 
 /**
  * Aggregates all the portable libraries in a singe entry point trait.

@@ -3,9 +3,9 @@ package it.unibo.scafi.runtime
 import it.unibo.scafi
 
 import scafi.context.xc.ExchangeAggregateContext
-import scafi.libraries.PortableTypes
 import scafi.message.UniversalCodable
 import scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
+import it.unibo.scafi.types.PortableTypes
 
 /**
  * Portable runtime API entry point.
