@@ -4,7 +4,7 @@ import scala.scalanative.libc.stddef.size_t
 import scala.scalanative.posix.inttypes.uint8_t
 import scala.scalanative.unsafe.{ CFuncPtr1, CFuncPtr2, CString, CStruct7, CVoidPtr, Ptr }
 
-import it.unibo.scafi.types.{CEquals, CHash}
+import it.unibo.scafi.types.{ CEquals, CHash }
 
 type CBinaryCodable = CStruct7[
   /* data */ CVoidPtr,
