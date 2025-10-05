@@ -13,6 +13,7 @@ import it.unibo.scafi.message.CBinaryCodable
 import it.unibo.scafi.message.CBinaryCodable.*
 import it.unibo.scafi.utils.CUtils.{ asVoidPtr, freshPointer, toByteArray, toUnconfinedCString, toUnconfinedUint8Array }
 
+@SuppressWarnings(Array("DisableSyntax.asInstanceOf"))
 object PrimitiveCodables:
 
   @exported("codable_int")

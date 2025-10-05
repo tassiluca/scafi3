@@ -1,3 +1,4 @@
+import BuildUtils.MacOS
 import org.scalajs.linker.interface.OutputPatterns
 import scala.scalanative.build.{ BuildTarget, GC, LTO, Mode, Sanitizer }
 import sbtcrossproject.CrossProject
@@ -80,12 +81,18 @@ lazy val commonDependencies =
 
 lazy val commonNativeSettings = Seq(
   nativeConfig := {
+    // macOS requires an additional linking option to correctly set the runtime path of the dynamic 
+    // library using the `-rpath` option. For more information, see https://stackoverflow.com/a/66284977.
+    val additionalLinkingOptions = if (os == MacOS) 
+      Seq(s"-Wl,-install_name,'@rpath/lib${(ThisBuild / name).value}.dylib'") 
+    else Nil
     nativeConfig.value
       .withLTO(LTO.full)
       .withMode(Mode.releaseSize)
       .withGC(GC.immix)
       .withBuildTarget(BuildTarget.libraryDynamic)
       .withBaseName((ThisBuild / name).value)
+      .withLinkingOptions(nativeConfig.value.linkingOptions ++ additionalLinkingOptions)
       .withCheck(true)
       .withCheckFeatures(true)
       .withCheckFatalWarnings(true)
