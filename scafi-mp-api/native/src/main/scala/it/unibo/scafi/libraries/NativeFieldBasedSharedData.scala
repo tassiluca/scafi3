@@ -5,12 +5,13 @@ import scala.scalanative.unsafe.{ exported, fromCString, toCString, CString, CSt
 import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
-import it.unibo.scafi.presentation.NativeBinaryCodable.nativeBinaryCodable
-import it.unibo.scafi.types.{ CBinaryCodable, CMap, NativeTypes }
-import it.unibo.scafi.types.CBinaryCodable.toStr
+import it.unibo.scafi.message.CBinaryCodable
+import it.unibo.scafi.message.CBinaryCodable.toStr
+import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
+import it.unibo.scafi.types.{ CMap, NativeTypes, PortableTypes }
 import it.unibo.scafi.utils.CUtils.freshPointer
+
 import NativeFieldBasedSharedData.neighborValues
-import it.unibo.scafi.types.PortableTypes
 
 /**
  * A custom portable definition of a field-based `SharedData` structure for native platform.

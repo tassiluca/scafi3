@@ -1,11 +1,11 @@
 package it.unibo.scafi.runtime
 
 import it.unibo.scafi
+import it.unibo.scafi.types.PortableTypes
 
 import scafi.context.xc.ExchangeAggregateContext
 import scafi.message.UniversalCodable
 import scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
-import it.unibo.scafi.types.PortableTypes
 
 /**
  * Portable runtime API entry point.
@@ -58,8 +58,7 @@ trait PortableRuntime:
      * whether the execution needs to continue or stop.
      */
     @JSExport
-    def engine[ID, Result](
-        deviceId: ID,
+    def engine[Result](
         network: ConnectionOrientedNetworkManager[DeviceId],
         program: Function1[AggregateLibrary, Result],
         onResult: Function1[Result, Outcome[Boolean]],

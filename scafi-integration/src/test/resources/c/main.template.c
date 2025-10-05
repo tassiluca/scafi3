@@ -93,7 +93,7 @@ int main(void) {
     Neighborhood neighbors = Neighborhood_empty();
     {{ neighbors }}
     ConnectionOrientedNetworkManager network = socket_network(DEVICE_ID, {{ port }}, neighbors);
-    engine(DEVICE_ID, network, aggregate_program, on_result);
+    engine(network, aggregate_program, on_result);
     printf("%s", field_to_str((const Field*) last_round_result));
     return 0;
 }

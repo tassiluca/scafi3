@@ -1,10 +1,9 @@
-package it.unibo.scafi.presentation
+package it.unibo.scafi.message
 
 import scala.scalanative.unsafe.{ fromCString, Ptr }
 
+import it.unibo.scafi.message.CBinaryCodable.typeName
 import it.unibo.scafi.message.CodablesRegistry
-import it.unibo.scafi.types.CBinaryCodable
-import it.unibo.scafi.types.CBinaryCodable.typeName
 
 trait NativeCodablesRegistry extends CodablesRegistry[NativeCodablesRegistry]:
   override type Codable = Ptr[CBinaryCodable]

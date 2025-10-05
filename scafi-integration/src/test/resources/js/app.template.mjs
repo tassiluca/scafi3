@@ -13,7 +13,7 @@ const network = Runtime.socketNetwork(deviceId, port, neighbors);
 
 let lastResult = null;
 let iterations = 10;
-await Runtime.engine(deviceId, network, lang => aggregateProgram(lang), async result => {
+await Runtime.engine(network, lang => aggregateProgram(lang), async result => {
     lastResult = result;
     await sleep(1_000);
     return iterations-- > 0;

@@ -4,6 +4,7 @@ import scala.concurrent.ExecutionContext
 import scala.scalajs.js
 
 import it.unibo.scafi
+import it.unibo.scafi.types.JSTypes
 
 import io.github.iltotore.iron.refineUnsafe
 
@@ -12,7 +13,6 @@ import scafi.message.UniversalCodable
 import scafi.message.JSBinaryCodable.jsBinaryCodable
 import scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
 import scafi.libraries.FullLibrary
-import it.unibo.scafi.types.JSTypes
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with ScafiEngineBinding with JSTypes:

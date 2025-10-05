@@ -1,12 +1,11 @@
-package it.unibo.scafi.presentation
+package it.unibo.scafi.message
 
 import scala.scalanative.libc.stddef.size_t
 import scala.scalanative.unsafe.{ alloc, fromCString, CSize, Ptr, Zone }
 import scala.scalanative.unsafe.Size.intToSize
 
+import it.unibo.scafi.message.CBinaryCodable.{ data, decode, encode, typeName }
 import it.unibo.scafi.message.UniversalCodable
-import it.unibo.scafi.types.CBinaryCodable
-import it.unibo.scafi.types.CBinaryCodable.{ data, decode, encode, typeName }
 import it.unibo.scafi.utils.CUtils.{ toByteArray, toUint8Array }
 
 import io.bullet.borer.{ Cbor, Codec }

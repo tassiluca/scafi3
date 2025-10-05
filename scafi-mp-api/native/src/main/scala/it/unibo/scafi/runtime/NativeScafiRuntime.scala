@@ -6,15 +6,16 @@ import scala.concurrent.ExecutionContext
 import scala.scalanative.unsafe.{ exported, fromCString, CInt, CString, CStruct2, CVoidPtr, Ptr }
 
 import it.unibo.scafi
-import it.unibo.scafi.types.{ CBinaryCodable, EqPtr }
-import it.unibo.scafi.types.CBinaryCodable.{ equalsFn, hashFn }
+import it.unibo.scafi.message.CBinaryCodable
+import it.unibo.scafi.message.CBinaryCodable.{ equalsFn, hashFn }
+import it.unibo.scafi.types.EqPtr
 
 import io.github.iltotore.iron.refineUnsafe
 
 import scafi.context.xc.ExchangeAggregateContext
 import scafi.libraries.FullLibrary
 import scafi.message.UniversalCodable
-import scafi.presentation.NativeBinaryCodable.nativeBinaryCodable
+import scafi.message.NativeBinaryCodable.nativeBinaryCodable
 import scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
 import scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 import scafi.types.NativeTypes
@@ -70,10 +71,9 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
 
     @exported("engine")
     def nativeEngine(
-        deviceId: CVoidPtr,
         network: ConnectionOrientedNetworkManager[DeviceId],
         program: Function1[AggregateLibrary, CVoidPtr],
         onResult: Function1[CVoidPtr, Outcome[Boolean]],
-    ): Outcome[Unit] = engine(deviceId, network, program, onResult)
+    ): Outcome[Unit] = engine(network, program, onResult)
   end NativeApi
 end NativeScafiRuntime

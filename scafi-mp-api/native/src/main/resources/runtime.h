@@ -20,7 +20,6 @@ ConnectionOrientedNetworkManager socket_network(
 );
 
 void engine(
-    const BinaryCodable* device_id,
     const ConnectionOrientedNetworkManager network_manager,
     const void* (*aggregate_program)(const AggregateLibrary* library),
     bool (*on_result)(const void* result)
