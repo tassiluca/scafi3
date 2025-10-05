@@ -14,7 +14,7 @@ class CNativeTests extends NativeTests with CTests:
 
   override def neighborsAsCode(id: ID, neighbors: Set[ID], ports: Seq[Port]): ProgramOutput = neighbors
     .map(nid => s"""
-      |BinaryCodable* neighbor_$nid = codable_int($nid);
+      |BinaryCodable* neighbor_$nid = codable($nid);
       |struct Endpoint device_endpoint_$nid = { "localhost", ${ports(nid)} };
       |Neighborhood_put(neighbors, neighbor_$nid, &device_endpoint_$nid);
       |""".stripMargin)

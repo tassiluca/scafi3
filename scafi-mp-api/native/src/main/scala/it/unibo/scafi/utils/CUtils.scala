@@ -4,8 +4,10 @@ import scala.reflect.ClassTag
 import scala.scalanative.libc.stddef.size_t
 import scala.scalanative.libc.stdlib.malloc
 import scala.scalanative.posix.inttypes.uint8_t
-import scala.scalanative.unsafe.{ alloc, sizeOf, Ptr, Zone }
+import scala.scalanative.posix.string.strdup
+import scala.scalanative.unsafe.{ alloc, sizeOf, toCString, CString, CVoidPtr, Ptr, Zone }
 import scala.scalanative.unsafe.Size.byteToSize
+import scala.util.chaining.scalaUtilChainingOps
 
 /** A bunch of utilities for C interop. */
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf", "scalafix:DisableSyntax.null"))
@@ -54,10 +56,19 @@ object CUtils:
      *   the pointer is allocated in the given zone and will be automatically freed when the zone is closed. Accessing
      *   it outside the zone will lead to undefined behavior.
      */
-    def toUint8Array(using Zone): Ptr[uint8_t] =
-      val ptr = alloc[uint8_t](bytes.length)
-      for i <- bytes.indices do !(ptr + i) = bytes(i).toUByte
-      ptr
+    def toUint8Array(using Zone): Ptr[uint8_t] = alloc[uint8_t](bytes.length).tap(writeTo)
+
+    /**
+     * Convert an array of bytes to a pointer to `uint8_t` that is not confined to a zone.
+     * @return
+     *   a pointer to `uint8_t` representing the array of bytes
+     * @note
+     *   the pointer is allocated using `malloc` and must be manually freed by the caller.
+     */
+    def toUnconfinedUint8Array: Ptr[uint8_t] = freshPointer[uint8_t](bytes.length).tap(writeTo)
+
+    private def writeTo(ptr: Ptr[uint8_t]): Unit = for i <- bytes.indices do !(ptr + i) = bytes(i).toUByte
+  end extension
 
   extension (ptr: Ptr[uint8_t])
 
@@ -75,4 +86,19 @@ object CUtils:
       val array = new Array[Byte](size.toInt)
       for i <- 0 until size.toInt do array(i) = (!(ptr + i)).toByte
       array
+
+  /**
+   * Converts a Scala String to a C-style string (null-terminated array of characters) that is not confined to a zone.
+   * @param str
+   *   the Scala String to convert
+   * @return
+   *   a pointer to a null-terminated array of characters representing the C string
+   * @note
+   *   the pointer is allocated and must be manually freed by the caller.
+   */
+  def toUnconfinedCString(str: String): CString = Zone(strdup(toCString(str)))
+
+  extension [T](ptr: Ptr[T])
+    /** Treats the pointer as a `CVoidPtr`. */
+    def asVoidPtr: CVoidPtr = ptr.asInstanceOf[CVoidPtr]
 end CUtils
