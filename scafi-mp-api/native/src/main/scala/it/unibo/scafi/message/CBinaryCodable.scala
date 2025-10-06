@@ -2,9 +2,18 @@ package it.unibo.scafi.message
 
 import scala.scalanative.libc.stddef.size_t
 import scala.scalanative.posix.inttypes.uint8_t
-import scala.scalanative.unsafe.{ CFuncPtr1, CFuncPtr2, CString, CStruct7, CVoidPtr, Ptr }
+import scala.scalanative.unsafe.{ CFuncPtr1, CFuncPtr2, CString, CStruct7, Ptr, CBool, CVoidPtr }
+import scala.scalanative.unsigned.UInt
 
-import it.unibo.scafi.types.{ CEquals, CHash }
+/**
+ * A C function pointer that determines equality between two C void pointers.
+ */
+type CEquals = CFuncPtr2[CVoidPtr, CVoidPtr, CBool]
+
+/**
+ * A C function pointer that computes a hash code for a C void pointer.
+ */
+type CHash = CFuncPtr1[CVoidPtr, UInt]
 
 type CBinaryCodable = CStruct7[
   /* data */ CVoidPtr,

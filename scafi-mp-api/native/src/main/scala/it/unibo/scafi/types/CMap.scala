@@ -4,7 +4,6 @@ import scala.collection.mutable
 import scala.language.unsafeNulls
 import scala.scalanative.unsafe.{ exported, CFuncPtr2, CSize, CVoidPtr }
 import scala.scalanative.unsafe.Size.intToSize
-import scala.scalanative.unsigned.UInt
 import scala.util.chaining.scalaUtilChainingOps
 
 /**
@@ -23,48 +22,37 @@ import scala.util.chaining.scalaUtilChainingOps
  * @see
  *   companion object for exported functions callable from C/C++.
  */
-class CMap private (underlying: mutable.Map[EqPtr, CVoidPtr], equals: CEquals, hash: CHash):
-  export underlying.{ size, foreach }
+class CMap[Key, Value] private (underlying: mutable.Map[Key, Value]):
+  export underlying.{ size, foreach, get, update }
 
-  def update(key: CVoidPtr, value: CVoidPtr): Unit =
-    findBy(key).fold(underlying.put(EqPtr(key, equals, hash), value))(k => underlying.update(k, value)): Unit
-
-  def get(key: CVoidPtr): Option[CVoidPtr] = findBy(key).map(underlying)
-
-  private def findBy(key: CVoidPtr): Option[EqPtr] = underlying.keys.find(_.equals(key))
-
-  def toScalaMap: Map[EqPtr, CVoidPtr] = underlying.view.toMap
-end CMap
+  def toScalaMap: Map[Key, Value] = underlying.view.toMap
 
 object CMap:
 
   /* NOTE: Scala objects are tracked by Garbage Collector. To avoid them being collected while still in use from C
    * side (the collector cannot be aware of), we keep a reference to them in this set. */
-  private val activeRefs = mutable.Set.empty[CMap]
+  private val activeRefs = mutable.Set.empty[CMap[?, ?]]
 
-  def empty: CMap = apply(mutable.Map.empty, (_: CVoidPtr, _: CVoidPtr) => false, (_: CVoidPtr) => UInt.valueOf(0))
+  def empty[Key, Value]: CMap[Key, Value] = apply(mutable.Map.empty)
 
-  def apply(underlying: mutable.Map[CVoidPtr, CVoidPtr], equals: CEquals, hash: CHash): CMap =
-    empty(equals, hash).tap: map =>
-      synchronized(activeRefs.add(map): Unit)
-      underlying.foreach(map.update)
+  def apply[Key, Value](underlying: mutable.Map[Key, Value]): CMap[Key, Value] =
+    new CMap(underlying).tap(synchronized(activeRefs.add))
 
   @exported("map_empty")
-  def empty(equals: CEquals, hash: CHash): CMap =
-    new CMap(mutable.Map.empty, equals, hash).tap(synchronized(activeRefs.add))
+  def void(): CMap[CVoidPtr, CVoidPtr] = new CMap(mutable.Map.empty).tap(synchronized(activeRefs.add))
 
   @exported("map_put")
-  def put(map: CMap, key: CVoidPtr, value: CVoidPtr): Unit = map.update(key, value)
+  def put(map: CMap[CVoidPtr, CVoidPtr], key: CVoidPtr, value: CVoidPtr): Unit = map.update(key, value)
 
   @exported("map_get")
-  def get(map: CMap, key: CVoidPtr): CVoidPtr = map.get(key).orNull
+  def get(map: CMap[CVoidPtr, CVoidPtr], key: CVoidPtr): CVoidPtr = map.get(key).orNull
 
   @exported("map_size")
-  def size(map: CMap): CSize = map.size.toCSize
+  def size(map: CMap[CVoidPtr, CVoidPtr]): CSize = map.size.toCSize
 
   @exported("map_foreach")
-  def foreach(map: CMap, f: CFuncPtr2[CVoidPtr, CVoidPtr, Unit]): Unit = map.foreach((k, v) => f(k.ptr, v))
+  def foreach(map: CMap[CVoidPtr, CVoidPtr], f: CFuncPtr2[CVoidPtr, CVoidPtr, Unit]): Unit = map.foreach(f.apply)
 
   @exported("map_free")
-  def free(map: CMap): Unit = synchronized(activeRefs.remove(map): Unit)
+  def free(map: CMap[CVoidPtr, CVoidPtr]): Unit = synchronized(activeRefs.remove(map): Unit)
 end CMap

@@ -12,7 +12,8 @@ import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
 import it.unibo.scafi.libraries.FullLibrary.libraryRef
 import it.unibo.scafi.message.CBinaryCodable
 import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
-import it.unibo.scafi.types.{ CMap, EqPtr, NativeTypes }
+import it.unibo.scafi.types.{ CMap, NativeTypes }
+import it.unibo.scafi.types.EqWrapper
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 class FullLibrary(using
@@ -23,6 +24,9 @@ class FullLibrary(using
 
   override given valueCodable[Value, Format]: UniversalCodable[Value, Format] =
     nativeBinaryCodable.asInstanceOf[UniversalCodable[Value, Format]]
+
+  override given deviceIdConv[ID]: Conversion[language.DeviceId, ID] =
+    _.asInstanceOf[EqWrapper[Ptr[CBinaryCodable]]].value.asInstanceOf[ID]
 
   type CReturnSending[T] = ReturnSending[T]
 
@@ -55,8 +59,8 @@ class FullLibrary(using
     libraryRef.set(this)
     alloc[CAggregateLibrary]().tap: lib =>
       lib._1._1 = (default: Ptr[CBinaryCodable]) => NativeFieldBasedSharedData.of(default, CMap.empty)
-      lib._2._1 = () => libraryRef.get().localId.asInstanceOf[EqPtr].ptr.asInstanceOf[Ptr[CBinaryCodable]]
-      lib._2._2 = () => libraryRef.get().device
+      lib._2._1 = () => libraryRef.get().localId.asInstanceOf[Ptr[CBinaryCodable]]
+      lib._2._2 = () => ??? // libraryRef.get().device
       lib._3._1 = (condition: Boolean, trueBranch: Function0[CVoidPtr], falseBranch: Function0[CVoidPtr]) =>
         libraryRef.get().branch_(condition)(trueBranch)(falseBranch)
       lib._4._1 = (initial: Ptr[CField], f: Function1[Ptr[CField], CReturnSending[Ptr[CField]]]) =>

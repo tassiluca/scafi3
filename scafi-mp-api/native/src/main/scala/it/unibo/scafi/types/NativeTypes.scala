@@ -3,26 +3,13 @@ package it.unibo.scafi.types
 import scala.collection.mutable
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration.Duration
-import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1, CFuncPtr2, CFuncPtr3, CVoidPtr }
+import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1, CFuncPtr2, CFuncPtr3 }
 
-@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait NativeTypes extends PortableTypes:
 
-  /*
-   * On native generic types are not supported, everything falls back to `void*`, i.e., `CVoidPtr`.
-   */
-
-  override type Map[K, V] = CMap
+  override type Map[K, V] = CMap[K, V]
   override given [K, V] => Iso[Map[K, V], collection.immutable.Map[K, V]] =
-    Iso[Map[K, V], collection.immutable.Map[K, V]](_.toScalaMap.asInstanceOf[collection.immutable.Map[K, V]])(m =>
-      if m.isEmpty then CMap.empty
-      else
-        CMap(
-          mutable.Map.from(m.asInstanceOf[collection.immutable.Map[EqPtr, CVoidPtr]].map(_.ptr -> _)),
-          m.head._1.asInstanceOf[EqPtr].equals,
-          m.head._1.asInstanceOf[EqPtr].hash,
-        ),
-    )
+    Iso[Map[K, V], collection.immutable.Map[K, V]](_.toScalaMap)(m => CMap(mutable.Map.from(m)))
 
   override type Outcome[T] = T
   override given [T] => Iso[Outcome[T], Future[T]] =

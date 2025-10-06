@@ -25,7 +25,7 @@ trait ScafiNetworkBinding extends PortableRuntime:
         neighbors: Map[ID, Endpoint],
     ): ConnectionOrientedNetworkManager[DeviceId] =
       deviceIdCodable.register(deviceId)
-      val net = neighbors.view.map((id, e) => (deviceIdIso.reverseGet(id), toInetEndpoint(e))).toMap
+      val net = neighbors.view.map((id, e) => (id: DeviceId, toInetEndpoint(e))).toMap
       SocketNetworkManager.withFixedNeighbors(deviceId, port.refineUnsafe, net)
 
     given ConnectionConfiguration = ConnectionConfiguration.basic

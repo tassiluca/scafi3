@@ -5,10 +5,12 @@ import java.util.concurrent.Executors
 import scala.concurrent.ExecutionContext
 import scala.scalanative.unsafe.{ exported, fromCString, CInt, CString, CStruct2, CVoidPtr, Ptr }
 
+import cats.kernel.Hash
+
 import it.unibo.scafi
 import it.unibo.scafi.message.CBinaryCodable
 import it.unibo.scafi.message.CBinaryCodable.{ equalsFn, hashFn }
-import it.unibo.scafi.types.EqPtr
+import it.unibo.scafi.types.EqWrapper
 
 import io.github.iltotore.iron.refineUnsafe
 
@@ -26,15 +28,15 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
   given ExecutionContext = ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
 
   trait NativeAdts extends Adts:
-    override type DeviceId = EqPtr
-    override type Endpoint = Ptr[CStruct2[ /* address */ CString, /* port */ CInt]]
+    override type DeviceId = EqWrapper[Ptr[CBinaryCodable]]
 
-    override given deviceIdIso[ID]: Iso[DeviceId, ID] =
-      Iso[EqPtr, ID](_.ptr.asInstanceOf[ID]):
-        case p: CVoidPtr =>
-          val codable = p.asInstanceOf[Ptr[CBinaryCodable]]
-          EqPtr(codable, codable.equalsFn, codable.hashFn)
-        case e: EqPtr => e
+    given Hash[Ptr[CBinaryCodable]] = new Hash[Ptr[CBinaryCodable]]:
+      override def hash(x: Ptr[CBinaryCodable]): Int = x.hashFn(x).toInt
+      override def eqv(x: Ptr[CBinaryCodable], y: Ptr[CBinaryCodable]): Boolean = x.equalsFn(x, y)
+
+    override given [ID] => Conversion[ID, DeviceId] = id => EqWrapper(id.asInstanceOf[Ptr[CBinaryCodable]])
+
+    override type Endpoint = Ptr[CStruct2[ /* address */ CString, /* port */ CInt]]
 
     override given toInetEndpoint: Conversion[Endpoint, scafi.runtime.network.sockets.InetTypes.Endpoint] =
       e => scafi.runtime.network.sockets.InetTypes.Endpoint(fromCString(e._1).refineUnsafe, e._2.refineUnsafe)
@@ -45,20 +47,12 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
 
     override given deviceIdCodable[Format]: UniversalCodable[DeviceId, Format] =
       new UniversalCodable[DeviceId, Format]:
-        override def register(value: DeviceId): Unit =
-          nativeBinaryCodable.register(value.ptr.asInstanceOf[Ptr[CBinaryCodable]])
-        override def encode(value: DeviceId): Format =
-          nativeBinaryCodable.encode(value.ptr.asInstanceOf[Ptr[CBinaryCodable]]).asInstanceOf[Format]
-        override def decode(bytes: Format): DeviceId =
-          val binaryCodableInstance = nativeBinaryCodable.decode(bytes.asInstanceOf[Array[Byte]])
-          EqPtr(
-            binaryCodableInstance.asInstanceOf[CVoidPtr],
-            binaryCodableInstance.equalsFn,
-            binaryCodableInstance.hashFn,
-          )
+        override def register(id: DeviceId): Unit = nativeBinaryCodable.register(id.value)
+        override def encode(id: DeviceId): Format = nativeBinaryCodable.encode(id.value).asInstanceOf[Format]
+        override def decode(data: Format): DeviceId =
+          EqWrapper(nativeBinaryCodable.decode(data.asInstanceOf[Array[Byte]]))
 
     override def library[ID](using Arena): ExchangeAggregateContext[ID] ?=> AggregateLibrary = FullLibrary().asNative
-  end NativeRequirements
 
   object NativeApi extends Api with NativeAdts with NetworkBindings with EngineBindings with NativeRequirements:
 
@@ -75,5 +69,4 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
         program: Function1[AggregateLibrary, CVoidPtr],
         onResult: Function1[CVoidPtr, Outcome[Boolean]],
     ): Outcome[Unit] = engine(network, program, onResult)
-  end NativeApi
 end NativeScafiRuntime

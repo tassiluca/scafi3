@@ -40,10 +40,11 @@ trait PlatformTest extends should.Matchers with OS with FileSystem:
     addSubstitutions
     for
       workingDir <- createTempDirectory(testName)
+      _ = println(s"Working directory: $workingDir")
       _ <- resolveTemplates(testName, workingDir, builder.substitutions)
       _ <- compile(workingDir)
       out <- run(workingDir)
-      _ = delete(workingDir)
+    // _ = delete(workingDir)
     yield out.trim()
 
   private def resolveTemplates(testName: String, workingDir: Path, substitutions: Set[Substitution]): Try[Unit] =

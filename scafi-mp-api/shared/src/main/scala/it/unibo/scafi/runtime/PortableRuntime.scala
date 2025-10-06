@@ -15,11 +15,11 @@ trait PortableRuntime:
 
   trait Adts:
 
-    /** The type used internally to the scafi core engine to identify devices. TODO: comparable? */
+    /** The type used internally to the scafi core engine to identify devices. */
     type DeviceId
 
-    /** Generic type parameters can be turned into internal `DeviceId` representation and viceversa. */
-    given deviceIdIso[ID]: Iso[DeviceId, ID] = compiletime.deferred
+    /** Generic type can be turned into internal `DeviceId` representation and viceversa. */
+    given [ID] => Conversion[ID, DeviceId] = compiletime.deferred
 
     /** A network endpoint consisting of an [[address]] and a [[port]]. */
     type Endpoint
