@@ -2,6 +2,7 @@
 #define MESSAGE_H
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stddef.h>
 
 typedef struct BinaryCodable {
