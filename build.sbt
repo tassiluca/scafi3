@@ -56,7 +56,7 @@ ThisBuild / scalacOptions ++= Seq(
   "-Wconf:msg=unused value of type org.specs2.matcher.MatchResult:s",
   "-Wconf:msg=unused value of type org.scalamock:s",
 )
-ThisBuild / coverageEnabled := true
+
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
