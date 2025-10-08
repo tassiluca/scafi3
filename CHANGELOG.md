@@ -1,3 +1,27 @@
+## [1.0.4](https://github.com/scafi/scafi3/compare/v1.0.3...v1.0.4) (2025-10-08)
+
+### Dependency updates
+
+* **deps:** update dependency sbt/sbt to v1.11.7 ([675fbc0](https://github.com/scafi/scafi3/commit/675fbc062327e69c909e705b8b5393ccdb074a18))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.146 ([fa3d778](https://github.com/scafi/scafi3/commit/fa3d77839135a226454eb42f661f662a46bac3b0))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.147 ([732c8f4](https://github.com/scafi/scafi3/commit/732c8f47b3f0a514620c6af542c7e2a3bb05c835))
+* **deps:** update node.js to 22.20 ([4e7431c](https://github.com/scafi/scafi3/commit/4e7431cea692f77c6d19df0ad38208246539204d))
+
+### Bug Fixes
+
+* rename all modules to scafi3 to prevent publishing clashes ([e6e724b](https://github.com/scafi/scafi3/commit/e6e724bfffed5f18b5eded01d0b8c551785070b0))
+
+### Build and continuous integration
+
+* **deps:** update nicolasfara/build-check-deploy-sbt-action action to v1.0.30 ([230be7c](https://github.com/scafi/scafi3/commit/230be7c6ecb3e14e73c904a443077223c5eb5961))
+* **deps:** update nicolasfara/build-check-deploy-sbt-action action to v1.0.31 ([0da70b1](https://github.com/scafi/scafi3/commit/0da70b1fe3f71989d9ed870c827a708a829bd7e5))
+* prevent coverage to be applied always ([7f76664](https://github.com/scafi/scafi3/commit/7f76664aca3642c7984833bba4e2a2fe0ac1567a))
+* set explicit task for coverage ([483bf76](https://github.com/scafi/scafi3/commit/483bf76beb3b112ae57c0705375bdb725d975d51))
+
+### General maintenance
+
+* add codecov configuration file ([9f76744](https://github.com/scafi/scafi3/commit/9f767447d0d2bc5675e2d547f10ef4fad2331483))
+
 ## [1.0.3](https://github.com/scafi/scafi3/compare/v1.0.2...v1.0.3) (2025-09-23)
 
 ### Dependency updates
