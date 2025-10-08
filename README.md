@@ -5,7 +5,7 @@
 <a href="#"><img src="https://img.shields.io/badge/Scala-%23DC322F.svg?logo=scala&logoColor=white" alt="Scala"></a>
 <a href="./LICENSE"><img src="https://img.shields.io/github/license/field4s/field4s.svg?style=flat" alt="Apache 2.0 License"></a>
 <a href="https://conventionalcommits.org"><img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white" alt="Conventional Commits"></a>
-<a href="https://codecov.io/gh/field4s/field4s"><img src="https://codecov.io/gh/field4s/field4s/graph/badge.svg?token=5ZT5AEMNDF" alt="codecov"></a>
+<a href="[https://codecov.io/gh/field4s/field4s](https://codecov.io/gh/scafi/scafi3)"><img src="https://codecov.io/gh/scafi/scafi3/graph/badge.svg?token=5ZT5AEMNDF" alt="codecov"></a>
 </p>
 
 # Scafi 3
