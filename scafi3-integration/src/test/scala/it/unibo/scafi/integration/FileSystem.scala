@@ -32,4 +32,7 @@ trait FileSystem:
 
   /** @return the path to a resource file named [[name]] situated in `src/test/resources`. */
   def resource(name: String): Try[Path] = Try(Paths.get(getClass.getClassLoader.getResource(name).toURI))
+
+  /** @return the path to a file or directory situated in the project root, given its relative path [[entries]]. */
+  def projectResource(entries: String*): Try[Path] = Try(Paths.get(System.getProperty("user.dir"), entries*))
 end FileSystem

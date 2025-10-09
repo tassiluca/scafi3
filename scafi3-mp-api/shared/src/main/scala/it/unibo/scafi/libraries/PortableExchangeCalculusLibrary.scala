@@ -2,11 +2,13 @@ package it.unibo.scafi.libraries
 
 import scala.util.chaining.scalaUtilChainingOps
 
+import it.unibo.scafi.types.PortableTypes
+
 /**
  * The portable library providing the exchange calculus primitive, `exchange`.
  */
 trait PortableExchangeCalculusLibrary extends PortableLibrary:
-  ctx: PortableTypes =>
+  self: PortableTypes =>
   export it.unibo.scafi.language.xc.syntax.ExchangeSyntax
   import it.unibo.scafi.language.xc.syntax.ReturnSending as RetSend
 
@@ -38,5 +40,9 @@ trait PortableExchangeCalculusLibrary extends PortableLibrary:
   @JSExport
   def exchange[Value](initial: SharedData[Value])(
       f: Function1[SharedData[Value], ReturnSending[SharedData[Value]]],
-  ): SharedData[Value] = language.exchange(initial)(f(_).pipe(f => RetSend(f.returning, f.sending)))
+  ): SharedData[Value] = exchange_(initial)(f)
+
+  inline def exchange_[Value](initial: SharedData[Value])(
+      f: Function1[SharedData[Value], ReturnSending[SharedData[Value]]],
+  ): SharedData[Value] = language.exchange(initial)(f(_).pipe(sd => RetSend(sd.returning, sd.sending)))
 end PortableExchangeCalculusLibrary

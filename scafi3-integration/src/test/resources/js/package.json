@@ -3,7 +3,7 @@
     "type": "commonjs",
     "scripts": {
         "prestart": "npm install && node build-protos.js",
-        "start": "node main.mjs"
+        "start": "node app.mjs"
     },
     "devDependencies": {
         "protobufjs-cli": "^1.1.3"
