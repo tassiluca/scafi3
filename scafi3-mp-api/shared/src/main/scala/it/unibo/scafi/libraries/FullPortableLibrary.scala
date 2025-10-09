@@ -3,6 +3,7 @@ package it.unibo.scafi.libraries
 import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
+import it.unibo.scafi.types.PortableTypes
 
 /**
  * Aggregates all the portable libraries in a singe entry point trait.
@@ -13,7 +14,7 @@ trait FullPortableLibrary[Lang <: AggregateFoundation & BranchingSyntax & Exchan
     extends PortableCommonLibrary
     with PortableBranchingLibrary
     with PortableExchangeCalculusLibrary:
-  ctx: PortableTypes =>
+  self: PortableTypes =>
 
   override type Language = Lang
 
