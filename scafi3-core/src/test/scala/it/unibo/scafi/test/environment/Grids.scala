@@ -125,6 +125,6 @@ object Grids:
       Position(ax, ay, 0.0).distanceTo(Position(bx, by, 0.0)) <= SAFE_VON_NEUMANN_RADIUS
     for
       i <- 0 until rows * cols
-      neighbors = (0 until rows * cols).filter(areConnected(i, _)).toSet
+      neighbors = (0 until rows * cols).filter(areConnected(i, _)).filter(_ != i).toSet
     yield f(i, neighbors)
 end Grids

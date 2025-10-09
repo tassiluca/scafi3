@@ -1,9 +1,11 @@
 package it.unibo.scafi.runtime
 
-import it.unibo.scafi.context.xc.ExchangeAggregateContext
-import it.unibo.scafi.libraries.{ FullPortableLibrary, PortableTypes }
-import it.unibo.scafi.message.UniversalCodable
-import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
+import it.unibo.scafi
+import it.unibo.scafi.types.PortableTypes
+
+import scafi.context.xc.ExchangeAggregateContext
+import scafi.message.UniversalCodable
+import scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 
 /**
  * Portable runtime API entry point.
@@ -11,31 +13,44 @@ import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
 trait PortableRuntime:
   self: PortableTypes =>
 
-  /** The requirements that must be satisfied by any concrete implementation of the runtime. */
-  trait Requirements:
-
-    /** The universal codable instance used for encoding and decoding values to be sent over the network. */
-    given [Value, Format]: UniversalCodable[Value, Format] = compiletime.deferred
-
-    /** The aggregate library entry point. */
-    type AggregateLibrary <: FullPortableLibrary[?]
-
-    /** @return the concrete portable aggregate library instance. */
-    def library[ID]: ExchangeAggregateContext[ID] ?=> AggregateLibrary
-
   trait Adts:
 
+    /** The type used internally to the scafi core engine to identify devices. */
+    type DeviceId
+
+    /** Generic type can be turned into internal `DeviceId` representation and viceversa. */
+    given [ID] => Conversion[ID, DeviceId] = compiletime.deferred
+
+    /** The universal codable instance used for encoding and decoding device ids to be sent over the network. */
+    given deviceIdCodable[Format]: UniversalCodable[DeviceId, Format] = compiletime.deferred
+
     /** A network endpoint consisting of an [[address]] and a [[port]]. */
-    @JSExport @JSExportAll
-    case class Endpoint(address: String, port: Int)
+    type Endpoint
+
+    /** Endpoint is isomorphic to [[scafi.runtime.network.sockets.InetTypes.Endpoint]]. */
+    given toInetEndpoint: Conversion[Endpoint, scafi.runtime.network.sockets.InetTypes.Endpoint] = compiletime.deferred
+
+  /** The requirements that must be satisfied by any concrete implementation of the runtime. */
+  trait Requirements extends MemorySafeContext:
+    self: Adts =>
+
+    /** The aggregate library entry point. */
+    type AggregateLibrary
+
+    /** @return the concrete portable aggregate library instance. */
+    def library[ID](using Arena): ExchangeAggregateContext[ID] ?=> AggregateLibrary
 
   /** The portable runtime API. */
-  trait Api extends Adts:
-    self: Requirements =>
+  trait Api:
+    self: Requirements & Adts =>
 
     /** @return a socket-based network working on [[port]] with statically assigned [[neighbors]] and [[deviceId]]. */
     @JSExport
-    def socketNetwork[ID](deviceId: ID, port: Int, neighbors: Map[ID, Endpoint]): ConnectionOrientedNetworkManager[ID]
+    def socketNetwork[ID](
+        deviceId: ID,
+        port: Int,
+        neighbors: Map[ID, Endpoint],
+    ): ConnectionOrientedNetworkManager[DeviceId]
 
     /**
      * Runs the given aggregate [[program]] on the device with the given [[deviceId]], using the provided [[network]].
@@ -43,10 +58,10 @@ trait PortableRuntime:
      * whether the execution needs to continue or stop.
      */
     @JSExport
-    def engine[ID, Result](
-        deviceId: ID,
-        network: ConnectionOrientedNetworkManager[ID],
+    def engine[Result](
+        network: ConnectionOrientedNetworkManager[DeviceId],
         program: Function1[AggregateLibrary, Result],
         onResult: Function1[Result, Outcome[Boolean]],
     ): Outcome[Unit]
+  end Api
 end PortableRuntime
