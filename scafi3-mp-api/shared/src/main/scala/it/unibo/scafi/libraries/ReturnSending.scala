@@ -53,4 +53,8 @@ object ReturnSending:
   @JSExportTopLevel("returnSending")
   @JSExport
   def returnSending[Value](value: Value): ReturnSending[Value] = ReturnSending(value, value)
+
+  @JSExportTopLevel("returnSending")
+  @JSExport
+  def returnSending[Value](returning: Value, sending: Value): ReturnSending[Value] = ReturnSending(returning, sending)
 end ReturnSending
