@@ -7,7 +7,7 @@ import scala.scalajs.js.typedarray.Uint8Array
 
 import it.unibo.scafi.message.UniversalCodable
 import it.unibo.scafi.message.primitive.PrimitiveCodables.primitiveCodables
-import it.unibo.scafi.utils.JSUtils.{ toByteArray, toUint8Array }
+import it.unibo.scafi.utils.Uint8ArrayOps.{ toByteArray, toUint8Array }
 
 import io.bullet.borer.{ Cbor, Codec }
 import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodec

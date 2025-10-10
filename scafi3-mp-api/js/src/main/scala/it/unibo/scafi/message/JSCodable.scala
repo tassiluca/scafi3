@@ -4,7 +4,8 @@ import scala.scalajs.js
 
 import it.unibo.scafi.message.primitive.PrimitiveCodables.asPrimitiveCodable
 import it.unibo.scafi.message.protobufjs.ProtobufJSType.fromProtobufJsMessage
-import it.unibo.scafi.utils.JSUtils.{ asDynamic, hasFunctions, hasProps, toByteArray, typed }
+import it.unibo.scafi.utils.JSUtils.{ asDynamic, hasFunctions, hasProps, typed }
+import it.unibo.scafi.utils.Uint8ArrayOps.toByteArray
 
 import cats.kernel.Hash
 
