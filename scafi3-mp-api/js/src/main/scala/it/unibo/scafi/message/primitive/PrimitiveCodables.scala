@@ -3,7 +3,7 @@ package it.unibo.scafi.message.primitive
 import java.nio.charset.StandardCharsets.UTF_8
 
 import it.unibo.scafi.message.JSCodable
-import it.unibo.scafi.utils.JSUtils.{ toByteArray, toUint8Array }
+import it.unibo.scafi.utils.Uint8ArrayOps.{ toByteArray, toUint8Array }
 
 import scalajs.js
 import scalajs.js.typedarray.Uint8Array
