@@ -10,6 +10,8 @@ class CNativeTests extends NativeTests with CTests:
 
   it should behave like neighborsDiscoveryTest()
 
+  it should behave like domainRestrictionTest()
+
   it should behave like sensorExchangeTestWith("protobuf")
 
   override def neighborsAsCode(id: ID, neighbors: Set[ID], ports: Seq[Port]): ProgramOutput = neighbors
