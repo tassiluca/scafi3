@@ -35,31 +35,28 @@ trait NativeTests extends AnyFlatSpec with PlatformTest with ScalaFutures with s
         3 -> fieldRepr(default = 3, neighbors = Map(1 -> 1, 2 -> 2, 3 -> 3)),
       )
 
-  def sensorExchangeTestWith(format: String): Unit =
-    def sensorRepr(id: Int): String = s"Sensor(id=#$id, temp=${id * 10}.00)"
+  def domainRestrictionTest(): Unit =
+    "Exchange program with branch restriction" should "correctly spread local values to aligned neighbors" in:
+      sequence:
+        aggregateResult("restricted-exchange", rows = 2, cols = 2)
+      .futureValue should contain theSameElementsAs Seq(
+        0 -> fieldRepr(default = 1, neighbors = Map(0 -> 1, 2 -> 1)),
+        1 -> fieldRepr(default = 0, neighbors = Map(1 -> 0, 3 -> 0)),
+        2 -> fieldRepr(default = 1, neighbors = Map(0 -> 1, 2 -> 1)),
+        3 -> fieldRepr(default = 0, neighbors = Map(1 -> 0, 3 -> 0)),
+      )
 
+  def sensorExchangeTestWith(format: String): Unit =
+    def sensor(id: Int): String = s"Sensor(id=#$id, temp=${id * 10}.00)"
     "Exchange aggregate program" should s"correctly exchange $format messages" in:
       sequence:
         aggregateResult(s"$format-exchange", rows = 2, cols = 2)
       .futureValue should contain theSameElementsAs Seq(
-        0 -> fieldRepr(
-          default = sensorRepr(0),
-          neighbors = Map(0 -> sensorRepr(0), 1 -> sensorRepr(1), 2 -> sensorRepr(2)),
-        ),
-        1 -> fieldRepr(
-          default = sensorRepr(1),
-          neighbors = Map(0 -> sensorRepr(0), 1 -> sensorRepr(1), 3 -> sensorRepr(3)),
-        ),
-        2 -> fieldRepr(
-          default = sensorRepr(2),
-          neighbors = Map(0 -> sensorRepr(0), 2 -> sensorRepr(2), 3 -> sensorRepr(3)),
-        ),
-        3 -> fieldRepr(
-          default = sensorRepr(3),
-          neighbors = Map(1 -> sensorRepr(1), 2 -> sensorRepr(2), 3 -> sensorRepr(3)),
-        ),
+        0 -> fieldRepr(default = sensor(0), neighbors = Map(0 -> sensor(0), 1 -> sensor(1), 2 -> sensor(2))),
+        1 -> fieldRepr(default = sensor(1), neighbors = Map(0 -> sensor(0), 1 -> sensor(1), 3 -> sensor(3))),
+        2 -> fieldRepr(default = sensor(2), neighbors = Map(0 -> sensor(0), 2 -> sensor(2), 3 -> sensor(3))),
+        3 -> fieldRepr(default = sensor(3), neighbors = Map(1 -> sensor(1), 2 -> sensor(2), 3 -> sensor(3))),
       )
-  end sensorExchangeTestWith
 
   protected def aggregateResult(testName: String, rows: Int, cols: Int): Seq[Future[(Int, ProgramOutput)]] =
     val ports = FreePortFinder.get(rows * cols)
