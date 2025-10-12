@@ -4,7 +4,7 @@ import scala.scalanative.libc.stddef.size_t
 import scala.scalanative.unsafe.{ alloc, fromCString, CSize, Ptr, Zone }
 import scala.scalanative.unsafe.Size.intToSize
 
-import it.unibo.scafi.message.CBinaryCodable.{ data, decode, encode, typeName }
+import it.unibo.scafi.message.CBinaryCodable.{ decode, encode, typeName }
 import it.unibo.scafi.message.UniversalCodable
 import it.unibo.scafi.utils.CUtils.{ toByteArray, toUint8Array }
 
@@ -28,7 +28,7 @@ object NativeBinaryCodable:
       override def encode(value: Ptr[CBinaryCodable]): Array[Byte] = Zone:
         val typeName = fromCString(value.typeName)
         val encodedSize = alloc[size_t]()
-        val rawData = value.encode(value.data, encodedSize)
+        val rawData = value.encode(value, encodedSize)
         val data = rawData.toByteArray(!encodedSize)
         Cbor.encode(typeName, Format.Binary, data).toByteArray
 

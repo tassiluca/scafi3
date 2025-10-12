@@ -19,7 +19,7 @@ class TemperatureSensor {
     }
 
     toString() {
-        return `Sensor(id=${this.id}, temp=${this.temperature.toFixed(2)})`;
+        return `Sensor{id=${this.id}, temp=${this.temperature.toFixed(2)}}`;
     }
 }
 
