@@ -1,3 +1,13 @@
+## [1.0.5](https://github.com/scafi/scafi3/compare/v1.0.4...v1.0.5) (2025-10-12)
+
+### Bug Fixes
+
+* **distributed:** prevent socket from closing on chunked messages in JS and enforce explicit byte order ([#150](https://github.com/scafi/scafi3/issues/150)) ([8af737c](https://github.com/scafi/scafi3/commit/8af737cd4a81e8b6ccfe68f693e501b5bc68dcd9))
+
+### General maintenance
+
+* update coverage badge ([4dac201](https://github.com/scafi/scafi3/commit/4dac201a9a45d79c3902908a29cf518f58b0f970))
+
 ## [1.0.4](https://github.com/scafi/scafi3/compare/v1.0.3...v1.0.4) (2025-10-08)
 
 ### Dependency updates
