@@ -16,7 +16,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatest.time.{ Seconds, Span }
 
-trait NativeTests extends AnyFlatSpec with PlatformTest with ScalaFutures with should.Matchers:
+trait CrossLanguageTests extends AnyFlatSpec with PlatformTest with ScalaFutures with should.Matchers:
 
   given ExecutionContext = ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
 
@@ -81,4 +81,4 @@ trait NativeTests extends AnyFlatSpec with PlatformTest with ScalaFutures with s
 
   /** The representation of a field in the targeted language, given a default value and a map of neighbor values. */
   def fieldRepr[Value](default: Value, neighbors: Map[Int, Value]): String
-end NativeTests
+end CrossLanguageTests
