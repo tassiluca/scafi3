@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 #ifdef _WIN32
     #include <windows.h>
     #define sleep(x) Sleep((x) * 1000)
@@ -15,10 +14,9 @@
 #endif
 #include "scafi3.h"
 #include "utils.h"
+#include "int_codable.c"
 
 #define ITERATIONS 10
-
-BinaryCodable* DEVICE_ID;
 
 const void* last_round_result = NULL;
 
@@ -32,10 +30,9 @@ bool on_result(const void* result) {
 }
 
 int main(void) {
-    DEVICE_ID = codable({{ deviceId }});
     Neighborhood neighbors = Neighborhood_empty();
     {{ neighbors }}
-    ConnectionOrientedNetworkManager network = socket_network(DEVICE_ID, {{ port }}, neighbors);
+    ConnectionOrientedNetworkManager network = socket_network(device({{ deviceId }}), {{ port }}, neighbors);
     engine(network, aggregate_program, on_result);
     printf("%s", field_to_str((const Field*) last_round_result));
     return 0;

@@ -5,7 +5,7 @@ import scala.scalanative.libc.stddef.size_t
 import scala.scalanative.libc.stdlib.malloc
 import scala.scalanative.posix.inttypes.uint8_t
 import scala.scalanative.posix.string.strdup
-import scala.scalanative.unsafe.{ alloc, sizeOf, toCString, CString, CVoidPtr, Ptr, Zone }
+import scala.scalanative.unsafe.{ alloc, sizeOf, toCString, CString, Ptr, Zone }
 import scala.scalanative.unsafe.Size.byteToSize
 import scala.util.chaining.scalaUtilChainingOps
 
@@ -98,7 +98,4 @@ object CUtils:
    */
   def toUnconfinedCString(str: String): CString = Zone(strdup(toCString(str)))
 
-  extension [T](ptr: Ptr[T])
-    /** Treats the pointer as a `CVoidPtr`. */
-    def asVoidPtr: CVoidPtr = ptr.asInstanceOf[CVoidPtr]
 end CUtils
