@@ -47,7 +47,7 @@ trait NativeTests extends AnyFlatSpec with PlatformTest with ScalaFutures with s
       )
 
   def sensorExchangeTestWith(format: String): Unit =
-    def sensor(id: Int): String = s"Sensor(id=#$id, temp=${id * 10}.00)"
+    def sensor(id: Int): String = s"Sensor{id=#$id, temp=${id * 10}.00}"
     "Exchange aggregate program" should s"correctly exchange $format messages" in:
       sequence:
         aggregateResult(s"$format-exchange", rows = 2, cols = 2)

@@ -7,10 +7,10 @@ function aggregateProgram(lang) {
     );
 }
 
-proto.TemperatureSensor.prototype.toString = function () {
-    return `Sensor(id=${this.id}, temp=${this.temperature.toFixed(2)})`;
-};
-
 function senseTemperature() {
     return proto.TemperatureSensor.create({ id: `#${deviceId}`, temperature: deviceId * 10 });
 }
+
+proto.TemperatureSensor.prototype.toString = function () {
+    return `Sensor{id=${this.id}, temp=${this.temperature.toFixed(2)}}`;
+};
