@@ -4,9 +4,9 @@
 #include "message.h"
 #include "utils.h"
 
-extern BinaryCodable* DEVICE_ID;
+typedef BinaryCodable* DeviceId;
 
-MAP_OF(NValues, BinaryCodable, BinaryCodable, DEVICE_ID->equals, DEVICE_ID->hash)
+MAP_OF(NValues, DeviceId, BinaryCodable*)
 
 typedef struct {
     const BinaryCodable* default_value;
