@@ -1,12 +1,12 @@
 package it.unibo.scafi.libraries
 
-import it.unibo.scafi.integration.JSTests
+import it.unibo.scafi.integration.CTests
 import it.unibo.scafi.integration.PlatformTest.ProgramOutput
 import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
 
 import org.scalatest.flatspec.AnyFlatSpec
 
-class JSNativeTests extends NativeTests with JSTests:
+class CApiTests extends CrossLanguageTests with CTests:
 
   it should behave like neighborsDiscoveryTest()
 
@@ -14,12 +14,12 @@ class JSNativeTests extends NativeTests with JSTests:
 
   it should behave like sensorExchangeTestWith("protobuf")
 
-  it should behave like sensorExchangeTestWith("json")
-
   override def neighborsAsCode(id: ID, neighbors: Set[ID], ports: Seq[Port]): ProgramOutput = neighbors
-    .map(nid => s"[$nid, Runtime.Endpoint('localhost', ${ports(nid)})]")
-    .mkString("[", ", ", "]")
+    .map(nid => s"""
+      |struct Endpoint device${nid}_endpoint = { "localhost", ${ports(nid)} };
+      |Neighborhood_put(neighbors, device(${nid}), &device${nid}_endpoint);
+      |""".stripMargin)
+    .mkString(sep = "\n")
 
   override def fieldRepr[Value](default: Value, neighbors: Map[ID, Value]): ProgramOutput =
-    s"Field($default, $neighbors)"
-end JSNativeTests
+    s"Field($default, ${neighbors.mkString("[", ", ", "]")})"
