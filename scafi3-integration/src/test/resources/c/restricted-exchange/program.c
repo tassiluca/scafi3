@@ -1,17 +1,17 @@
 const void* aggregate_program(const AggregateLibrary* lang) {
-    const void* true_field(void) {
-        const Field* true_const_field = lang->Field.of(codable(1));
-        return lang->exchange(true_const_field, lambda(ReturnSending, (const Field* f), {
-            return return_sending(f, true_const_field);
+    const void* return_exchanging_field(const Field* field) {
+        return lang->exchange(field, fn(ReturnSending, (const Field* nvalues), {
+            return return_sending(nvalues, field);
         }));
     }
 
-    const void* false_field(void) {
-        const Field* true_const_field = lang->Field.of(codable(0));
-        return lang->exchange(true_const_field, lambda(ReturnSending, (const Field* f), {
-            return return_sending(f, true_const_field);
-        }));
+    const void* is_even_branch() {
+        return return_exchanging_field(lang->Field.of(int_of(1)));
     }
 
-    return lang->branch({{ deviceId }} % 2 == 0, true_field, false_field);
+    const void* is_odd_branch() {
+        return return_exchanging_field(lang->Field.of(int_of(0)));
+    }
+
+    return lang->branch({{ deviceId }} % 2 == 0, is_even_branch, is_odd_branch);
 }
