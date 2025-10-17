@@ -3,23 +3,25 @@ package it.unibo.scafi.runtime
 import java.util.concurrent.Executors
 
 import scala.concurrent.ExecutionContext
-import scala.scalanative.unsafe.{ exported, fromCString, CInt, CString, CStruct2, CVoidPtr, Ptr }
+import scala.scalanative.unsafe.{ exported, fromCString, CInt, CVoidPtr, Ptr }
 
 import it.unibo.scafi
 import it.unibo.scafi.nativebindings.structs.BinaryCodable as CBinaryCodable
 
 import io.github.iltotore.iron.refineUnsafe
 
-import scafi.message.CBinaryCodable
-import scafi.message.CBinaryCodable.given_Hash_Ptr
-import scafi.types.EqWrapper
-import scafi.context.xc.ExchangeAggregateContext
-import scafi.libraries.FullLibrary
-import scafi.message.UniversalCodable
-import scafi.message.NativeBinaryCodable.nativeBinaryCodable
-import scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
-import scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
-import scafi.types.NativeTypes
+import it.unibo.scafi.message.CBinaryCodable
+import it.unibo.scafi.message.CBinaryCodable.given_Hash_Ptr
+import it.unibo.scafi.types.EqWrapper
+import it.unibo.scafi.context.xc.ExchangeAggregateContext
+import it.unibo.scafi.libraries.FullLibrary
+import it.unibo.scafi.message.UniversalCodable
+import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
+import it.unibo.scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
+import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
+import it.unibo.scafi.types.NativeTypes
+import it.unibo.scafi.nativebindings.structs.Endpoint as CEndpoint
+import it.unibo.scafi.runtime.network.sockets.InetTypes
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with ScafiEngineBinding with NativeTypes:
@@ -31,10 +33,10 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
 
     override given [ID] => Conversion[ID, DeviceId] = id => EqWrapper(id.asInstanceOf[Ptr[CBinaryCodable]])
 
-    override type Endpoint = Ptr[CStruct2[ /* address */ CString, /* port */ CInt]]
+    override type Endpoint = Ptr[CEndpoint]
 
-    override given toInetEndpoint: Conversion[Endpoint, scafi.runtime.network.sockets.InetTypes.Endpoint] =
-      e => scafi.runtime.network.sockets.InetTypes.Endpoint(fromCString(e._1).refineUnsafe, e._2.refineUnsafe)
+    override given toInetEndpoint: Conversion[Endpoint, InetTypes.Endpoint] = e =>
+      InetTypes.Endpoint(fromCString((!e).address).refineUnsafe, (!e).port.refineUnsafe)
 
   trait NativeRequirements extends Requirements with NativeMemoryContext with NativeAdts:
 
