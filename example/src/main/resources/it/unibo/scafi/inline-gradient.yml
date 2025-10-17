@@ -1,0 +1,58 @@
+incarnation: scafi3
+
+network-model:
+  type: ConnectWithinDistance
+  parameters: [ 5 ]
+
+_pool: &program
+  - time-distribution: 1
+    program:
+      code: |
+        import it.unibo.alchemist.boundary.LoadAlchemist
+        import it.unibo.scafi.alchemist.device.sensors.AlchemistEnvironmentVariables
+        import it.unibo.scafi.language.AggregateFoundation
+        import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
+        import it.unibo.scafi.libraries.FieldCalculusLibrary.share
+        import it.unibo.scafi.sensors.DistanceSensor
+        import it.unibo.scafi.sensors.DistanceSensor.senseDistance
+        import it.unibo.scafi.libraries.All
+        import it.unibo.scafi.libraries.All.given
+        import it.unibo.scafi.message.Codables.given
+      
+        object GradientInline:
+          private type Lang = AggregateFoundation { type DeviceId = Int } & FieldCalculusSyntax & DistanceSensor[Double] &
+          AlchemistEnvironmentVariables
+        
+          def gradientInline(using Lang): Double =
+            share(Double.MaxValue): prevValues =>
+              val distances = senseDistance[Double]
+              val minDistance = prevValues.alignedMap(distances)(_ + _).withoutSelf.min
+              if AlchemistEnvironmentVariables.get[Boolean]("source") then 0.0 else minDistance
+      entrypoint: GradientInline.gradientInline
+
+
+monitors:
+  - type: SwingGUI
+    parameters:
+      graphics: effects/Gradient.json
+
+launcher:
+  parameters:
+    batch: []
+    autoStart: false
+
+deployments:
+  - type: Point
+    parameters: [ -1, -1 ]
+    programs:
+      - *program
+    contents:
+      - molecule: source
+        concentration: true
+  - type: Grid
+    parameters: [ 0, 0, 3, 3, 1, 1 ]
+    programs:
+      - *program
+    contents:
+      - molecule: source
+        concentration: false
