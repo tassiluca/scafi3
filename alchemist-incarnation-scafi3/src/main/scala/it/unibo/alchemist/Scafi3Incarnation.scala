@@ -1,32 +1,36 @@
 package it.unibo.alchemist
 
+import java.io.File
+import java.net.URLClassLoader
+import java.nio.file.Files
 import javax.script.ScriptEngineManager
+
+import it.unibo.alchemist.Scafi3Incarnation.CACHE_SIZE
+import it.unibo.alchemist.actions.RunScafi3Program
+import it.unibo.alchemist.model.{ Position as AlchemistPosition, * }
 import it.unibo.alchemist.model.conditions.AbstractCondition
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.alchemist.model.nodes.GenericNode
 import it.unibo.alchemist.model.reactions.Event
 import it.unibo.alchemist.model.timedistributions.DiracComb
 import it.unibo.alchemist.model.times.DoubleTime
-import it.unibo.alchemist.model.{Position as AlchemistPosition, *}
-import com.github.benmanes.caffeine.cache.{Caffeine, LoadingCache}
-import dotty.tools.dotc.Main
-import it.unibo.alchemist.Scafi3Incarnation.CACHE_SIZE
-import it.unibo.alchemist.actions.RunScafi3Program
 import it.unibo.alchemist.scafi.device.Scafi3Device
+
+import com.github.benmanes.caffeine.cache.{ Caffeine, LoadingCache }
+import dotty.tools.dotc.Main
 import org.apache.commons.math3.random.RandomGenerator
 import org.danilopianini.util.ListSet
 import org.slf4j.LoggerFactory
 
-import java.net.URLClassLoader
-import java.nio.file.Files
-import java.io.File
-
 class Scafi3Incarnation[T, Position <: AlchemistPosition[Position]] extends Incarnation[T, Position]:
   private val logger = LoggerFactory.getLogger(getClass)
   private val classLoaders: LoadingCache[String, URLClassLoader] =
-    Caffeine.newBuilder().maximumSize(CACHE_SIZE).build: name =>
-      val outputFolder = Files.createTempDirectory(name).toFile
-      URLClassLoader(Array(outputFolder.toURI.toURL), Thread.currentThread().getContextClassLoader)
+    Caffeine
+      .newBuilder()
+      .maximumSize(CACHE_SIZE)
+      .build: name =>
+        val outputFolder = Files.createTempDirectory(name).toFile
+        URLClassLoader(Array(outputFolder.toURI.toURL), Thread.currentThread().getContextClassLoader)
 
   override def createMolecule(s: String): Molecule = SimpleMolecule(s)
 
@@ -48,19 +52,29 @@ class Scafi3Incarnation[T, Position <: AlchemistPosition[Position]] extends Inca
       case boolean: Boolean => if boolean then 1.0 else 0.0
       case _ => Double.NaN
 
+  @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
   override def createConcentration(descriptor: Any): T =
     ScalaScriptEngine.concentrationCache.get(descriptor.toString).asInstanceOf[T]
 
-  override def createNode(randomGenerator: RandomGenerator, environment: Environment[T, Position], parameter: Any): Node[T] =
+  override def createNode(
+      randomGenerator: RandomGenerator,
+      environment: Environment[T, Position],
+      parameter: Any,
+  ): Node[T] =
     val node = GenericNode(environment)
     val retention = parameter match
       case params: Number => DoubleTime(params.doubleValue())
       case params: String => DoubleTime(params.toDouble)
-      case _ => null
+      case _ => null // scalafix:ok
     node.addProperty(Scafi3Device[T, Position](randomGenerator, environment, node, retention))
     node
 
-  override def createTimeDistribution(randomGenerator: RandomGenerator, environment: Environment[T, Position], node: Node[T], parameter: Any): TimeDistribution[T] =
+  override def createTimeDistribution(
+      randomGenerator: RandomGenerator,
+      environment: Environment[T, Position],
+      node: Node[T],
+      parameter: Any,
+  ): TimeDistribution[T] =
     val frequency = parameter match
       case param: Number => param.doubleValue()
       case param: String => param.toDoubleOption.getOrElse(1.0)
@@ -69,20 +83,40 @@ class Scafi3Incarnation[T, Position <: AlchemistPosition[Position]] extends Inca
     val initialDelay = randomGenerator.nextDouble() / frequency
     DiracComb(DoubleTime(initialDelay), frequency)
 
-  override def createReaction(randomGenerator: RandomGenerator, environment: Environment[T, Position], node: Node[T], timeDistribution: TimeDistribution[T], parameter: Any): Reaction[T] =
+  override def createReaction(
+      randomGenerator: RandomGenerator,
+      environment: Environment[T, Position],
+      node: Node[T],
+      timeDistribution: TimeDistribution[T],
+      parameter: Any,
+  ): Reaction[T] =
     val event = Event(node, timeDistribution)
     event.setActions(ListSet.of(createAction(randomGenerator, environment, node, timeDistribution, event, parameter)))
     event
 
-  override def createCondition(randomGenerator: RandomGenerator, environment: Environment[T, Position], node: Node[T], time: TimeDistribution[T], actionable: Actionable[T], additionalParameters: Any): Condition[T] =
-    require(node != null, "Scafi3 requires a device to not be null")
+  override def createCondition(
+      randomGenerator: RandomGenerator,
+      environment: Environment[T, Position],
+      node: Node[T],
+      time: TimeDistribution[T],
+      actionable: Actionable[T],
+      additionalParameters: Any,
+  ): Condition[T] =
+    require(node != null, "Scafi3 requires a device to not be null") // scalafix:ok
     new AbstractCondition(node):
       override def getContext: Context = Context.LOCAL
       override def getPropensityContribution: Double = 1.0
       override def isValid: Boolean = true
 
-  override def createAction(randomGenerator: RandomGenerator, environment: Environment[T, Position], node: Node[T], time: TimeDistribution[T], actionable: Actionable[T], additionalParameters: Any): Action[T] =
-    require(node != null, "Scafi3 requires a device and cannot execute in a Global Reaction")
+  override def createAction(
+      randomGenerator: RandomGenerator,
+      environment: Environment[T, Position],
+      node: Node[T],
+      time: TimeDistribution[T],
+      actionable: Actionable[T],
+      additionalParameters: Any,
+  ): Action[T] =
+    require(node != null, "Scafi3 requires a device and cannot execute in a Global Reaction") // scalafix:ok
     additionalParameters match
       case params: String => RunScafi3Program[T, Position](node, environment, params)
       case params: java.util.Map[String, String] @unchecked =>
@@ -98,11 +132,15 @@ class Scafi3Incarnation[T, Position <: AlchemistPosition[Position]] extends Inca
         throw IllegalArgumentException(
           s"Invalid parameters for Scafi3. `String` required, but ${params.getClass} has been provided: $params",
         )
+  end createAction
 
   private def compileScafiProgram(code: String, classLoader: URLClassLoader): (Boolean, List[String]) =
     logger.info("Compiling Scafi3 program into folder {}", classLoader.getURLs.head.getPath)
     val outputFolder = File(classLoader.getURLs.head.getFile).toPath
-    require(outputFolder.toFile.exists() && outputFolder.toFile.isDirectory, s"Output folder $outputFolder does not exist or is not a directory")
+    require(
+      outputFolder.toFile.exists() && outputFolder.toFile.isDirectory,
+      s"Output folder $outputFolder does not exist or is not a directory",
+    )
     val sourceFilePath = Files.writeString(outputFolder.resolve("Program.scala"), code)
     // Compile file
     compileWithOptions(sourceFilePath.toAbsolutePath.toString, outputFolder.toAbsolutePath.toString)
@@ -110,14 +148,16 @@ class Scafi3Incarnation[T, Position <: AlchemistPosition[Position]] extends Inca
   private def compileWithOptions(sourceFile: String, outputDir: String): (Boolean, List[String]) =
     val cp = Thread.currentThread().getContextClassLoader match
       case urlClassLoader: URLClassLoader => urlClassLoader.getURLs.map(_.getPath).mkString(File.pathSeparator)
-      case _                             => System.getProperty("java.class.path")
+      case _ => System.getProperty("java.class.path")
     val args = Array(
-      "-d", outputDir,       // Destination folder
-      "-classpath", cp,      // Classpath from current thread
-      "-deprecation",        // Show deprecation warnings
-      "-explain",            // Explain errors in detail
+      "-d",
+      outputDir, // Destination folder
+      "-classpath",
+      cp, // Classpath from current thread
+      "-deprecation", // Show deprecation warnings
+      "-explain", // Explain errors in detail
       "-experimental",
-      sourceFile
+      sourceFile,
     )
     val reporter = Main.process(args)
     (reporter.hasErrors, List(reporter.summary))

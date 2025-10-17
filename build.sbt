@@ -150,7 +150,8 @@ lazy val example = project
 lazy val root = project
   .in(file("."))
   .enablePlugins(ScalaUnidocPlugin)
-  .aggregate(crossProjects(`scafi3-core`, `scafi3-distributed`) /* :+ `alchemist-incarnation`*/.map(_.project)*)
+  .aggregate(`alchemist-incarnation-scafi3`)
+  .aggregate(crossProjects(`scafi3-core`, `scafi3-distributed`).map(_.project)*)
   .settings(
     name := "scafi3",
     publish / skip := true,

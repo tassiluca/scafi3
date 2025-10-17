@@ -1,14 +1,14 @@
 package it.unibo.alchemist.actions
 
+import java.net.URLClassLoader
+
+import it.unibo.alchemist.model.{ Position as AlchemistPosition, * }
 import it.unibo.alchemist.model.actions.AbstractAction
 import it.unibo.alchemist.model.molecules.SimpleMolecule
-import it.unibo.alchemist.model.{Position as AlchemistPosition, *}
 import it.unibo.alchemist.scafi.device.Scafi3Device
 import it.unibo.scafi.alchemist.device.context.AlchemistExchangeContext
 import it.unibo.scafi.context.AggregateContext
 import it.unibo.scafi.runtime.ScafiEngine
-
-import java.net.URLClassLoader
 
 /**
  * An Alchemist [[Action]] that runs a [[it.unibo.scafi.runtime.ScafiEngine]] program.

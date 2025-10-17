@@ -6,4 +6,3 @@ import it.unibo.scafi.sensors.DistanceSensor
 
 trait AbstractContextWithDistanceSensor[P <: Position[P]] extends DistanceSensor[Double]:
   self: AggregateFoundation =>
-
