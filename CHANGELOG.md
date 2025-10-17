@@ -1,3 +1,17 @@
+## [1.1.0](https://github.com/scafi/scafi3/compare/v1.0.5...v1.1.0) (2025-10-17)
+
+### Features
+
+* implement Alchemist incarnation for scafi3 ([#145](https://github.com/scafi/scafi3/issues/145)) ([9712811](https://github.com/scafi/scafi3/commit/9712811b46b835b7001f95cebe92aee742d8d6ee))
+
+### Dependency updates
+
+* **deps:** update dependency scalafmt to v3.10.0 ([294fdb3](https://github.com/scafi/scafi3/commit/294fdb397953f4ac33c20a076d238af1cb1d6215))
+
+### Build and continuous integration
+
+* **deps:** update actions/setup-node action to v6 ([fc753aa](https://github.com/scafi/scafi3/commit/fc753aa4e3a721a5f76567794dbeba2cd3d6558a))
+
 ## [1.0.5](https://github.com/scafi/scafi3/compare/v1.0.4...v1.0.5) (2025-10-12)
 
 ### Bug Fixes
