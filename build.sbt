@@ -1,7 +1,8 @@
 import org.scalajs.linker.interface.OutputPatterns
 import scala.scalanative.build.{ BuildTarget, GC, LTO, Mode }
 import sbtcrossproject.CrossProject
-import BuildUtils.{ os, Windows, MacOS, nativeLibExtension }
+import BuildUtils.{ MacOS, Windows, nativeLibExtension, os }
+import bindgen.interface.Binding
 
 val scala3Version = "3.7.3"
 
@@ -157,10 +158,17 @@ lazy val `scafi3-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .in(file("scafi3-mp-api"))
   .dependsOn(`scafi3-core` % "compile->compile;test->test", `scafi3-distributed`)
-  .nativeSettings(commonNativeSettings)
+  .enablePlugins(BindgenPlugin)
+  .nativeSettings(
+    commonNativeSettings,
+    bindgenBindings += Binding(
+      header = (Compile / resourceDirectory).value / "include" / "scafi3.h",
+      packageName = "it.unibo.scafi.nativebindings"
+    )
+  )
   .jsSettings(commonJsSettings)
-  .settings(commonSettings)
   .settings(
+    commonSettings,
     name := "scafi3-mp-api",
     libraryDependencies ++= Seq(
       "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided",
@@ -170,8 +178,8 @@ lazy val `scafi3-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
 lazy val `scafi3-integration` = project
   .in(file("scafi3-integration"))
   .dependsOn(`scafi3-distributed`.jvm % "compile->compile;test->test")
-  .settings(commonSettings)
   .settings(
+    commonSettings,
     publish / skip := true,
     Test / test := (Test / test)
       .dependsOn(`scafi3-mp-api`.js / Compile / fullLinkJS, `scafi3-mp-api`.native / Compile / nativeLink)

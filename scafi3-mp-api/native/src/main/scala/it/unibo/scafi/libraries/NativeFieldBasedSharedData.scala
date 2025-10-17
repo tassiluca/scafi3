@@ -6,11 +6,11 @@ import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.libraries.NativeFieldBasedSharedData.neighborValues
-import it.unibo.scafi.message.CBinaryCodable
-import it.unibo.scafi.message.CBinaryCodable.{ given_Hash_Ptr, toStr }
+import it.unibo.scafi.message.CBinaryCodable.given_Hash_Ptr
 import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
+import it.unibo.scafi.nativebindings.structs.BinaryCodable as CBinaryCodable
 import it.unibo.scafi.types.{ CMap, EqWrapper, NativeTypes, PortableTypes }
-import it.unibo.scafi.utils.CUtils.freshPointer
+import it.unibo.scafi.utils.CUtils.{ asVoidPtr, freshPointer }
 
 /**
  * A custom portable definition of a field-based `SharedData` structure for native platform.
@@ -40,7 +40,6 @@ trait NativeFieldBasedSharedData extends PortableLibrary:
     )
 end NativeFieldBasedSharedData
 
-@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object NativeFieldBasedSharedData:
 
   type CField = CStruct2[
@@ -62,9 +61,9 @@ object NativeFieldBasedSharedData:
 
   @exported("field_to_str")
   def fieldToString(sd: Ptr[CField]): CString =
-    val defaultStr = fromCString(sd.default.toStr(sd.default))
+    val defaultStr = fromCString((!sd.default).to_str(sd.default))
     val neighborsStr = sd.neighborValues.toScalaMap
-      .map((nid, nv) => fromCString(nid.toStr(nid)) + " -> " + fromCString(nv.toStr(nv)))
+      .map((nid, nv) => fromCString((!nid).to_str(nid)) + " -> " + fromCString((!nv).to_str(nv)))
       .toList
       .sorted
       .mkString("[", ", ", "]")

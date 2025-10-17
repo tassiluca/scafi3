@@ -6,12 +6,13 @@ import scala.concurrent.ExecutionContext
 import scala.scalanative.unsafe.{ exported, fromCString, CInt, CString, CStruct2, CVoidPtr, Ptr }
 
 import it.unibo.scafi
-import it.unibo.scafi.message.CBinaryCodable
-import it.unibo.scafi.message.CBinaryCodable.given_Hash_Ptr
-import it.unibo.scafi.types.EqWrapper
+import it.unibo.scafi.nativebindings.structs.BinaryCodable as CBinaryCodable
 
 import io.github.iltotore.iron.refineUnsafe
 
+import scafi.message.CBinaryCodable
+import scafi.message.CBinaryCodable.given_Hash_Ptr
+import scafi.types.EqWrapper
 import scafi.context.xc.ExchangeAggregateContext
 import scafi.libraries.FullLibrary
 import scafi.message.UniversalCodable
