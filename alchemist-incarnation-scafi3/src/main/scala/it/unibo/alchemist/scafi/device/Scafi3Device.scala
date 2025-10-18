@@ -1,12 +1,13 @@
 package it.unibo.alchemist.scafi.device
 
-import it.unibo.alchemist.model.{ Environment, Node, NodeProperty, Time, Position as AlchemistPosition }
+import scala.math.Ordering.Implicits.infixOrderingOps
+
+import it.unibo.alchemist.model.{ Environment, Node, NodeProperty, Position as AlchemistPosition, Time }
 import it.unibo.alchemist.scafi.device.Scafi3Device.given
 import it.unibo.scafi.message.{ Export, Import, ValueTree }
 import it.unibo.scafi.runtime.network.NetworkManager
-import org.apache.commons.math3.random.RandomGenerator
 
-import scala.math.Ordering.Implicits.infixOrderingOps
+import org.apache.commons.math3.random.RandomGenerator
 
 class Scafi3Device[T, Position <: AlchemistPosition[Position]](
     val random: RandomGenerator,
@@ -41,7 +42,7 @@ class Scafi3Device[T, Position <: AlchemistPosition[Position]](
         val messages = inbox.map { case (id, timedMessage) => id -> timedMessage.payload }
         Import(messages)
 
-      case null =>
+      case null => // scalafix:ok
         val messages = inbox.map { case (id, timedMessage) => id -> timedMessage.payload }
         inbox = Map.empty
         Import(messages)

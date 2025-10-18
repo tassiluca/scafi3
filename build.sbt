@@ -223,7 +223,7 @@ lazy val root = project
   .aggregate(
     (
       crossProjects(`scafi3-core`, `scafi3-distributed`, `scafi3-mp-api`) ++
-      Seq(`scafi3-integration` /* :+ `alchemist-incarnation`*/)
+      Seq(`scafi3-integration` :+ `alchemist-incarnation-scafi3`)
     ).map(_.project)*
   )
   .settings(

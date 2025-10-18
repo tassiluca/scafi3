@@ -1,9 +1,9 @@
 package it.unibo.scafi.alchemist.device.sensors
 
 /**
- * Provides utility methods to interact with the Alchemist [[it.unibo.alchemist.model.Environment]].
- * The interface allows to get and set the value of molecules, as well as to check if a molecule is defined.
- * It also provides a method to get the identifier of the current device.
+ * Provides utility methods to interact with the Alchemist [[it.unibo.alchemist.model.Environment]]. The interface
+ * allows to get and set the value of molecules, as well as to check if a molecule is defined. It also provides a method
+ * to get the identifier of the current device.
  *
  * {{{
  *   type Lang = AggregateFoundation { type DeviceId = Int } &

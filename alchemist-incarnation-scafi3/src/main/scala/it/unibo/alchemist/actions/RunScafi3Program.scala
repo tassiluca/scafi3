@@ -1,14 +1,14 @@
 package it.unibo.alchemist.actions
 
+import java.net.URLClassLoader
+
+import it.unibo.alchemist.model.{ Position as AlchemistPosition, * }
 import it.unibo.alchemist.model.actions.AbstractAction
 import it.unibo.alchemist.model.molecules.SimpleMolecule
-import it.unibo.alchemist.model.{Position as AlchemistPosition, *}
 import it.unibo.alchemist.scafi.device.Scafi3Device
 import it.unibo.scafi.alchemist.device.context.AlchemistExchangeContext
 import it.unibo.scafi.context.AggregateContext
 import it.unibo.scafi.runtime.ScafiEngine
-
-import java.net.URLClassLoader
 
 /**
  * An Alchemist [[Action]] that runs a [[it.unibo.scafi.runtime.ScafiEngine]] program.
@@ -31,7 +31,8 @@ class RunScafi3Program[T, Position <: AlchemistPosition[Position]](
   private val classPath: String = programPath.take(programPath.length - 1).mkString("", ".", "$")
   private val clazz = classLoader.map(_.loadClass(classPath)).getOrElse(Class.forName(classPath))
   private val module = clazz.getField("MODULE$").nn.get(clazz)
-  private val method = clazz.getMethods.nn.toList.find(_.nn.getName.nn == programPath.last).get.nn
+  private val methods = clazz.getMethods.nn
+  private val method = methods.toList.find(_.nn.getName.nn == programPath.last).get.nn
 
   val localDevice: Scafi3Device[T, Position] = node.asProperty(classOf[Scafi3Device[T, Position]])
 
