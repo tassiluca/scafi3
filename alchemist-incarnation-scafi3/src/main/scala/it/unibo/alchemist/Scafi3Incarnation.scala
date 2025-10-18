@@ -138,6 +138,7 @@ class Scafi3Incarnation[T, Position <: AlchemistPosition[Position]] extends Inca
         throw IllegalArgumentException(
           s"Invalid parameters for Scafi3. `String` required, but ${params.getClass} has been provided: $params",
         )
+    end match
   end createAction
 
   private def compileScafiProgram(code: String, classLoader: URLClassLoader): (Boolean, List[String]) =
