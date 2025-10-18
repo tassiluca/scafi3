@@ -7,6 +7,7 @@ network-model:
 _pool: &program
   - time-distribution: 1
     program:
+      name: GradientInlined
       code: |
         package it.unibo.scafi.test
     
@@ -20,7 +21,7 @@ _pool: &program
         import it.unibo.scafi.libraries.All.given
         import it.unibo.scafi.message.Codables.given
       
-        object Gradient:
+        object GradientInlined:
           type Lang = AggregateFoundation { type DeviceId = Int } & FieldCalculusSyntax & DistanceSensor[Double] &
           AlchemistEnvironmentVariables
         
@@ -29,7 +30,7 @@ _pool: &program
               val distances = senseDistance[Double]
               val minDistance = prevValues.alignedMap(distances)(_ + _).withoutSelf.min
               if AlchemistEnvironmentVariables.get[Boolean]("source") then 0.0 else minDistance
-      entrypoint: it.unibo.scafi.test.Gradient.gradientInlined
+      entrypoint: it.unibo.scafi.test.GradientInlined.gradientInlined
 
 deployments:
   - type: Point

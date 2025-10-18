@@ -120,14 +120,20 @@ class Scafi3Incarnation[T, Position <: AlchemistPosition[Position]] extends Inca
     additionalParameters match
       case params: String => RunScafi3Program[T, Position](node, environment, params)
       case params: java.util.Map[String, String] @unchecked =>
+        require(
+          params.containsKey("code") && params.containsKey("entrypoint"),
+          s"Scafi3 requires 'code', 'entrypoint', and optionally `name` parameters, but only found: ${params.keySet()}",
+        )
         val code = params.get("code")
         val entrypoint = params.get("entrypoint")
-        val (hasErrors, errors) = compileScafiProgram(code, classLoaders.get(entrypoint))
+        val name = params.getOrDefault("name", "Scafi3Program")
+        val classLoader = classLoaders.get(name)
+        val (hasErrors, errors) = compileScafiProgram(code, classLoader)
         if hasErrors then
           throw IllegalArgumentException(
             s"Could not compile Scafi3 program:\n${errors.mkString("\n")}",
           )
-        RunScafi3Program[T, Position](node, environment, entrypoint, Some(classLoaders.get(entrypoint)))
+        RunScafi3Program[T, Position](node, environment, entrypoint, Some(classLoader))
       case params =>
         throw IllegalArgumentException(
           s"Invalid parameters for Scafi3. `String` required, but ${params.getClass} has been provided: $params",
@@ -141,7 +147,8 @@ class Scafi3Incarnation[T, Position <: AlchemistPosition[Position]] extends Inca
       outputFolder.toFile.exists() && outputFolder.toFile.isDirectory,
       s"Output folder $outputFolder does not exist or is not a directory",
     )
-    val sourceFilePath = Files.writeString(outputFolder.resolve("Program.scala"), code)
+    val inputFolder = Files.createTempDirectory("scafi3-src")
+    val sourceFilePath = Files.writeString(inputFolder.resolve("Program.scala"), code)
     // Compile file
     compileWithOptions(sourceFilePath.toAbsolutePath.toString, outputFolder.toAbsolutePath.toString)
 
