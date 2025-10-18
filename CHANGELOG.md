@@ -1,3 +1,21 @@
+## [1.2.0](https://github.com/scafi/scafi3/compare/v1.1.0...v1.2.0) (2025-10-18)
+
+### Features
+
+* **incarnation:** checkrequired parameters in yaml specification ([46dcbe3](https://github.com/scafi/scafi3/commit/46dcbe312df20d59aca7257c8d610cd437c07990))
+
+### Dependency updates
+
+* **deps:** update alchemistversion to v42.3.12 ([b5430b5](https://github.com/scafi/scafi3/commit/b5430b526dd11ef875d131dec00fc7c52d0501ed))
+
+### Bug Fixes
+
+* aggregate incarnation in root project ([e77155b](https://github.com/scafi/scafi3/commit/e77155b1b81a9c4553fef5788ec9a4f660d82f44))
+
+### Style improvements
+
+* reformat code ([cdad6cc](https://github.com/scafi/scafi3/commit/cdad6cc30cb89d04d571b2478fb1c9f58cfe603d))
+
 ## [1.1.0](https://github.com/scafi/scafi3/compare/v1.0.5...v1.1.0) (2025-10-17)
 
 ### Features
