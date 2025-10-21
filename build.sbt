@@ -72,7 +72,6 @@ lazy val commonSettings = Seq(
     "org.scalactic" %%% "scalactic" % "3.2.19",
     "io.github.iltotore" %%% "iron" % "3.2.0",
     "com.outr" %%% "scribe" % "3.17.0",
-    "dev.optics" %%% "monocle-core" % "3.3.0",
     "org.scalatest" %%% "scalatest" % "3.2.19" % Test,
     "org.scalatestplus" %%% "scalacheck-1-18" % "3.2.19.0" % Test,
   ),
