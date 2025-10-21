@@ -2,8 +2,8 @@ package it.unibo.scafi.message
 
 import scala.scalanative.unsafe.{ fromCString, Ptr }
 
-import it.unibo.scafi.message.CBinaryCodable.typeName
 import it.unibo.scafi.message.CodablesRegistry
+import it.unibo.scafi.nativebindings.structs.BinaryCodable as CBinaryCodable
 
 trait NativeCodablesRegistry extends CodablesRegistry[NativeCodablesRegistry]:
   override type Codable = Ptr[CBinaryCodable]
@@ -19,7 +19,7 @@ object NativeCodablesRegistry:
     override type CodableId = String
 
     override def register(codable: Codable): NativeCodablesRegistry & { type CodableId = String } =
-      val name = fromCString(codable.typeName)
+      val name = fromCString((!codable).type_name)
       StringIdentifiedCodablesRegistry(mappings + (name -> codable))
 
     override def apply(id: CodableId): Codable throws NotRegisteredCodableException =
