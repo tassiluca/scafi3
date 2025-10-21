@@ -1,7 +1,5 @@
 package it.unibo.scafi.libraries
 
-import scala.util.chaining.scalaUtilChainingOps
-
 import it.unibo.scafi.types.PortableTypes
 
 /**
@@ -10,9 +8,13 @@ import it.unibo.scafi.types.PortableTypes
 trait PortableExchangeCalculusLibrary extends PortableLibrary:
   self: PortableTypes =>
   export it.unibo.scafi.language.xc.syntax.ExchangeSyntax
-  import it.unibo.scafi.language.xc.syntax.ReturnSending as RetSend
+  export it.unibo.scafi.language.xc.syntax.ReturnSending as RetSend
 
   override type Language <: AggregateFoundation & ExchangeSyntax
+
+  type ReturnSending
+
+  given [Value] => Conversion[ReturnSending, RetSend[language.SharedData[Value]]] = compiletime.deferred
 
   /**
    * This method is the main construct of the exchange calculus. It allows both to send and receive messages, and to
@@ -38,11 +40,10 @@ trait PortableExchangeCalculusLibrary extends PortableLibrary:
    *   the new aggregate value
    */
   @JSExport
-  def exchange[Value](initial: SharedData[Value])(
-      f: Function1[SharedData[Value], ReturnSending[SharedData[Value]]],
-  ): SharedData[Value] = exchange_(initial)(f)
+  def exchange[Value](initial: SharedData[Value])(f: Function1[SharedData[Value], ReturnSending]): SharedData[Value] =
+    exchange_(initial)(f)
 
   inline def exchange_[Value](initial: SharedData[Value])(
-      f: Function1[SharedData[Value], ReturnSending[SharedData[Value]]],
-  ): SharedData[Value] = language.exchange(initial)(f(_).pipe(sd => RetSend(sd.returning, sd.sending)))
+      f: Function1[SharedData[Value], ReturnSending],
+  ): SharedData[Value] = language.exchange(initial)(f(_))
 end PortableExchangeCalculusLibrary

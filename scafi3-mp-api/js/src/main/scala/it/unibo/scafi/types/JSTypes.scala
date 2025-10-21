@@ -1,6 +1,7 @@
 package it.unibo.scafi.types
 
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.scalajs.js
 import scala.util.{ Failure, Success }
 
 /**
@@ -8,7 +9,6 @@ import scala.util.{ Failure, Success }
  */
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait JSTypes extends PortableTypes:
-  import scalajs.js
 
   override type Map[K, V] = js.Map[K, V]
   override given [K, V] => Iso[Map[K, V], collection.Map[K, V]] = Iso(_.toMap, m => js.Map(m.toSeq*))

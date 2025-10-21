@@ -8,6 +8,9 @@ import scala.util.Try
 
 trait FileSystem:
 
+  /** Files to be excluded when operating on directories. */
+  val excludedFiles = Set(".DS_Store")
+
   /** Create a temporary directory with the given [[prefix]]. */
   def createTempDirectory(prefix: String): Try[Path] = Try(Files.createTempDirectory(prefix))
 
@@ -22,7 +25,8 @@ trait FileSystem:
     Files.writeString(path, content, StandardCharsets.UTF_8, StandardOpenOption.CREATE): Unit
 
   /** @return all files recursively found in the given [[path]] directory. */
-  def findAll(path: Path): Try[Set[Path]] = Try(Files.walk(path).toScala(Seq).filter(_.toFile.isFile).toSet)
+  def findAll(path: Path): Try[Set[Path]] = Try:
+    Files.walk(path).toScala(Seq).filter(p => p.toFile.isFile && !excludedFiles.contains(p.getFileName.toString)).toSet
 
   /** Delete the file or directory at the given [[path]]. */
   def delete(path: Path): Try[Unit] = Try:
