@@ -4,9 +4,10 @@ import scala.scalanative.libc.stddef.size_t
 import scala.scalanative.unsafe.{ alloc, fromCString, CSize, Ptr, Zone }
 import scala.scalanative.unsafe.Size.intToSize
 
-import it.unibo.scafi.message.CBinaryCodable.{ decode, encode, typeName }
 import it.unibo.scafi.message.UniversalCodable
-import it.unibo.scafi.utils.CUtils.{ toByteArray, toUint8Array }
+import it.unibo.scafi.nativebindings.structs.BinaryCodable as CBinaryCodable
+import it.unibo.scafi.utils.CUtils.asVoidPtr
+import it.unibo.scafi.utils.Uint8ArrayOps.{ toByteArray, toUint8Array }
 
 import io.bullet.borer.{ Cbor, Codec }
 import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodec
@@ -26,9 +27,9 @@ object NativeBinaryCodable:
       override def register(value: Ptr[CBinaryCodable]): Unit = registry = registry.register(value)
 
       override def encode(value: Ptr[CBinaryCodable]): Array[Byte] = Zone:
-        val typeName = fromCString(value.typeName)
+        val typeName = fromCString((!value).type_name)
         val encodedSize = alloc[size_t]()
-        val rawData = value.encode(value, encodedSize)
+        val rawData = (!value).encode(value, encodedSize)
         val data = rawData.toByteArray(!encodedSize)
         Cbor.encode(typeName, Format.Binary, data).toByteArray
 
@@ -38,7 +39,7 @@ object NativeBinaryCodable:
           case Some(value) =>
             format match
               case Format.Binary =>
-                value.decode(encodedData.toUint8Array, encodedData.length.toCSize).asInstanceOf[Ptr[CBinaryCodable]]
+                (!value).decode(encodedData.toUint8Array, encodedData.length.toCSize).asInstanceOf[Ptr[CBinaryCodable]]
               case Format.String => throw new IllegalStateException("String format not yet supported in native.")
           case None => throw new IllegalStateException(s"Unknow type: $typeName. This should not happen. Report this.")
 

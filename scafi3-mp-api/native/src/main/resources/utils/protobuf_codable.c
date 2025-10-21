@@ -17,7 +17,7 @@ static const uint8_t* protobuf_encode(const void *data, size_t *encoded_size) {
     return buffer;
 }
 
-static bool protobuf_equals(const void* a, const void* b) {
+static bool protobuf_cmp(const void* a, const void* b) {
     if (!a || !b) return false;
     const ProtobufValue *pa = a, *pb = b;
     if (pa->descriptor != pb->descriptor) return false;
@@ -65,7 +65,7 @@ ProtobufValue* protobuf_value_create(
     pv->base.type_name = (char*)message->descriptor->name;
     pv->base.encode = protobuf_encode;
     pv->base.decode = decode_func;
-    pv->base.equals = protobuf_equals;
+    pv->base.cmp = protobuf_cmp;
     pv->base.hash = protobuf_hash;
     pv->base.to_str = to_str_func ? to_str_func : protobuf_default_to_str;
     pv->message = message;

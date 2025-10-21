@@ -17,7 +17,7 @@ static const uint8_t* int_value_encode(const void *data, size_t *encoded_size) {
     return encoded;
 }
 
-static bool int_value_equals(const void* a, const void* b) {
+static bool int_value_cmp(const void* a, const void* b) {
     return a && b && ((Int*)a)->value == ((Int*)b)->value;
 }
 
@@ -59,7 +59,7 @@ static void init_int_value(Int* iv, int value) {
     iv->base.type_name = "number";
     iv->base.encode = int_value_encode;
     iv->base.decode = int_value_decode;
-    iv->base.equals = int_value_equals;
+    iv->base.cmp = int_value_cmp;
     iv->base.hash = int_value_hash;
     iv->base.to_str = int_value_to_str;
     iv->value = value;

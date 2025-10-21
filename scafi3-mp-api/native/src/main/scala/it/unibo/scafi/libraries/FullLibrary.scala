@@ -10,8 +10,8 @@ import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
 import it.unibo.scafi.libraries.FullLibrary.libraryRef
-import it.unibo.scafi.message.CBinaryCodable
 import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
+import it.unibo.scafi.nativebindings.structs.{ BinaryCodable as CBinaryCodable, Field as CField }
 import it.unibo.scafi.types.{ CMap, EqWrapper, NativeTypes }
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
