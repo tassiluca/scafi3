@@ -1,13 +1,9 @@
 package it.unibo.scafi.utils
 
 import scala.reflect.ClassTag
-import scala.scalanative.libc.stddef.size_t
 import scala.scalanative.libc.stdlib.malloc
-import scala.scalanative.posix.inttypes.uint8_t
 import scala.scalanative.posix.string.strdup
-import scala.scalanative.unsafe.{ alloc, sizeOf, toCString, CString, Ptr, Zone }
-import scala.scalanative.unsafe.Size.byteToSize
-import scala.util.chaining.scalaUtilChainingOps
+import scala.scalanative.unsafe.{ sizeOf, toCString, CString, Ptr, Zone }
 
 /** A bunch of utilities for C interop. */
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf", "scalafix:DisableSyntax.null"))
@@ -46,47 +42,6 @@ object CUtils:
   inline def requireNonNull[T](obj: T): T =
     if obj.asInstanceOf[AnyRef] == null then throw new NullPointerException(s"Object $obj is null") else obj
 
-  extension (bytes: Array[Byte])
-
-    /**
-     * Convert an array of bytes to a pointer to `uint8_t`.
-     * @return
-     *   a pointer to `uint8_t` representing the array of bytes
-     * @note
-     *   the pointer is allocated in the given zone and will be automatically freed when the zone is closed. Accessing
-     *   it outside the zone will lead to undefined behavior.
-     */
-    def toUint8Array(using Zone): Ptr[uint8_t] = alloc[uint8_t](bytes.length).tap(writeTo)
-
-    /**
-     * Convert an array of bytes to a pointer to `uint8_t` that is not confined to a zone.
-     * @return
-     *   a pointer to `uint8_t` representing the array of bytes
-     * @note
-     *   the pointer is allocated using `malloc` and must be manually freed by the caller.
-     */
-    def toUnconfinedUint8Array: Ptr[uint8_t] = freshPointer[uint8_t](bytes.length).tap(writeTo)
-
-    private def writeTo(ptr: Ptr[uint8_t]): Unit = for i <- bytes.indices do !(ptr + i) = bytes(i).toUByte
-  end extension
-
-  extension (ptr: Ptr[uint8_t])
-
-    /**
-     * Convert a pointer to `uint8_t` to an array of bytes.
-     * @param size
-     *   the size of the array to convert to
-     * @return
-     *   an array of bytes representing the pointer to `uint8_t`
-     * @note
-     *   the pointer is not freed, as it is assumed to be managed elsewhere. It is the caller's responsibility to ensure
-     *   that the pointer is valid and points to a memory region of at least `size` bytes.
-     */
-    def toByteArray(size: size_t): Array[Byte] =
-      val array = new Array[Byte](size.toInt)
-      for i <- 0 until size.toInt do array(i) = (!(ptr + i)).toByte
-      array
-
   /**
    * Converts a Scala String to a C-style string (null-terminated array of characters) that is not confined to a zone.
    * @param str
@@ -97,5 +52,8 @@ object CUtils:
    *   the pointer is allocated and must be manually freed by the caller.
    */
   def toUnconfinedCString(str: String): CString = Zone(strdup(toCString(str)))
+
+  /** In C a pointer to any type can be treated as a `void*`. */
+  given asVoidPtr[T]: Conversion[Ptr[T], Ptr[Byte]] = _.asInstanceOf[Ptr[Byte]]
 
 end CUtils
