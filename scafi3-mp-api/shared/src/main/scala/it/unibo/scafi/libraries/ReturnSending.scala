@@ -10,9 +10,9 @@ import scala.scalajs.js.annotation.{ JSExport, JSExportTopLevel }
  *   the value to send
  */
 @JSExportTopLevel("ReturnSending")
-case class ReturnSending[+Value](returning: Value, sending: Value)
+case class PReturnSending[+Value](returning: Value, sending: Value)
 
-object ReturnSending:
+object PReturnSending:
 
   /**
    * An object of this class enables the syntax to send a different value from the one to return.
@@ -29,7 +29,7 @@ object ReturnSending:
      *   a [[ReturnSending]] instance with the value to return and the value to send
      */
     @JSExport
-    infix def send[SendValue >: Value](send: SendValue): ReturnSending[SendValue] = ReturnSending(returning, send)
+    infix def send[SendValue >: Value](send: SendValue): PReturnSending[SendValue] = PReturnSending(returning, send)
 
   /**
    * The value to return. It enables the syntax to send a different value from the one to return, using the `send`
@@ -52,9 +52,9 @@ object ReturnSending:
    */
   @JSExportTopLevel("returnSending")
   @JSExport
-  def returnSending[Value](value: Value): ReturnSending[Value] = ReturnSending(value, value)
+  def returnSending[Value](value: Value): PReturnSending[Value] = PReturnSending(value, value)
 
   @JSExportTopLevel("returnSending")
   @JSExport
-  def returnSending[Value](returning: Value, sending: Value): ReturnSending[Value] = ReturnSending(returning, sending)
-end ReturnSending
+  def returnSending[Value](returning: Value, sending: Value): PReturnSending[Value] = PReturnSending(returning, sending)
+end PReturnSending

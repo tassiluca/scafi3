@@ -11,7 +11,11 @@ import it.unibo.scafi.libraries.FullLibrary
 import it.unibo.scafi.message.{ CBinaryCodable, UniversalCodable }
 import it.unibo.scafi.message.CBinaryCodable.given_Hash_Ptr
 import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
-import it.unibo.scafi.nativebindings.structs.{ BinaryCodable as CBinaryCodable, Endpoint as CEndpoint }
+import it.unibo.scafi.nativebindings.structs.{
+  AggregateLibrary as CAggregateLibrary,
+  BinaryCodable as CBinaryCodable,
+  Endpoint as CEndpoint,
+}
 import it.unibo.scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
 import it.unibo.scafi.runtime.network.sockets.{ ConnectionOrientedNetworkManager, InetTypes }
 import it.unibo.scafi.types.{ EqWrapper, NativeTypes }
@@ -35,7 +39,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
 
   trait NativeRequirements extends Requirements with NativeMemoryContext with NativeAdts:
 
-    override type AggregateLibrary = Ptr[FullLibrary#CAggregateLibrary]
+    override type AggregateLibrary = Ptr[CAggregateLibrary]
 
     override given deviceIdCodable[Format]: UniversalCodable[DeviceId, Format] =
       new UniversalCodable[DeviceId, Format]:
