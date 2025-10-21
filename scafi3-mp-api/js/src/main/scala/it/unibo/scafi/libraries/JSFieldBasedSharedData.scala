@@ -42,14 +42,14 @@ trait JSFieldBasedSharedData extends PortableLibrary:
      */
     def of[Value](default: Value): Field[js.Any, Value] = Field(default, Map.empty)
 
-  override given [Value]: Iso[SharedData[Value], language.SharedData[Value]] =
-    Iso[SharedData[Value], language.SharedData[Value]](jsField =>
+  override given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = Iso(
+    jsField =>
       val field = language.sharedDataApplicative.pure(jsField.default)
-      jsField.neighborValues.foldLeft(field)((f, n) => f.set(EqWrapper(n._1).asInstanceOf[language.DeviceId], n._2)),
-    )(scalaField =>
-      val nvalues: Map[language.DeviceId, Value] =
-        scalaField.neighborValues.map((id, v) => (deviceIdConv(id), v)).toMap
+      jsField.neighborValues.foldLeft(field)((f, n) => f.set(EqWrapper(n._1).asInstanceOf[language.DeviceId], n._2))
+    ,
+    scalaField =>
+      val nvalues: Map[language.DeviceId, Value] = scalaField.neighborValues.map((id, v) => (deviceIdConv(id), v)).toMap
       Field(scalaField.default, nvalues.asInstanceOf[Map[js.Any, Value]]),
-    )
+  )
 
 end JSFieldBasedSharedData

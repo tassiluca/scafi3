@@ -11,19 +11,20 @@ trait JSTypes extends PortableTypes:
   import scalajs.js
 
   override type Map[K, V] = js.Map[K, V]
-  override given [K, V] => Iso[Map[K, V], collection.immutable.Map[K, V]] =
-    Iso[Map[K, V], collection.immutable.Map[K, V]](_.toMap)(m => js.Map(m.toSeq*))
+  override given [K, V] => Iso[Map[K, V], collection.Map[K, V]] = Iso(_.toMap, m => js.Map(m.toSeq*))
 
   override type Outcome[T] = js.Promise[T] | T
-  override given [T] => Iso[Outcome[T], Future[T]] = Iso[Outcome[T], Future[T]] {
-    case p: js.Promise[?] => p.toFuture.asInstanceOf[Future[T]]
-    case v => Future.successful(v.asInstanceOf[T])
-  }(f =>
-    given ExecutionContext = scalajs.concurrent.JSExecutionContext.queue
-    js.Promise[T]: (resolve, reject) =>
-      f.onComplete:
-        case Success(value) => resolve(value)
-        case Failure(exception) => reject(exception),
+  override given [T] => Iso[Outcome[T], Future[T]] = Iso(
+    {
+      case p: js.Promise[?] => p.toFuture.asInstanceOf[Future[T]]
+      case v => Future.successful(v.asInstanceOf[T])
+    },
+    f =>
+      given ExecutionContext = scalajs.concurrent.JSExecutionContext.queue
+      js.Promise[T]: (resolve, reject) =>
+        f.onComplete:
+          case Success(value) => resolve(value)
+          case Failure(exception) => reject(exception),
   )
 
   override type Function0[R] = js.Function0[R]

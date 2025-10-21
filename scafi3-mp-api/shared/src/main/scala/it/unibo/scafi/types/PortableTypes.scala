@@ -8,15 +8,15 @@ import scala.concurrent.Future
  * platform-specific ones and provide, for each of them, the required Scala conversions.
  */
 trait PortableTypes:
-  export monocle.Iso
   export scala.scalajs.js.annotation.{ JSExport, JSExportAll, JSExportTopLevel }
-  export it.unibo.scafi.utils.libraries.IsoUtils.given
+  export it.unibo.scafi.utils.libraries.Iso
+  export it.unibo.scafi.utils.libraries.Iso.given
 
   /** A portable Map that can be used across different platforms. */
   type Map[K, V]
 
   /** Portable maps are isomorphic to Scala's `collection.Map`. */
-  given [K, V] => Iso[Map[K, V], collection.immutable.Map[K, V]] = compiletime.deferred
+  given [K, V] => Iso[Map[K, V], collection.Map[K, V]] = compiletime.deferred
 
   /**
    * A portable type representing a blocking computation that will eventually produce a value of type `T` that can be

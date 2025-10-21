@@ -8,12 +8,10 @@ import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1, CFuncPtr2, CFuncPtr3, Pt
 trait NativeTypes extends PortableTypes:
 
   override type Map[K, V] = Ptr[Byte]
-  override given [K, V] => Iso[Map[K, V], collection.immutable.Map[K, V]] =
-    Iso[Map[K, V], collection.immutable.Map[K, V]](CMap.of(_).toMap)(m => CMap(mutable.Map.from(m)))
+  override given [K, V] => Iso[Map[K, V], collection.Map[K, V]] = Iso(CMap.of(_).toMap, m => CMap(mutable.Map.from(m)))
 
   override type Outcome[T] = T
-  override given [T] => Iso[Outcome[T], Future[T]] =
-    Iso[Outcome[T], Future[T]](Future.successful)(Await.result(_, Duration.Inf))
+  override given [T] => Iso[Outcome[T], Future[T]] = Iso(Future.successful, Await.result(_, Duration.Inf))
 
   /* WARNING
    * =======

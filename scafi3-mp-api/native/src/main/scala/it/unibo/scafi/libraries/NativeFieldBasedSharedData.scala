@@ -5,17 +5,15 @@ import scala.scalanative.unsafe.{ exported, fromCString, toCString, CString, Ptr
 import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
+import it.unibo.scafi.libraries.NativeFieldBasedSharedData.given
 import it.unibo.scafi.message.CBinaryCodable.given_Hash_Ptr
 import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
 import it.unibo.scafi.nativebindings.aliases.NValues
 import it.unibo.scafi.nativebindings.structs.{ BinaryCodable as CBinaryCodable, Field as CField }
 import it.unibo.scafi.types.{ CMap, EqWrapper, NativeTypes, PortableTypes }
 import it.unibo.scafi.utils.CUtils.{ asVoidPtr, freshPointer }
-import it.unibo.scafi.utils.libraries.IsoUtils.given
-
-import monocle.Iso
-
-import NativeFieldBasedSharedData.given
+import it.unibo.scafi.utils.libraries.Iso
+import it.unibo.scafi.utils.libraries.Iso.given
 
 /**
  * A custom portable definition of a field-based `SharedData` structure for native platform.
@@ -28,19 +26,19 @@ trait NativeFieldBasedSharedData extends PortableLibrary:
 
   override type SharedData[Value] = Ptr[CField]
 
-  override given [Value] => Iso[SharedData[Value], language.SharedData[Value]] =
-    Iso[SharedData[Value], language.SharedData[Value]](cFieldPtr =>
+  override given [Value] => Iso[SharedData[Value], language.SharedData[Value]] = Iso(
+    cFieldPtr =>
       val field = language.sharedDataApplicative.pure((!cFieldPtr).default_value.asInstanceOf[Value])
-      val scalaNValues: collection.Map[Ptr[CBinaryCodable], Ptr[CBinaryCodable]] =
-        CMap.of((!cFieldPtr).neighbor_values).toMap
+      val scalaNValues = CMap.of((!cFieldPtr).neighbor_values).toMap
       scalaNValues.foldLeft(field): (f, n) =>
-        f.set(EqWrapper(n._1).asInstanceOf[language.DeviceId], n._2.asInstanceOf[Value]),
-    )(scalaField =>
+        f.set(EqWrapper(n._1).asInstanceOf[language.DeviceId], n._2)
+    ,
+    scalaField =>
       NativeFieldBasedSharedData.of(
         scalaField.default.asInstanceOf[Ptr[CBinaryCodable]],
         scalaField.neighborValues.map((id, v) => (deviceIdConv(id), v)).toMap,
       ),
-    )
+  )
 end NativeFieldBasedSharedData
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
@@ -66,5 +64,5 @@ object NativeFieldBasedSharedData:
     Zone(strdup(toCString(s"Field($defaultStr, $neighborsStr)"))) // memory needs to be freed by the caller
 
   /** Neighbor values are not exposed to C client as CMap, rather as NValues alias, a.k.a. an opaque pointer. */
-  given Iso[Ptr[Byte], NValues] = Iso[Ptr[Byte], NValues](_.asInstanceOf[NValues])(_.asInstanceOf[Ptr[Byte]])
+  given Iso[Ptr[Byte], NValues] = Iso(_.asInstanceOf[NValues], _.asInstanceOf[Ptr[Byte]])
 end NativeFieldBasedSharedData
