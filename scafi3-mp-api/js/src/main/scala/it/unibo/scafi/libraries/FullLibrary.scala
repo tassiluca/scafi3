@@ -26,5 +26,10 @@ class FullLibrary(using
   override given valueCodable[Value, Format]: UniversalCodable[Value, Format] =
     jsBinaryCodable.asInstanceOf[UniversalCodable[Value, Format]]
 
+  override type ReturnSending = PReturnSending[SharedData[js.Any]]
+
+  override given [Value] => Conversion[ReturnSending, RetSend[language.SharedData[Value]]] = rs =>
+    RetSend(rs.returning.asInstanceOf[SharedData[Value]], rs.sending.asInstanceOf[SharedData[Value]])
+
   override given deviceIdConv[ID]: Conversion[language.DeviceId, ID] =
     _.asInstanceOf[EqWrapper[js.Any]].value.asInstanceOf[ID]

@@ -4,26 +4,31 @@
 #include <stdbool.h>
 #include "field.h"
 
-typedef struct ReturnSendingImpl* ReturnSending;
+typedef struct ReturnSending {
+    const Field* returning;
+    const Field* sending;
+} ReturnSending;
 
-ReturnSending retsend(const Field* value);
+static inline ReturnSending* retsend(const Field* val) {
+    _Thread_local static ReturnSending rs;
+    rs.returning = val;
+    rs.sending = val;
+    return &rs;
+}
 
-ReturnSending return_sending(const Field* returning, const Field* send);
-
-typedef const void* (*branch_callback_t)(void);
+static inline ReturnSending* return_sending(const Field* r, const Field* s) {
+    _Thread_local static ReturnSending rs;
+    rs.returning = r;
+    rs.sending = s;
+    return &rs;
+}
 
 typedef struct AggregateLibrary {
     FieldBasedSharedData Field;
-    struct { // Common library
-        const BinaryCodable* (*local_id)(void);
-        const Field* (*device)(void);
-    };
-    struct { // Branching library
-        const void* (*branch)(bool condition, branch_callback_t true_branch, branch_callback_t false_branch);
-    };
-    struct { // Exchange library
-        const Field* (*exchange)(const Field* initial, ReturnSending (*f)(const Field* in));
-    };
+    const BinaryCodable* (*local_id)(void);
+    const Field* (*device)(void);
+    const void* (*branch)(bool condition, const void* (*true_branch)(void), const void* (*false_branch)(void));
+    const Field* (*exchange)(const Field* initial, ReturnSending* (*f)(const Field* in));
 } AggregateLibrary;
 
 #endif // LIBRARIES_H
