@@ -14,9 +14,9 @@ trait PortableBranchingLibrary extends PortableLibrary:
    * This method is used to split the domain of the aggregate program into two branches.
    * @param condition
    *   the condition to be evaluated
-   * @param thenBranch
+   * @param trueBranch
    *   the expression to be evaluated if the condition is true
-   * @param elseBranch
+   * @param falseBranch
    *   the expression to be evaluated if the condition is false
    * @tparam Value
    *   the type of the expression to be evaluated
@@ -24,9 +24,9 @@ trait PortableBranchingLibrary extends PortableLibrary:
    *   the result of the expression that has been evaluated
    */
   @JSExport
-  def branch[Value](condition: Boolean)(thenBranch: Function0[Value])(elseBranch: Function0[Value]): Value =
-    branch_(condition)(thenBranch)(elseBranch)
+  def branch[Value](condition: Boolean)(trueBranch: Function0[Value])(falseBranch: Function0[Value]): Value =
+    branch_(condition)(trueBranch)(falseBranch)
 
-  inline def branch_[Value](condition: Boolean)(thenBranch: Function0[Value])(elseBranch: Function0[Value]): Value =
-    language.branch(condition)(thenBranch())(elseBranch())
+  inline def branch_[Value](condition: Boolean)(trueBranch: Function0[Value])(falseBranch: Function0[Value]): Value =
+    language.branch(condition)(trueBranch())(falseBranch())
 end PortableBranchingLibrary
