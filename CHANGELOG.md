@@ -1,3 +1,19 @@
+## [1.3.0](https://github.com/scafi/scafi3/compare/v1.2.0...v1.3.0) (2025-10-23)
+
+### Features
+
+* add "fielded" methods for common type classes ([#163](https://github.com/scafi/scafi3/issues/163)) ([68faef9](https://github.com/scafi/scafi3/commit/68faef9a02b73d99a6965d709f86972f7762013c))
+
+### Dependency updates
+
+* **deps:** update alchemistversion to v42.3.13 ([dfd47ef](https://github.com/scafi/scafi3/commit/dfd47efa9f7f9f144a3ac9733f92e19a27697019))
+* **deps:** update dependency ch.epfl.scala:sbt-scalafix to v0.14.4 ([4daa983](https://github.com/scafi/scafi3/commit/4daa9831e42803d1daf6639c1481a491808ae9f7))
+* **deps:** update dependency org.scoverage:sbt-scoverage to v2.4.0 ([70dc65c](https://github.com/scafi/scafi3/commit/70dc65cb980798050050ec7c32f6614e22659936))
+* **deps:** update dependency scalafmt to v3.10.1 ([92c8885](https://github.com/scafi/scafi3/commit/92c88855e4d784eb6c55b5bea02d241d2ece17c0))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.148 ([7967341](https://github.com/scafi/scafi3/commit/7967341c5d1018b74b35d551d6b7a92f68f07c9f))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.149 ([1c0ad6a](https://github.com/scafi/scafi3/commit/1c0ad6a5f838cf9cadc41f37aa086d508edb3730))
+* **deps:** update node.js to 22.21 ([17e4694](https://github.com/scafi/scafi3/commit/17e4694c96b6ab0f35f23aa6d2a253a422980d5b))
+
 ## [1.2.0](https://github.com/scafi/scafi3/compare/v1.1.0...v1.2.0) (2025-10-18)
 
 ### Features
