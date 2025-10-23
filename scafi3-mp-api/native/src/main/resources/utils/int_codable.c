@@ -59,8 +59,8 @@ static void init_int_value(Int* iv, int value) {
     iv->base.type_name = "number";
     iv->base.encode = int_value_encode;
     iv->base.decode = int_value_decode;
-    iv->base.cmp = int_value_cmp;
-    iv->base.hash = int_value_hash;
+    iv->base.eq.cmp = int_value_cmp;
+    iv->base.eq.hash = int_value_hash;
     iv->base.to_str = int_value_to_str;
     iv->value = value;
 }

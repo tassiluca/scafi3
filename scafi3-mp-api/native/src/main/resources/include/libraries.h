@@ -26,9 +26,9 @@ static inline ReturnSending* return_sending(const Field* r, const Field* s) {
 typedef struct AggregateLibrary {
     FieldBasedSharedData Field;
     const BinaryCodable* (*local_id)(void);
-    const Field* (*device)(void);
     const void* (*branch)(bool condition, const void* (*true_branch)(void), const void* (*false_branch)(void));
     const Field* (*exchange)(const Field* initial, ReturnSending* (*f)(const Field* in));
+    const BinaryCodable* (*share)(const BinaryCodable* initial, const BinaryCodable* (*f)(const Field* nvalues));
 } AggregateLibrary;
 
 #endif // LIBRARIES_H
