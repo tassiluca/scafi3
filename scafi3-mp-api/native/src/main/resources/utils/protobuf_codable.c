@@ -65,8 +65,8 @@ ProtobufValue* protobuf_value_create(
     pv->base.type_name = (char*)message->descriptor->name;
     pv->base.encode = protobuf_encode;
     pv->base.decode = decode_func;
-    pv->base.cmp = protobuf_cmp;
-    pv->base.hash = protobuf_hash;
+    pv->base.eq.cmp = protobuf_cmp;
+    pv->base.eq.hash = protobuf_hash;
     pv->base.to_str = to_str_func ? to_str_func : protobuf_default_to_str;
     pv->message = message;
     pv->descriptor = message->descriptor;

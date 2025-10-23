@@ -20,8 +20,17 @@ typedef struct ProtobufValue {
 #define DEFINE_PROTOBUF_MESSAGE(type_name, to_str_func) \
     static char* (*type_name##_to_str_ptr)(const void*) = to_str_func; \
     static const void* decode_##type_name(const uint8_t* buffer, size_t size) { \
-        if (!buffer || size == 0) return NULL; \
-        void* msg = type_name##__unpack(NULL, size, buffer); \
+        if (!buffer) return NULL; \
+        void* msg = NULL; \
+        if (size == 0) { \
+            /* Empty buffer means all fields have default values */ \
+            msg = calloc(1, type_name##__descriptor.sizeof_message); \
+            if (msg) { \
+                ((ProtobufCMessage*)msg)->descriptor = &type_name##__descriptor; \
+            } \
+        } else { \
+            msg = type_name##__unpack(NULL, size, buffer); \
+        } \
         return msg ? protobuf_value_create((ProtobufCMessage*)msg, decode_##type_name, type_name##_to_str_ptr) : NULL; \
     }
 

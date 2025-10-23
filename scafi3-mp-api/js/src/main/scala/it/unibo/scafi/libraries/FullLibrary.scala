@@ -5,6 +5,7 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 
 import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
+import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
 import it.unibo.scafi.message.JSBinaryCodable.jsBinaryCodable
@@ -18,7 +19,7 @@ import it.unibo.scafi.types.{ EqWrapper, JSTypes }
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 @JSExportTopLevel("FullLibrary")
 class FullLibrary(using
-    lang: AggregateFoundation & ExchangeSyntax & BranchingSyntax & FieldBasedSharedData,
+    lang: AggregateFoundation & ExchangeSyntax & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax,
 ) extends FullPortableLibrary
     with JSFieldBasedSharedData
     with JSTypes:
