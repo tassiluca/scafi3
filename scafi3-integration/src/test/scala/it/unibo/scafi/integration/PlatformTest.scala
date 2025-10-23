@@ -104,7 +104,7 @@ object PlatformTest:
 
   class SubstitutionBuilder:
     private var _substitutions = Set.empty[Substitution]
-    private[PlatformTest] def add(key: Pattern, value: String): Unit = _substitutions += ((key, value))
+    private[PlatformTest] def add(key: Pattern, value: String): Unit = _substitutions += (key, value)
     def substitutions: Set[Substitution] = _substitutions.view.toSet
 
   extension (pattern: Pattern)
