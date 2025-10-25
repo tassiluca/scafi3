@@ -13,11 +13,11 @@ import io.github.iltotore.iron.refineUnsafe
 import scafi.context.xc.ExchangeAggregateContext
 import scafi.message.UniversalCodable
 import scafi.message.JSBinaryCodable.jsBinaryCodable
-import scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
+import scafi.runtime.bindings.ScafiEngineBinding
 import scafi.libraries.FullLibrary
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
-object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with ScafiEngineBinding with JSTypes:
+object JSScafiRuntime extends PortableRuntime with ScafiEngineBinding with JSTypes:
 
   given ExecutionContext = scalajs.concurrent.JSExecutionContext.Implicits.queue
 
@@ -44,5 +44,5 @@ object JSScafiRuntime extends PortableRuntime with ScafiNetworkBinding with Scaf
     override def library[ID](using Arena): ExchangeAggregateContext[ID] ?=> FullLibrary = FullLibrary()
 
   @JSExportTopLevel("Runtime")
-  object JSAPI extends Api with NetworkBindings with EngineBindings with JSRequirements
+  object JSAPI extends Api with EngineBindings with JSRequirements
 end JSScafiRuntime

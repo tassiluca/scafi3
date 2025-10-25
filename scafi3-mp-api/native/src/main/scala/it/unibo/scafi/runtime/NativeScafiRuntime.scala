@@ -16,14 +16,14 @@ import it.unibo.scafi.nativebindings.structs.{
   BinaryCodable as CBinaryCodable,
   Endpoint as CEndpoint,
 }
-import it.unibo.scafi.runtime.bindings.{ ScafiEngineBinding, ScafiNetworkBinding }
-import it.unibo.scafi.runtime.network.sockets.{ ConnectionOrientedNetworkManager, InetTypes }
+import it.unibo.scafi.runtime.bindings.ScafiEngineBinding
+import it.unibo.scafi.runtime.network.sockets.InetTypes
 import it.unibo.scafi.types.{ EqWrapper, NativeTypes }
 
 import io.github.iltotore.iron.refineUnsafe
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
-object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with ScafiEngineBinding with NativeTypes:
+object NativeScafiRuntime extends PortableRuntime with ScafiEngineBinding with NativeTypes:
 
   given ExecutionContext = ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
 
@@ -50,19 +50,14 @@ object NativeScafiRuntime extends PortableRuntime with ScafiNetworkBinding with 
 
     override def library[ID](using Arena): ExchangeAggregateContext[ID] ?=> AggregateLibrary = FullLibrary().asNative
 
-  object NativeApi extends Api with NativeAdts with NetworkBindings with EngineBindings with NativeRequirements:
-
-    @exported("socket_network")
-    def nativeSocketNetwork(
-        deviceId: CVoidPtr,
-        port: CInt,
-        neighbors: Map[CVoidPtr, Endpoint],
-    ): ConnectionOrientedNetworkManager[DeviceId] = socketNetwork[CVoidPtr](deviceId, port, neighbors)
+  object NativeApi extends Api with NativeAdts with EngineBindings with NativeRequirements:
 
     @exported("engine")
     def nativeEngine(
-        network: ConnectionOrientedNetworkManager[DeviceId],
+        deviceId: CVoidPtr,
+        port: CInt,
+        neighbors: Map[CVoidPtr, Endpoint],
         program: Function1[AggregateLibrary, CVoidPtr],
         onResult: Function1[CVoidPtr, Outcome[Boolean]],
-    ): Outcome[Unit] = engine(network, program, onResult)
+    ): Outcome[Unit] = engine(deviceId, port, neighbors, program, onResult)
 end NativeScafiRuntime
