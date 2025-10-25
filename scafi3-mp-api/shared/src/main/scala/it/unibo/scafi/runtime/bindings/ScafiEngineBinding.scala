@@ -33,7 +33,7 @@ trait ScafiEngineBinding extends PortableRuntime:
       network
         .start()
         .flatMap: _ =>
-          val engine = ScafiEngine(network.deviceId, network, exchangeContextFactory)(safelyRun(program(library)))
+          val engine = ScafiEngine(deviceId: DeviceId, network, exchangeContextFactory)(safelyRun(program(library)))
           engine.asyncCycleWhile(onResult.apply).map(_ => ())
         .andThen(_ => Future(network.close()))
         .andThen(reportAnyFailure)
