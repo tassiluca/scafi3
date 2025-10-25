@@ -5,8 +5,10 @@ import scala.util.{ Failure, Try }
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
 import it.unibo.scafi.runtime.{ PortableRuntime, ScafiEngine }
-import it.unibo.scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
+import it.unibo.scafi.runtime.network.sockets.{ ConnectionConfiguration, SocketNetworkManager }
 import it.unibo.scafi.types.PortableTypes
+
+import io.github.iltotore.iron.refineUnsafe
 
 /**
  * Provides a concrete implementation of the portable runtime API for the ScaFi engine.
@@ -19,11 +21,15 @@ trait ScafiEngineBinding extends PortableRuntime:
 
     /* WARNING: Inline is needed here for native platform to ensure function pointers are correctly handled at
      * call site. Removing it does not lead to compilation errors but to runtime segfaults! */
-    inline override def engine[Result](
-        network: ConnectionOrientedNetworkManager[DeviceId],
+    inline override def engine[ID, Result](
+        deviceId: ID,
+        port: Int,
+        neighbors: Map[ID, Endpoint],
         program: Function1[AggregateLibrary, Result],
         onResult: Function1[Result, Outcome[Boolean]],
     ): Outcome[Unit] =
+      deviceIdCodable.register(deviceId)
+      val network = socketNetwork(deviceId, port, neighbors)
       network
         .start()
         .flatMap: _ =>
@@ -31,6 +37,11 @@ trait ScafiEngineBinding extends PortableRuntime:
           engine.asyncCycleWhile(onResult.apply).map(_ => ())
         .andThen(_ => Future(network.close()))
         .andThen(reportAnyFailure)
+
+    private def socketNetwork[ID](deviceId: ID, port: Int, neighbors: Map[ID, Endpoint]) =
+      given ConnectionConfiguration = ConnectionConfiguration.basic
+      val devicesNet = neighbors.view.map((id, e) => (id: DeviceId, toInetEndpoint(e))).toMap
+      SocketNetworkManager.withFixedNeighbors(deviceId: DeviceId, port.refineUnsafe, devicesNet)
 
     private val reportAnyFailure: PartialFunction[Try[Unit], Unit] =
       case Failure(err) => Console.err.println(s"Error occurred: ${err.getMessage}")
