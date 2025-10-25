@@ -4,8 +4,6 @@
 #include <stdbool.h>
 #include "libraries.h"
 
-typedef struct ConnectionOrientedNetworkManagerImpl* ConnectionOrientedNetworkManager;
-
 struct Endpoint {
     char* address;
     int port;
@@ -13,14 +11,10 @@ struct Endpoint {
 
 MAP_OF(Neighborhood, DeviceId, struct Endpoint*)
 
-ConnectionOrientedNetworkManager socket_network(
+void engine(
     const BinaryCodable* device_id,
     int port, 
-    const Neighborhood neighbors
-);
-
-void engine(
-    const ConnectionOrientedNetworkManager network_manager,
+    const Neighborhood neighbors,
     const void* (*aggregate_program)(const AggregateLibrary* library),
     bool (*on_result)(const void* result)
 );

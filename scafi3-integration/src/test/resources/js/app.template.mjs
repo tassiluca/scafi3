@@ -9,11 +9,10 @@ const { Runtime, returning, returnSending } = await import("./main.mjs");
 const deviceId = {{ deviceId }};
 const port = {{ port }};
 const neighbors = new Map({{ neighbors }});
-const network = Runtime.socketNetwork(deviceId, port, neighbors);
 
 let lastResult = null;
 let iterations = 10;
-await Runtime.engine(network, lang => aggregateProgram(lang), async result => {
+await Runtime.engine(deviceId, port, neighbors, lang => aggregateProgram(lang), async result => {
     lastResult = result;
     await sleep(1_000);
     return iterations-- > 0;
