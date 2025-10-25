@@ -3,9 +3,14 @@ package it.unibo.scafi.runtime.bindings
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Try }
 
+import it.unibo.scafi.context.xc.ExchangeAggregateContext
 import it.unibo.scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
 import it.unibo.scafi.runtime.{ PortableRuntime, ScafiEngine }
-import it.unibo.scafi.runtime.network.sockets.{ ConnectionConfiguration, SocketNetworkManager }
+import it.unibo.scafi.runtime.network.sockets.{
+  ConnectionConfiguration,
+  ConnectionOrientedNetworkManager,
+  SocketNetworkManager,
+}
 import it.unibo.scafi.types.PortableTypes
 
 import io.github.iltotore.iron.refineUnsafe
@@ -18,6 +23,13 @@ trait ScafiEngineBinding extends PortableRuntime:
 
   trait EngineBindings(using ExecutionContext) extends Api:
     self: Requirements & Adts =>
+
+    private type Engine[Result] = ScafiEngine[
+      DeviceId,
+      ExchangeAggregateContext[DeviceId],
+      ConnectionOrientedNetworkManager[DeviceId],
+      Result,
+    ]
 
     /* WARNING: Inline is needed here for native platform to ensure function pointers are correctly handled at
      * call site. Removing it does not lead to compilation errors but to runtime segfaults! */
@@ -33,10 +45,18 @@ trait ScafiEngineBinding extends PortableRuntime:
       network
         .start()
         .flatMap: _ =>
-          val engine = ScafiEngine(deviceId: DeviceId, network, exchangeContextFactory)(safelyRun(program(library)))
-          engine.asyncCycleWhile(onResult.apply).map(_ => ())
+          ScafiEngine(deviceId: DeviceId, network, exchangeContextFactory)(safelyRun(program(library)))
+            .cycleWhileAsync(onResult.apply)
         .andThen(_ => Future(network.close()))
         .andThen(reportAnyFailure)
+
+    extension [Result](engine: Engine[Result])
+      def cycleWhileAsync(onResult: Result => Future[Boolean]): Future[Unit] =
+        for
+          cycleResult <- Future(engine.cycle())
+          outcome <- onResult(cycleResult)
+          _ <- if outcome then engine.cycleWhileAsync(onResult) else Future.successful(())
+        yield ()
 
     private def socketNetwork[ID](deviceId: ID, port: Int, neighbors: Map[ID, Endpoint]) =
       given ConnectionConfiguration = ConnectionConfiguration.basic
