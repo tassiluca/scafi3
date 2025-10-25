@@ -1,4 +1,4 @@
-package it.unibo.scafi.runtime
+package it.unibo.scafi.types
 
 /**
  * A context allowing executing memory-safe operations within a scoped memory region.

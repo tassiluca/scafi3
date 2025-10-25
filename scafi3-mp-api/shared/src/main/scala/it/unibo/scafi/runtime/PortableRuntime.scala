@@ -1,11 +1,9 @@
 package it.unibo.scafi.runtime
 
-import it.unibo.scafi
-import it.unibo.scafi.types.PortableTypes
-
-import scafi.context.xc.ExchangeAggregateContext
-import scafi.message.UniversalCodable
-import scafi.runtime.network.sockets.ConnectionOrientedNetworkManager
+import it.unibo.scafi.context.xc.ExchangeAggregateContext
+import it.unibo.scafi.message.UniversalCodable
+import it.unibo.scafi.runtime.network.sockets.InetTypes
+import it.unibo.scafi.types.{ MemorySafeContext, PortableTypes }
 
 /**
  * Portable runtime API entry point.
@@ -27,8 +25,8 @@ trait PortableRuntime:
     /** A network endpoint consisting of an [[address]] and a [[port]]. */
     type Endpoint
 
-    /** Endpoint is isomorphic to [[scafi.runtime.network.sockets.InetTypes.Endpoint]]. */
-    given toInetEndpoint: Conversion[Endpoint, scafi.runtime.network.sockets.InetTypes.Endpoint] = compiletime.deferred
+    /** Endpoint is isomorphic to [[InetTypes.Endpoint]]. */
+    given toInetEndpoint: Conversion[Endpoint, InetTypes.Endpoint] = compiletime.deferred
 
   /** The requirements that must be satisfied by any concrete implementation of the runtime. */
   trait Requirements extends MemorySafeContext:
@@ -44,22 +42,25 @@ trait PortableRuntime:
   trait Api:
     self: Requirements & Adts =>
 
-    /** @return a socket-based network working on [[port]] with statically assigned [[neighbors]] and [[deviceId]]. */
+    /**
+     * Portable entry point for Scafi3 aggregate programs in a distributed environment with socket-based networking.
+     * @param deviceId
+     *   the unique identifier of the device
+     * @param port
+     *   the port on which the device listens for incoming messages
+     * @param neighbors
+     *   a map of neighboring device IDs to their network endpoints
+     * @param program
+     *   the aggregate program to run on the device
+     * @param onResult
+     *   a callback to handle the result of the program execution returning an Outcome of Boolean indicating whether to
+     *   continue or stop
+     */
     @JSExport
-    def socketNetwork[ID](
+    def engine[ID, Result](
         deviceId: ID,
         port: Int,
         neighbors: Map[ID, Endpoint],
-    ): ConnectionOrientedNetworkManager[DeviceId]
-
-    /**
-     * Runs the given aggregate [[program]] on the device with the given [[deviceId]], using the provided [[network]].
-     * The result of the program is passed to the [[onResult]] callback, which should return an [[Outcome]] indicating
-     * whether the execution needs to continue or stop.
-     */
-    @JSExport
-    def engine[Result](
-        network: ConnectionOrientedNetworkManager[DeviceId],
         program: Function1[AggregateLibrary, Result],
         onResult: Function1[Result, Outcome[Boolean]],
     ): Outcome[Unit]

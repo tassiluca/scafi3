@@ -32,8 +32,7 @@ bool on_result(const void* result) {
 int main(void) {
     Neighborhood neighbors = Neighborhood_empty();
     {{ neighbors }}
-    ConnectionOrientedNetworkManager network = socket_network(device({{ deviceId }}), {{ port }}, neighbors);
-    engine(network, aggregate_program, on_result);
+    engine(device({{ deviceId }}), {{ port }}, neighbors, aggregate_program, on_result);
     printf("%s", field_to_str((const Field*) last_round_result));
     return 0;
 }
