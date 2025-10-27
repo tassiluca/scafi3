@@ -42,16 +42,15 @@ object CUtils:
   inline def requireNonNull[T](obj: T): T =
     if obj.asInstanceOf[AnyRef] == null then throw new NullPointerException(s"Object $obj is null") else obj
 
-  /**
-   * Converts a Scala String to a C-style string (null-terminated array of characters) that is not confined to a zone.
-   * @param str
-   *   the Scala String to convert
-   * @return
-   *   a pointer to a null-terminated array of characters representing the C string
-   * @note
-   *   the pointer is allocated and must be manually freed by the caller.
-   */
-  def toUnconfinedCString(str: String): CString = Zone(strdup(toCString(str)))
+  extension (str: String)
+    /**
+     * Converts a Scala String to a C-style string (null-terminated array of characters) that is not confined to a zone.
+     * @return
+     *   a pointer to a null-terminated array of characters representing the C string
+     * @note
+     *   the pointer is allocated and must be manually freed by the caller.
+     */
+    def toUnconfinedCString: CString = Zone(strdup(toCString(str)))
 
   /** In C a pointer to any type can be treated as a `void*`. */
   given asVoidPtr[T]: Conversion[Ptr[T], Ptr[Byte]] = _.asInstanceOf[Ptr[Byte]]
