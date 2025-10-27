@@ -1,7 +1,6 @@
 package it.unibo.scafi.libraries
 
-import scala.scalanative.posix.string.strdup
-import scala.scalanative.unsafe.{ exported, fromCString, toCString, CString, Ptr, Zone }
+import scala.scalanative.unsafe.{ exported, fromCString, CString, Ptr }
 import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
@@ -11,7 +10,7 @@ import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
 import it.unibo.scafi.nativebindings.aliases.NValues
 import it.unibo.scafi.nativebindings.structs.{ BinaryCodable as CBinaryCodable, Field as CField }
 import it.unibo.scafi.types.{ CMap, EqWrapper, NativeTypes, PortableTypes }
-import it.unibo.scafi.utils.CUtils.{ asVoidPtr, freshPointer }
+import it.unibo.scafi.utils.CUtils.{ asVoidPtr, freshPointer, toUnconfinedCString }
 import it.unibo.scafi.utils.libraries.Iso
 import it.unibo.scafi.utils.libraries.Iso.given
 
@@ -61,7 +60,7 @@ object NativeFieldBasedSharedData:
       .toList
       .sorted
       .mkString("[", ", ", "]")
-    Zone(strdup(toCString(s"Field($defaultStr, $neighborsStr)"))) // memory needs to be freed by the caller
+    s"Field($defaultStr, $neighborsStr)".toUnconfinedCString // memory needs to be freed by the caller
 
   /** Neighbor values are not exposed to C client as CMap, rather as NValues alias, a.k.a. an opaque pointer. */
   given Iso[Ptr[Byte], NValues] = Iso(_.asInstanceOf[NValues], _.asInstanceOf[Ptr[Byte]])

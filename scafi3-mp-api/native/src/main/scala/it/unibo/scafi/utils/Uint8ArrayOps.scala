@@ -6,8 +6,6 @@ import scala.scalanative.unsafe.{ alloc, Ptr, Zone }
 import scala.scalanative.unsafe.Size.byteToSize
 import scala.util.chaining.scalaUtilChainingOps
 
-import it.unibo.scafi.utils.CUtils.freshPointer
-
 object Uint8ArrayOps:
 
   extension (bytes: Array[Byte])
@@ -20,15 +18,6 @@ object Uint8ArrayOps:
      *   it outside the zone will lead to undefined behavior.
      */
     def toUint8Array(using Zone): Ptr[uint8_t] = alloc[uint8_t](bytes.length).tap(writeTo)
-
-    /**
-     * Convert an array of bytes to a pointer to `uint8_t` that is not confined to a zone.
-     * @return
-     *   a pointer to `uint8_t` representing the array of bytes
-     * @note
-     *   the pointer is allocated using `malloc` and must be manually freed by the caller.
-     */
-    def toUnconfinedUint8Array: Ptr[uint8_t] = freshPointer[uint8_t](bytes.length).tap(writeTo)
 
     private def writeTo(ptr: Ptr[uint8_t]): Unit = for i <- bytes.indices do !(ptr + i) = bytes(i).toUByte
   end extension
