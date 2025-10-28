@@ -44,7 +44,7 @@ PROTOBUF_C_HDR = $(PROTOBUF_C_DIR)/protobuf-c.h
 PROTO_C_FILES := $(wildcard *.pb-c.c)
 PROTO_H_FILES := $(wildcard *.pb-c.h)
 
-CFLAGS = -std=gnu11 -Wall #-Wextra
+CFLAGS = -std=gnu11 -Wall -Wextra -Werror
 
 # Configure protobuf settings if .pb-c files are found
 ifneq ($(PROTO_C_FILES),) # Protobuf found - add includes and libs
