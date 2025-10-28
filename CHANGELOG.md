@@ -1,3 +1,9 @@
+## [2.0.1](https://github.com/scafi/scafi3/compare/v2.0.0...v2.0.1) (2025-10-28)
+
+### Documentation
+
+* improve style and doc ([#165](https://github.com/scafi/scafi3/issues/165)) ([d46f364](https://github.com/scafi/scafi3/commit/d46f3645e2eaba0ea8ed73c804e4fd142ba530b4))
+
 ## [2.0.0](https://github.com/scafi/scafi3/compare/v1.3.1...v2.0.0) (2025-10-28)
 
 ### ⚠ BREAKING CHANGES
