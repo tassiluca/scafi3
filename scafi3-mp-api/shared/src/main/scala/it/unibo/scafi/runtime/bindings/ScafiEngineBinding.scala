@@ -44,18 +44,16 @@ trait ScafiEngineBinding extends PortableRuntime:
       val network = socketNetwork(deviceId, port, neighbors)
       network
         .start()
-        .flatMap: _ =>
-          ScafiEngine(deviceId: DeviceId, network, exchangeContextFactory)(safelyRun(program(library)))
-            .cycleWhileAsync(onResult.apply)
+        .flatMap(_ => ScafiEngine(network, exchangeContextFactory)(safelyRun(program(library))).cycling(onResult.apply))
         .andThen(_ => Future(network.close()))
         .andThen(reportAnyFailure)
 
     extension [Result](engine: Engine[Result])
-      def cycleWhileAsync(onResult: Result => Future[Boolean]): Future[Unit] =
+      def cycling(onResult: Result => Future[Boolean]): Future[Unit] =
         for
           cycleResult <- Future(engine.cycle())
           outcome <- onResult(cycleResult)
-          _ <- if outcome then engine.cycleWhileAsync(onResult) else Future.successful(())
+          _ <- if outcome then engine.cycling(onResult) else Future.successful(())
         yield ()
 
     private def socketNetwork[ID](deviceId: ID, port: Int, neighbors: Map[ID, Endpoint]) =

@@ -44,7 +44,7 @@ trait PortableRuntime:
 
     /**
      * Portable entry point for Scafi3 aggregate programs in a distributed environment with socket-based networking.
-     * @param deviceId
+     * @param localId
      *   the unique identifier of the device
      * @param port
      *   the port on which the device listens for incoming messages
@@ -58,7 +58,7 @@ trait PortableRuntime:
      */
     @JSExport
     def engine[ID, Result](
-        deviceId: ID,
+        localId: ID,
         port: Int,
         neighbors: Map[ID, Endpoint],
         program: Function1[AggregateLibrary, Result],
