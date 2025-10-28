@@ -14,7 +14,7 @@ import it.unibo.scafi.message.{ CodableFromTo, Codables }
  * exchange calculus.
  */
 trait ExchangeLanguage extends ExchangeSyntax, FieldCalculusSyntax:
-  self: ExchangeCalculus =>
+  this: ExchangeCalculus =>
 
   override def exchange[Format, Value: CodableFromTo[Format]](initial: SharedData[Value])(
       f: SharedData[Value] => ReturnSending[SharedData[Value]],
