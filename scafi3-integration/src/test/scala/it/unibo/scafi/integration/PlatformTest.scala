@@ -40,6 +40,7 @@ trait PlatformTest extends should.Matchers with OS with FileSystem:
     addSubstitutions
     for
       workingDir <- createTempDirectory(testName)
+      _ = println(s"Testing program ${testName} in working directory $workingDir")
       _ <- resolveTemplates(testName, workingDir, builder.substitutions)
       _ <- compile(workingDir)
       out <- run(workingDir)

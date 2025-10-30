@@ -1,11 +1,13 @@
 package it.unibo.scafi.libraries
+
+import it.unibo.scafi.runtime.MemorySafeContext
 import it.unibo.scafi.types.PortableTypes
 
 /**
  * The root base trait for all portable libraries.
  */
 trait PortableLibrary:
-  self: PortableTypes =>
+  self: PortableTypes & MemorySafeContext =>
   export it.unibo.scafi.language.AggregateFoundation
   export it.unibo.scafi.message.UniversalCodable
 
@@ -27,7 +29,7 @@ trait PortableLibrary:
   /**
    * [[SharedData]] is isomorphic to [[language.SharedData]].
    */
-  given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
+  given [Value](using Arena, Allocator): Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
 
   given deviceIdConv[ID]: Conversion[language.DeviceId, ID] = compiletime.deferred
 

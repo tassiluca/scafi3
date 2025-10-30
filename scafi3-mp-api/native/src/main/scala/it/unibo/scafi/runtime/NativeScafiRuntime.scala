@@ -48,7 +48,8 @@ object NativeScafiRuntime extends PortableRuntime with ScafiEngineBinding with N
         override def decode(data: Format): DeviceId =
           EqWrapper(nativeBinaryCodable.decode(data.asInstanceOf[Array[Byte]]))
 
-    override def library[ID](using Arena): ExchangeAggregateContext[ID] ?=> AggregateLibrary = FullLibrary().asNative
+    override def library[ID](using Arena, Allocator): ExchangeAggregateContext[ID] ?=> AggregateLibrary =
+      FullLibrary().asNative
 
   object NativeApi extends Api with NativeAdts with EngineBindings with NativeRequirements:
 

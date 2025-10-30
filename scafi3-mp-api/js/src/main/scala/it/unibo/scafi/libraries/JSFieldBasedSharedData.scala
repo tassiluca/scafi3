@@ -5,6 +5,7 @@ import scala.scalajs.js
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.message.JSCodable
 import it.unibo.scafi.message.JSCodable.given_Hash_Any
+import it.unibo.scafi.runtime.NoMemorySafeContext
 import it.unibo.scafi.types.{ EqWrapper, PortableTypes }
 
 /**
@@ -12,7 +13,7 @@ import it.unibo.scafi.types.{ EqWrapper, PortableTypes }
  */
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait JSFieldBasedSharedData extends PortableLibrary:
-  self: PortableTypes & PortableExchangeCalculusLibrary =>
+  self: PortableTypes & PortableExchangeCalculusLibrary & NoMemorySafeContext =>
 
   override type Language <: AggregateFoundation & ExchangeSyntax & FieldBasedSharedData
 
@@ -42,7 +43,7 @@ trait JSFieldBasedSharedData extends PortableLibrary:
      */
     def of[Value](default: Value): Field[js.Any, Value] = Field(default, Map.empty)
 
-  override given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = Iso(
+  override given [Value](using Arena, Allocator): Iso[SharedData[Value], language.SharedData[Value]] = Iso(
     jsField =>
       val field = language.sharedDataApplicative.pure(jsField.default)
       jsField.neighborValues.foldLeft(field)((f, n) => f.set(EqWrapper(n._1).asInstanceOf[language.DeviceId], n._2))

@@ -9,6 +9,7 @@ import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
 import it.unibo.scafi.message.JSBinaryCodable.jsBinaryCodable
+import it.unibo.scafi.runtime.NoMemorySafeContext
 import it.unibo.scafi.types.{ EqWrapper, JSTypes }
 
 /**
@@ -22,14 +23,15 @@ class FullLibrary(using
     lang: AggregateFoundation & ExchangeSyntax & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax,
 ) extends FullPortableLibrary
     with JSFieldBasedSharedData
-    with JSTypes:
+    with JSTypes
+    with NoMemorySafeContext:
 
   override given valueCodable[Value, Format]: UniversalCodable[Value, Format] =
     jsBinaryCodable.asInstanceOf[UniversalCodable[Value, Format]]
 
   override type ReturnSending = PReturnSending[SharedData[js.Any]]
 
-  override given [Value] => Conversion[ReturnSending, RetSend[language.SharedData[Value]]] = rs =>
+  override given [Value](using Arena, Allocator): Conversion[ReturnSending, RetSend[language.SharedData[Value]]] = rs =>
     RetSend(rs.returning.asInstanceOf[SharedData[Value]], rs.sending.asInstanceOf[SharedData[Value]])
 
   override given deviceIdConv[ID]: Conversion[language.DeviceId, ID] =

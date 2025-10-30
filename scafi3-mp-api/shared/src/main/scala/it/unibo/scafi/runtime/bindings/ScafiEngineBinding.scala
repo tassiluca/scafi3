@@ -39,20 +39,22 @@ trait ScafiEngineBinding extends PortableRuntime:
         neighbors: Map[ID, Endpoint],
         program: Function1[AggregateLibrary, Result],
         onResult: Function1[Result, Outcome[Boolean]],
-    ): Outcome[Unit] =
+    ): Outcome[Unit] = safelyRun: (arena, alloc) ?=>
       deviceIdCodable.register(deviceId)
       val network = socketNetwork(deviceId, port, neighbors)
       network
         .start()
-        .flatMap(_ => ScafiEngine(network, exchangeContextFactory)(safelyRun(program(library))).cycling(onResult.apply))
+        .flatMap: _ =>
+          ScafiEngine(network, exchangeContextFactory)(program(library(using arena, alloc))).cycling(onResult.apply)
         .andThen(_ => Future(network.close()))
         .andThen(reportAnyFailure)
 
     extension [Result](engine: Engine[Result])
-      def cycling(onResult: Result => Future[Boolean]): Future[Unit] =
+      def cycling(onResult: Result => Future[Boolean])(using allocator: Allocator): Future[Unit] =
         for
           cycleResult <- Future(engine.cycle())
           outcome <- onResult(cycleResult)
+          _ = allocator.collect()
           _ <- if outcome then engine.cycling(onResult) else Future.successful(())
         yield ()
 

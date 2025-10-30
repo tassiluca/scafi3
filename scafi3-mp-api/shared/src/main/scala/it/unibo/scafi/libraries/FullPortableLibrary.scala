@@ -4,6 +4,7 @@ import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
 import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
+import it.unibo.scafi.runtime.MemorySafeContext
 import it.unibo.scafi.types.PortableTypes
 
 /**
@@ -17,7 +18,7 @@ trait FullPortableLibrary[Lang <: AggregateFoundation & BranchingSyntax & Exchan
     with PortableBranchingLibrary
     with PortableExchangeCalculusLibrary
     with PortableFieldCalculusLibrary:
-  self: PortableTypes =>
+  self: PortableTypes & MemorySafeContext =>
 
   override type Language = Lang
 

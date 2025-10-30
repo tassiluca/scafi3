@@ -1,5 +1,7 @@
 const void* aggregate_program(const AggregateLibrary* lang) {
-    return lang->exchange(lang->Field.of(lang->local_id()), fn(ReturnSending*, (const Field* f), {
-        return return_sending(f, lang->Field.of(lang->local_id()));
+    const Field* initial = lang->Field.of(device({{ deviceId }}));
+    return lang->exchange(initial, fn(ReturnSending*, (const Field* nvalues), {
+        const Field* to_send = lang->Field.of(device({{ deviceId }}));
+        return return_sending(nvalues, to_send);
     }));
 }

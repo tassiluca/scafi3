@@ -1,7 +1,6 @@
 package it.unibo.scafi.libraries
 
-import scala.scalanative.unsafe.{ exported, fromCString, CString, Ptr }
-import scala.util.chaining.scalaUtilChainingOps
+import scala.scalanative.unsafe.{ exported, fromCString, CString, Ptr, Zone }
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.libraries.NativeFieldBasedSharedData.given
@@ -9,8 +8,9 @@ import it.unibo.scafi.message.CBinaryCodable.given_Hash_Ptr
 import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
 import it.unibo.scafi.nativebindings.aliases.NValues
 import it.unibo.scafi.nativebindings.structs.{ BinaryCodable as CBinaryCodable, Field as CField }
+import it.unibo.scafi.runtime.{ Allocator, NativeMemoryContext }
 import it.unibo.scafi.types.{ CMap, EqWrapper, NativeTypes, PortableTypes }
-import it.unibo.scafi.utils.CUtils.{ asVoidPtr, freshPointer, toUnconfinedCString }
+import it.unibo.scafi.utils.CUtils.{ asVoidPtr, toUnconfinedCString }
 import it.unibo.scafi.utils.libraries.Iso
 import it.unibo.scafi.utils.libraries.Iso.given
 
@@ -19,13 +19,13 @@ import it.unibo.scafi.utils.libraries.Iso.given
  */
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait NativeFieldBasedSharedData extends PortableLibrary:
-  self: PortableTypes & PortableExchangeCalculusLibrary & NativeTypes =>
+  self: PortableTypes & PortableExchangeCalculusLibrary & NativeTypes & NativeMemoryContext =>
 
   override type Language <: AggregateFoundation & ExchangeSyntax & FieldBasedSharedData
 
   override type SharedData[Value] = Ptr[CField]
 
-  override given [Value] => Iso[SharedData[Value], language.SharedData[Value]] = Iso(
+  override given [Value](using Arena, Allocator): Iso[SharedData[Value], language.SharedData[Value]] = Iso(
     cFieldPtr =>
       val field = language.sharedDataApplicative.pure((!cFieldPtr).default_value.asInstanceOf[Value])
       val scalaNValues = CMap.of((!cFieldPtr).neighbor_values).toMap
@@ -43,11 +43,13 @@ end NativeFieldBasedSharedData
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object NativeFieldBasedSharedData:
 
-  def of(default: Ptr[CBinaryCodable], neighborValues: Ptr[Byte]): Ptr[CField] =
+  def of(default: Ptr[CBinaryCodable], neighborValues: Ptr[Byte])(using z: Zone, a: Allocator): Ptr[CField] =
     nativeBinaryCodable.register(default)
-    freshPointer[CField].tap: cFieldPtr =>
-      (!cFieldPtr).default_value = default
-      (!cFieldPtr).neighbor_values = neighborValues
+    a.track(default)
+    CField(
+      default_value = default,
+      neighbor_values = neighborValues,
+    )
 
   @exported("field_to_str")
   def fieldToString(sd: Ptr[CField]): CString =

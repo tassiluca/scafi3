@@ -39,7 +39,7 @@ val commonScalacOptions = Seq(
   "-Wnonunit-statement",
   "-Yexplicit-nulls",
   "-Wsafe-init",
-  "-Ycheck-reentrant",
+  //"-Ycheck-reentrant",
   "-Xcheck-macros",
   "-rewrite",
   "-indent",
@@ -86,8 +86,8 @@ lazy val commonNativeSettings = Seq(
       Seq(s"-Wl,-install_name,'@rpath/lib${(ThisBuild / name).value}.dylib'")
     else Nil
     nativeConfig.value
-      .withLTO(LTO.full)
-      .withMode(Mode.releaseSize)
+      .withLTO(LTO.none)
+      .withMode(Mode.debug)
       .withGC(GC.immix)
       .withBuildTarget(BuildTarget.libraryDynamic)
       .withBaseName((ThisBuild / name).value)

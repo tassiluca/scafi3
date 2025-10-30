@@ -3,7 +3,7 @@ package it.unibo.scafi.runtime
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
 import it.unibo.scafi.message.UniversalCodable
 import it.unibo.scafi.runtime.network.sockets.InetTypes
-import it.unibo.scafi.types.{ MemorySafeContext, PortableTypes }
+import it.unibo.scafi.types.PortableTypes
 
 /**
  * Portable runtime API entry point.
@@ -36,7 +36,7 @@ trait PortableRuntime:
     type AggregateLibrary
 
     /** @return the concrete portable aggregate library instance. */
-    def library[ID](using Arena): ExchangeAggregateContext[ID] ?=> AggregateLibrary
+    def library[ID](using Arena, Allocator): ExchangeAggregateContext[ID] ?=> AggregateLibrary
 
   /** The portable runtime API. */
   trait Api:
