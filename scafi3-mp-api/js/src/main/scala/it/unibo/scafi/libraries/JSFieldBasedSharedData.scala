@@ -16,7 +16,7 @@ trait JSFieldBasedSharedData extends PortableLibrary:
 
   override type Language <: AggregateFoundation & ExchangeSyntax & FieldBasedSharedData
 
-  override type SharedData[Value] = Field[js.Any, Value]
+  override type SharedData[Value] = Field[Value]
 
   /**
    * A portable definition of a `SharedData` structure for js platform based on fields, isomorphic to the
@@ -27,8 +27,12 @@ trait JSFieldBasedSharedData extends PortableLibrary:
    *   the values for all devices, aligned and unaligned
    */
   @JSExportAll
-  case class Field[ID, Value](default: Value, neighborValues: Map[ID, Value]):
+  case class Field[Value](default: Value, neighborValues: Map[js.Any, Value]):
     valueCodable.register(default)
+
+    @JSExport("withoutSelf")
+    def jsWithoutSelf(): Seq[Value] = given_Iso_SharedData_SharedData.to(this).withoutSelf.toSeq
+
     override def toString(): String = s"Field($default, ${neighborValues.toMap.toSeq.sortBy(_._1.toString).toMap})"
 
   @JSExport
@@ -40,7 +44,7 @@ trait JSFieldBasedSharedData extends PortableLibrary:
      * @return
      *   a new [[Field]] instance with the given default value and no neighbor values.
      */
-    def of[Value](default: Value): Field[js.Any, Value] = Field(default, Map.empty)
+    def of[Value](default: Value): Field[Value] = Field(default, Map.empty)
 
   override given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = Iso(
     jsField =>

@@ -10,6 +10,7 @@ typedef struct MapImpl* Map;
 Map map_empty();
 void* map_put(Map map, const Eq* key, const void* value);
 void* map_get(const Map map, const Eq* key);
+void map_foreach(const Map map, void (*f)(const void* value));
 size_t map_size(const Map map);
 void map_free(Map map);
 
