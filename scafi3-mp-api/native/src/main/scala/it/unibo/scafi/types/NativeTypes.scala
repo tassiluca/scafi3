@@ -5,10 +5,15 @@ import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration.Duration
 import scala.scalanative.unsafe.{ CFuncPtr0, CFuncPtr1, CFuncPtr2, CFuncPtr3, Ptr }
 
+import it.unibo.scafi.nativebindings.all.Array as CArray
+
 trait NativeTypes extends PortableTypes:
 
   override type Map[K, V] = Ptr[Byte]
   override given [K, V] => Iso[Map[K, V], collection.Map[K, V]] = Iso(CMap.of(_).toMap, m => CMap(mutable.Map.from(m)))
+
+  override type Seq[V] = CArray
+  override given [V] => Iso[Seq[V], collection.Seq[V]] = ???
 
   override type Outcome[T] = T
   override given [T] => Iso[Outcome[T], Future[T]] = Iso(Future.successful, Await.result(_, Duration.Inf))

@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 import scala.collection.mutable
 import scala.language.unsafeNulls
-import scala.scalanative.unsafe.{ exported, CSize, CVoidPtr, Ptr, UnsafeRichLong }
+import scala.scalanative.unsafe.{ exported, CFuncPtr1, CSize, CVoidPtr, Ptr, UnsafeRichLong }
 import scala.scalanative.unsafe.Size.intToSize
 
 import it.unibo.scafi.message.CEq.given
@@ -41,8 +41,11 @@ object CMap:
 
   @exported("map_get")
   def get(handle: Ptr[Byte], key: Ptr[CEq]): CVoidPtr =
-    val scalaMap = of[Ptr[CEq], CVoidPtr](handle)
-    scalaMap.find { case (k, _) => k === key }.map(_._2).orNull
+    of[Ptr[CEq], CVoidPtr](handle).find { case (k, _) => k === key }.map(_._2).orNull
+
+  @exported("map_foreach")
+  def foreach(handle: Ptr[Byte], f: CFuncPtr1[CVoidPtr, Unit]): Unit =
+    of[Ptr[CEq], CVoidPtr](handle).foreach { case (_, v) => f(v) }
 
   @exported("map_size")
   def size(handle: Ptr[Byte]): CSize = of(handle).size.toCSize

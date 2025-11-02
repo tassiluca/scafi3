@@ -18,6 +18,9 @@ trait PortableTypes:
   /** Portable maps are isomorphic to Scala's `collection.Map`. */
   given [K, V] => Iso[Map[K, V], collection.Map[K, V]] = compiletime.deferred
 
+  type Seq[V]
+  given [V] => Iso[Seq[V], collection.Seq[V]] = compiletime.deferred
+
   /**
    * A portable type representing a blocking computation that will eventually produce a value of type `T` that can be
    * used both in synchronous and asynchronous platforms where blocking is not possible.
