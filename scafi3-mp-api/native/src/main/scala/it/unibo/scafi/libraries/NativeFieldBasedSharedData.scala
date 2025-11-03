@@ -38,6 +38,10 @@ trait NativeFieldBasedSharedData extends PortableLibrary:
         scalaField.neighborValues.map((id, v) => (deviceIdConv(id), v)).toMap,
       ),
   )
+
+  def withoutSelf[Value](field: Ptr[CField]): Seq[Ptr[CBinaryCodable]] =
+    val scalaField = given_Iso_SharedData_SharedData.to(field)
+    scalaField.withoutSelf.toSeq
 end NativeFieldBasedSharedData
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))

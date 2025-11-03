@@ -21,6 +21,8 @@ typedef struct {
  */
 char* field_to_str(const Field* field);
 
+Array* without_self(const Field* field);
+
 /**
  * Field-based shared data factory.
  */

@@ -2,7 +2,7 @@ package it.unibo.scafi.libraries
 
 import java.util.concurrent.atomic.AtomicReference
 
-import scala.scalanative.unsafe.{ Ptr, Zone }
+import scala.scalanative.unsafe.{ exported, Ptr, Zone }
 
 import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
@@ -13,6 +13,7 @@ import it.unibo.scafi.libraries.FullLibrary.libraryRef
 import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
 import it.unibo.scafi.nativebindings.structs.{
   AggregateLibrary as CAggregateLibrary,
+  Array as CArray,
   BinaryCodable as CBinaryCodable,
   Field as CField,
   FieldBasedSharedData as CFieldBasedSharedData,
@@ -61,3 +62,6 @@ object FullLibrary:
    * This is not ideal, but does not cause issues in practice since rounds are executed sequentially and independently.
    */
   private[FullLibrary] val libraryRef = new AtomicReference[FullLibrary]()
+
+  @exported("without_self")
+  def withoutSelf(field: Ptr[CField]): Ptr[CArray] = libraryRef.get().withoutSelf(field)
