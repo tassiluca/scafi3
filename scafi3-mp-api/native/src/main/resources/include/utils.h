@@ -31,6 +31,9 @@
     static inline ValuesTypePtr Name##_get(const Name map, const KeysTypePtr key) {                      \
         return (ValuesTypePtr)map_get(map, EQ_CAST(key));                                                \
     }                                                                                                    \
+    static inline void Name##_foreach(const Name map, void (*f)(const ValuesTypePtr value)) {            \
+        map_foreach(map, (void(*)(const void*))f);                                                       \
+    }                                                                                                    \
     static inline size_t Name##_size(const Name map) {                                                   \
         return map_size(map);                                                                            \
     }                                                                                                    \
