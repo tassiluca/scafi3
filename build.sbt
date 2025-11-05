@@ -163,7 +163,15 @@ lazy val `scafi3-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     bindgenBindings += Binding(
       header = (Compile / resourceDirectory).value / "include" / "scafi3.h",
       packageName = "it.unibo.scafi.nativebindings"
-    )
+    ),
+    bindgenMode := bindgen.plugin.BindgenMode.ResourceGenerator,
+    Compile / sourceGenerators += Def.task {
+      val managedDir = (Compile / sourceManaged).value
+      val scalaFiles = (managedDir ** "*.scala").get
+      val log = streams.value.log
+      log.info(s"Found ${scalaFiles.size} pre-generated binding files in src_managed")
+      scalaFiles
+    }.taskValue
   )
   .jsSettings(commonJsSettings)
   .settings(
