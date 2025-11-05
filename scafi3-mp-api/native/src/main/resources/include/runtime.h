@@ -5,7 +5,7 @@
 #include "libraries.h"
 
 struct Endpoint {
-    char* address;
+    const signed char* address;
     int port;
 };
 
