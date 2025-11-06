@@ -42,8 +42,8 @@
     }
 
 typedef struct Array {
-    void** items;  // or void*, or any type
-    size_t size;   // current number of elements (0 to ARRAY_CAPACITY)
+    void** items;
+    size_t size;
 } Array;
 
 #endif // UTILS_H
