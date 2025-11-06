@@ -44,25 +44,25 @@ static uint32_t protobuf_hash(const void* data) {
     return hash;
 }
 
-char* protobuf_default_to_str(const void* data) {
+const signed char* protobuf_default_to_str(const void* data) {
     if (!data) return NULL;
     const ProtobufValue* pv = data;
     if (!pv->message) return NULL;
     const char* name = pv->message->descriptor->name;
-    char* str = malloc(strlen(name) + 10);
-    if (str) sprintf(str, "%s{...}", name);
+    signed char* str = malloc(strlen(name) + 10);
+    if (str) sprintf((char*)str, "%s{...}", name);
     return str;
 }
 
 ProtobufValue* protobuf_value_create(
     ProtobufCMessage* message,
     const void* (*decode_func)(const uint8_t*, size_t),
-    char* (*to_str_func)(const void*)
+    const signed char* (*to_str_func)(const void*)
 ) {
     if (!message) return NULL;
     ProtobufValue* pv = malloc(sizeof(ProtobufValue));
     if (!pv) return NULL;
-    pv->base.type_name = (char*)message->descriptor->name;
+    pv->base.type_name = (const signed char*)message->descriptor->name;
     pv->base.encode = protobuf_encode;
     pv->base.decode = decode_func;
     pv->base.eq.cmp = protobuf_cmp;

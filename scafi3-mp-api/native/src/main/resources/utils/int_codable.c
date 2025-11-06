@@ -29,10 +29,10 @@ static uint32_t int_value_hash(const void* data) {
     return hash >> 16 ^ hash;
 }
 
-static char* int_value_to_str(const void* data) {
+static const signed char* int_value_to_str(const void* data) {
     if (!data) return NULL;
-    char* str = malloc(32);
-    if (str) snprintf(str, 32, "%d", ((Int*)data)->value);
+    signed char* str = malloc(32);
+    if (str) snprintf((char*)str, 32, "%d", ((Int*)data)->value);
     return str;
 }
 
@@ -56,7 +56,7 @@ static const void* int_value_decode(const uint8_t *buffer, size_t size) {
 }
 
 static void init_int_value(Int* iv, int value) {
-    iv->base.type_name = "number";
+    iv->base.type_name = (const signed char*)"number";
     iv->base.encode = int_value_encode;
     iv->base.decode = int_value_decode;
     iv->base.eq.cmp = int_value_cmp;

@@ -9,6 +9,12 @@ struct Endpoint {
     int port;
 };
 
+#define address(x) _Generic((x),          \
+    char*: (const signed char*)(x),       \
+    const char*: (const signed char*)(x), \
+    default: (x)                          \
+)
+
 MAP_OF(Neighborhood, DeviceId, struct Endpoint*)
 
 void engine(

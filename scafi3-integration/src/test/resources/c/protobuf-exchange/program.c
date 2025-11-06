@@ -2,7 +2,7 @@
 #include "protobuf_codable.c"
 
 // Custom toString function for TemperatureSensor
-char* temperature_sensor_to_str(const void* data);
+const signed char* temperature_sensor_to_str(const void* data);
 
 DEFINE_PROTOBUF_MESSAGE(temperature_sensor, temperature_sensor_to_str)
 
@@ -22,13 +22,13 @@ const void* aggregate_program(const AggregateLibrary* lang) {
     }));
 }
 
-char* temperature_sensor_to_str(const void* data) {
+const signed char* temperature_sensor_to_str(const void* data) {
     if (!data) return NULL;
     const ProtobufValue* pv = data;
     const TemperatureSensor* sensor = (const TemperatureSensor*)pv->message;
-    char* str = malloc(128);
+    const signed char* str = malloc(128);
     if (str) {
-        snprintf(str, 128, "Sensor{id=%s, temp=%.2f}", sensor->id, sensor->temperature);
+        snprintf((char*)str, 128, "Sensor{id=%s, temp=%.2f}", sensor->id, sensor->temperature);
     }
     return str;
 }
