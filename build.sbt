@@ -2,6 +2,7 @@ import org.scalajs.linker.interface.OutputPatterns
 import scala.scalanative.build.{ BuildTarget, GC, LTO, Mode }
 import sbtcrossproject.CrossProject
 import BuildUtils.{ MacOS, Windows, nativeLibExtension, os }
+import NativeBindingsUtils.autoImport.*
 import bindgen.interface.Binding
 
 val scala3Version = "3.7.3"
@@ -157,21 +158,15 @@ lazy val `scafi3-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .in(file("scafi3-mp-api"))
   .dependsOn(`scafi3-core` % "compile->compile;test->test", `scafi3-distributed`)
-  .enablePlugins(BindgenPlugin)
+  .enablePlugins(BindgenPlugin, NativeBindingsUtils)
   .nativeSettings(
     commonNativeSettings,
-    bindgenBindings += Binding(
-      header = (Compile / resourceDirectory).value / "include" / "scafi3.h",
-      packageName = "it.unibo.scafi.nativebindings"
-    ),
-    bindgenMode := bindgen.plugin.BindgenMode.ResourceGenerator,
-    Compile / sourceGenerators += Def.task {
-      val managedDir = (Compile / sourceManaged).value
-      val scalaFiles = (managedDir ** "*.scala").get
-      val log = streams.value.log
-      log.info(s"Found ${scalaFiles.size} pre-generated binding files in src_managed")
-      scalaFiles
-    }.taskValue
+    nativeBindings := Seq(
+      Binding(
+        header = (Compile / resourceDirectory).value / "include" / "scafi3.h",
+        packageName = "it.unibo.scafi.nativebindings"
+      )
+    )
   )
   .jsSettings(commonJsSettings)
   .settings(

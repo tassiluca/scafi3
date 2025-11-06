@@ -6,4 +6,4 @@ RUN apt-get update && \
 
 ENV PATH="/usr/lib/llvm-17/bin:${PATH}"
 
-WORKDIR /workspace
+WORKDIR /project
