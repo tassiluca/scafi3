@@ -19,6 +19,8 @@ object NativeBindingsUtils extends AutoPlugin {
   private val dockerImageName = "sn-bindgen-builder"
   private val envVarName = "IN_BINDGEN_DOCKER"
 
+  private def isCI: Boolean = sys.env.get("CI").contains("true") || sys.env.contains("GITHUB_ACTIONS")
+
   private def isDockerAvailable: Boolean = Try(Process("docker --version").! == 0).getOrElse(false)
 
   private def imageExists(imageName: String): Boolean = Process(s"docker image inspect $imageName").! == 0
@@ -88,17 +90,26 @@ object NativeBindingsUtils extends AutoPlugin {
         log.warn("No header files specified in bindgenBindings")
         Seq.empty
       } else {
-        val missingHeaders = headerFiles.filterNot(_.exists())
-        if (missingHeaders.nonEmpty) {
-          log.warn(s"Header files not found.")
-          Seq.empty
+        // In CI: check if bindings already exist (e.g., downloaded from CI artifacts)
+        // Locally: always use Docker with proper cache based on header files
+        val existingBindings = generatedFiles(managedDir)
+        if (isCI && existingBindings.nonEmpty) {
+          log.info(s"CI environment: Found ${existingBindings.size} existing binding files, skipping generation")
+          existingBindings
         } else {
-          FileFunction.cached(cacheDir / "bindgen") { _ =>
-            if (!isDockerAvailable) sys.error("Docker is needed to generate native bindings but is not available")
-            if (!imageExists(dockerImageName)) buildImage(dockerImageName, dockerfile)
-            runBindgenInDocker(dockerImageName, projectId, rootDir, envVarName)
-            generatedFiles(managedDir).toSet
-          }(headerFiles).toSeq
+          // Local development: use Docker with cache invalidation based on header files
+          val missingHeaders = headerFiles.filterNot(_.exists())
+          if (missingHeaders.nonEmpty) {
+            log.warn(s"Header files not found.")
+            Seq.empty
+          } else {
+            FileFunction.cached(cacheDir / "bindgen") { _ =>
+              if (!isDockerAvailable) sys.error("Docker is needed to generate native bindings but is not available")
+              if (!imageExists(dockerImageName)) buildImage(dockerImageName, dockerfile)
+              runBindgenInDocker(dockerImageName, projectId, rootDir, envVarName)
+              generatedFiles(managedDir).toSet
+            }(headerFiles).toSeq
+          }
         }
       }
     },
