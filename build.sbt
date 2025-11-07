@@ -1,14 +1,15 @@
-import org.scalajs.linker.interface.OutputPatterns
-import scala.scalanative.build.{ BuildTarget, GC, LTO, Mode }
-import sbtcrossproject.CrossProject
-import BuildUtils.{ MacOS, Windows, nativeLibExtension, os }
+import BuildUtils.{ macosLinkingOptions, moveNativeLibrary }
 import NativeBindingsUtils.autoImport.*
 import bindgen.interface.Binding
+import org.scalajs.linker.interface.OutputPatterns
+import sbtcrossproject.CrossProject
 
+import scala.scalanative.build.{ BuildTarget, GC, LTO, Mode }
+
+val projectName = "scafi3"
 val scala3Version = "3.7.3"
 
 ThisBuild / scalaVersion := scala3Version
-ThisBuild / name := "scafi3"
 ThisBuild / organization := "it.unibo.scafi"
 ThisBuild / homepage := Some(url("https://github.com/scafi/scafi3"))
 ThisBuild / licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
@@ -81,36 +82,18 @@ lazy val commonSettings = Seq(
 
 lazy val commonNativeSettings = Seq(
   nativeConfig := {
-    // macOS requires an additional linking option to correctly set the runtime path of the dynamic
-    // library using the `-rpath` option. For more information, see https://stackoverflow.com/a/66284977.
-    val additionalLinkingOptions = if (os == MacOS)
-      Seq(s"-Wl,-install_name,'@rpath/lib${(ThisBuild / name).value}.dylib'")
-    else Nil
     nativeConfig.value
       .withLTO(LTO.full)
       .withMode(Mode.releaseSize)
       .withGC(GC.immix)
       .withBuildTarget(BuildTarget.libraryDynamic)
-      .withBaseName((ThisBuild / name).value)
-      .withLinkingOptions(nativeConfig.value.linkingOptions ++ additionalLinkingOptions)
+      .withBaseName(projectName)
+      .withLinkingOptions(nativeConfig.value.linkingOptions ++ macosLinkingOptions(projectName))
       .withCheck(true)
       .withCheckFeatures(true)
       .withCheckFatalWarnings(true)
   },
-  Compile / nativeLink := { // TODO: extract in a nicer dsl into project with additional linking options for macos
-    val out = (Compile / nativeLink).value
-    val linkerOutputDir = target.value / "nativeLink"
-    IO.createDirectory(linkerOutputDir)
-    val libName = (ThisBuild / name).value
-    val prefix = if (os == Windows) "" else "lib"
-    val targetFile = linkerOutputDir / s"$prefix$libName.$nativeLibExtension"
-    IO.move(out, targetFile)
-    if (os == Windows) {
-      val libFile = out.getParentFile / s"$libName.lib"
-      IO.move(libFile, linkerOutputDir / s"$libName.lib")
-    }
-    targetFile
-  },
+  Compile / nativeLink := moveNativeLibrary((Compile / nativeLink).value, target.value, projectName),
   scalacOptions ++= Seq("-Wconf:msg=unused import&src=.*[\\\\/]src_managed[\\\\/].*:silent"),
   coverageEnabled := false,
 )
@@ -161,11 +144,9 @@ lazy val `scafi3-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .enablePlugins(BindgenPlugin, NativeBindingsUtils)
   .nativeSettings(
     commonNativeSettings,
-    nativeBindings := Seq(
-      Binding(
-        header = (Compile / resourceDirectory).value / "include" / "scafi3.h",
-        packageName = "it.unibo.scafi.nativebindings"
-      )
+    nativeBindings += Binding(
+      header = (Compile / resourceDirectory).value / "include" / "scafi3.h",
+      packageName = "it.unibo.scafi.nativebindings",
     )
   )
   .jsSettings(commonJsSettings)
@@ -225,7 +206,7 @@ lazy val root = project
   .aggregate(`alchemist-incarnation-scafi3`, `scafi3-integration`)
   .aggregate(crossProjects(`scafi3-core`, `scafi3-distributed`, `scafi3-mp-api`).map(_.project)*)
   .settings(
-    name := (ThisBuild / name).value,
+    name := projectName,
     publish / skip := true,
     publishArtifact := false,
   )
