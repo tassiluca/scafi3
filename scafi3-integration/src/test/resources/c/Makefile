@@ -2,6 +2,7 @@
 # Makefile for building the C integration test with the ScaFi library.
 ########################################################################################################################
 
+CFLAGS = -std=gnu11 -Wall -Wextra -Werror
 ifeq ($(OS),Windows_NT)
 	EXE = main.exe
 	CC = gcc
@@ -44,8 +45,6 @@ PROTOBUF_C_HDR = $(PROTOBUF_C_DIR)/protobuf-c.h
 PROTO_C_FILES := $(wildcard *.pb-c.c)
 PROTO_H_FILES := $(wildcard *.pb-c.h)
 
-CFLAGS = -std=gnu11 -Wall -Wextra -Werror
-
 # Configure protobuf settings if .pb-c files are found
 ifneq ($(PROTO_C_FILES),) # Protobuf found - add includes and libs
     SOURCES = main.c $(PROTO_C_FILES) $(PROTOBUF_C_SRC)
@@ -63,11 +62,9 @@ $(PROTOBUF_C_DIR):
 	mkdir -p $(PROTOBUF_C_DIR)
 
 $(PROTOBUF_C_SRC): | $(PROTOBUF_C_DIR)
-	@echo "Downloading protobuf-c.c..."
 	$(call DOWNLOAD_CMD,$(PROTOBUF_C_BASE)/protobuf-c.c,$(PROTOBUF_C_SRC))
 
 $(PROTOBUF_C_HDR): | $(VENDOR_DIR)
-	@echo "Downloading protobuf-c.h..."
 	$(call DOWNLOAD_CMD,$(PROTOBUF_C_BASE)/protobuf-c.h,$(PROTOBUF_C_HDR))
 
 $(EXE): $(SOURCES) $(PROTO_H_FILES) $(SCAFI3_LIB) $(PROTOBUF_DEPS)

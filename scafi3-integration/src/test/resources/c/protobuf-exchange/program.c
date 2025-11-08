@@ -16,10 +16,8 @@ const ProtobufValue* sense_temperature() {
 }
 
 const void* aggregate_program(const AggregateLibrary* lang) {
-    const Field* temp = lang->Field.of((const BinaryCodable*) sense_temperature());
-    return lang->exchange(temp, fn(ReturnSending*, (const Field* f), {
-        return return_sending(f, temp);
-    }));
+    const BinaryCodable* temperature = (const BinaryCodable*) sense_temperature();
+    return lang->neighbor_values(temperature);
 }
 
 const signed char* temperature_sensor_to_str(const void* data) {
