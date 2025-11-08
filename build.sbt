@@ -141,7 +141,7 @@ lazy val `scafi3-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .in(file("scafi3-mp-api"))
   .dependsOn(`scafi3-core` % "compile->compile;test->test", `scafi3-distributed`)
-  .enablePlugins(BindgenPlugin, NativeBindingsUtils)
+  .nativeEnablePlugins(BindgenPlugin, NativeBindingsUtils)
   .nativeSettings(
     commonNativeSettings,
     nativeBindings += Binding(
@@ -150,8 +150,8 @@ lazy val `scafi3-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     )
   )
   .jsSettings(commonJsSettings)
+  .settings(commonSettings)
   .settings(
-    commonSettings,
     name := "scafi3-mp-api",
     libraryDependencies ++= Seq(
       "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided",
