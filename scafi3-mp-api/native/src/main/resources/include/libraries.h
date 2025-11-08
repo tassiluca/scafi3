@@ -29,6 +29,7 @@ typedef struct AggregateLibrary {
     const void* (*branch)(bool condition, const void* (*true_branch)(void), const void* (*false_branch)(void));
     const Field* (*exchange)(const Field* initial, ReturnSending* (*f)(const Field* in));
     const BinaryCodable* (*share)(const BinaryCodable* initial, const BinaryCodable* (*f)(const Field* nvalues));
+    const Field* (*neighbor_values)(const BinaryCodable* value);
 } AggregateLibrary;
 
 #endif // LIBRARIES_H

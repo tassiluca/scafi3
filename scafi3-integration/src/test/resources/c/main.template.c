@@ -33,6 +33,8 @@ int main(void) {
     Neighborhood neighbors = Neighborhood_empty();
     {{ neighbors }}
     engine(device({{ deviceId }}), {{ port }}, neighbors, aggregate_program, on_result);
-    printf("%s", field_to_str((const Field*) last_round_result));
+    char* result = field_to_str((const Field*) last_round_result);
+    printf("%s", result);
+    free(result);
     return 0;
 }

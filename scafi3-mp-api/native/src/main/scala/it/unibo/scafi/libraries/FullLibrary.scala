@@ -50,6 +50,7 @@ class FullLibrary(using
       libraryRef.get().exchange_(initial)(f)
     (!lib).share = (initial: Ptr[CBinaryCodable], f: Function1[Ptr[CField], Ptr[CBinaryCodable]]) =>
       libraryRef.get().share_(initial)(f)
+    (!lib).neighbor_values = (value: Ptr[CBinaryCodable]) => libraryRef.get().neighborValues(value)
     lib
 end FullLibrary
 
