@@ -12,9 +12,9 @@ import it.unibo.scafi.types.{ EqWrapper, PortableTypes }
  */
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait JSFieldBasedSharedData extends PortableLibrary:
-  self: PortableTypes & PortableExchangeCalculusLibrary =>
+  self: PortableTypes =>
 
-  override type Language <: AggregateFoundation & ExchangeSyntax & FieldBasedSharedData
+  override type Language <: AggregateFoundation & FieldBasedSharedData
 
   override type SharedData[Value] = Field[Value]
 
