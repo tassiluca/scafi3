@@ -8,7 +8,6 @@ import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
 import it.unibo.scafi.language.xc.FieldBasedSharedData
-import it.unibo.scafi.language.xc.syntax.ExchangeSyntax
 import it.unibo.scafi.libraries.FullLibrary.libraryRef
 import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
 import it.unibo.scafi.nativebindings.structs.{
@@ -17,13 +16,12 @@ import it.unibo.scafi.nativebindings.structs.{
   BinaryCodable as CBinaryCodable,
   Field as CField,
   FieldBasedSharedData as CFieldBasedSharedData,
-  ReturnSending as CReturnSending,
 }
 import it.unibo.scafi.types.{ CMap, EqWrapper, NativeTypes }
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 class FullLibrary(using
-    lang: AggregateFoundation & ExchangeSyntax & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax,
+    lang: AggregateFoundation & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax,
 ) extends FullPortableLibrary
     with NativeFieldBasedSharedData
     with NativeTypes:
@@ -34,11 +32,6 @@ class FullLibrary(using
   override given deviceIdConv[ID]: Conversion[language.DeviceId, ID] =
     _.asInstanceOf[EqWrapper[Ptr[CBinaryCodable]]].value.asInstanceOf[ID]
 
-  override type ReturnSending = Ptr[CReturnSending]
-
-  override given [Value] => Conversion[ReturnSending, RetSend[language.SharedData[Value]]] = rs =>
-    RetSend((!rs).returning, (!rs).sending)
-
   def asNative(using Zone): Ptr[CAggregateLibrary] =
     libraryRef.set(this)
     val lib = CAggregateLibrary()
@@ -46,8 +39,8 @@ class FullLibrary(using
     (!lib).local_id = () => libraryRef.get().localId.asInstanceOf[Ptr[CBinaryCodable]]
     (!lib).branch = (condition: Boolean, trueBranch: Function0[Ptr[Byte]], falseBranch: Function0[Ptr[Byte]]) =>
       libraryRef.get().branch_(condition)(trueBranch)(falseBranch)
-    (!lib).exchange = (initial: Ptr[CField], f: Function1[Ptr[CField], ReturnSending]) =>
-      libraryRef.get().exchange_(initial)(f)
+    (!lib).evolve = (initial: Ptr[Byte], evolution: Function1[Ptr[Byte], Ptr[Byte]]) =>
+      libraryRef.get().evolve_(initial)(evolution)
     (!lib).share = (initial: Ptr[CBinaryCodable], f: Function1[Ptr[CField], Ptr[CBinaryCodable]]) =>
       libraryRef.get().share_(initial)(f)
     (!lib).neighbor_values = (value: Ptr[CBinaryCodable]) => libraryRef.get().neighborValues(value)

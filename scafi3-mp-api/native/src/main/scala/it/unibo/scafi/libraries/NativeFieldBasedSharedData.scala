@@ -19,9 +19,9 @@ import it.unibo.scafi.utils.libraries.Iso.given
  */
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait NativeFieldBasedSharedData extends PortableLibrary:
-  self: PortableTypes & PortableExchangeCalculusLibrary & NativeTypes =>
+  self: PortableTypes & NativeTypes =>
 
-  override type Language <: AggregateFoundation & ExchangeSyntax & FieldBasedSharedData
+  override type Language <: AggregateFoundation & FieldBasedSharedData
 
   override type SharedData[Value] = Ptr[CField]
 
