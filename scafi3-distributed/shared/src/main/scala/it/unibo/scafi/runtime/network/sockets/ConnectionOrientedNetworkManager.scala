@@ -1,9 +1,10 @@
 package it.unibo.scafi.runtime.network.sockets
 
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.chaining.scalaUtilChainingOps
+import scala.jdk.CollectionConverters.MapHasAsScala
 
 import it.unibo.scafi.message.{ Export, Import, ValueTree }
 import it.unibo.scafi.runtime.network.NetworkManager
@@ -30,7 +31,7 @@ trait ConnectionOrientedNetworkManager[ID](override val localId: ID, port: Port)
   override type MessageOut = Envelope
 
   private val outChannel = Channel[Set[MessageOut]]
-  private var inValues = Map[DeviceId, ValueTree]()
+  private val inValues = ConcurrentHashMap[DeviceId, ValueTree]()
   private val connectionsListener = AtomicReference[ListenerRef]()
 
   /**
@@ -50,11 +51,11 @@ trait ConnectionOrientedNetworkManager[ID](override val localId: ID, port: Port)
     try outChannel.push(neighborhood.map(id => id -> message(id)))
     catch case _: Channel.ChannelClosedException => scribe.error("The network manager is closed, cannot send message.")
 
-  override def receive: Import[DeviceId] = synchronized:
-    Import(inValues).tap(_ => inValues = Map.empty)
+  override def receive: Import[DeviceId] = Import(inValues.asScala.toMap)
 
-  override def deliverableReceived(from: DeviceId, message: ValueTree): Unit = synchronized:
-    inValues += from -> message
+  override def deliverableReceived(from: DeviceId, message: ValueTree): Unit =
+    inValues.put(from, message)
+    ()
 
   private def client(connections: Map[Endpoint, Connection]): Future[Unit] =
     (for
