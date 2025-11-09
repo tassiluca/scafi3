@@ -28,7 +28,6 @@ trait JSFieldBasedSharedData extends PortableLibrary:
    */
   @JSExportAll
   case class Field[Value](default: Value, neighborValues: Map[js.Any, Value]):
-    valueCodable.register(default)
 
     @JSExport("withoutSelf")
     def jsWithoutSelf(): Seq[Value] = given_Iso_SharedData_SharedData.to(this).withoutSelf.toSeq

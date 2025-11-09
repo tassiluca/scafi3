@@ -12,7 +12,6 @@ typedef struct Eq {
 
 typedef struct BinaryCodable {
     Eq eq;
-    const signed char* type_name;
     const uint8_t* (*encode)(const void *data, size_t *encoded_size);
     const void* (*decode)(const uint8_t *buffer, size_t size);
     const signed char* (*to_str)(const void* data);

@@ -72,7 +72,6 @@ object ProtobufJSType:
 
   given Conversion[ProtobufJSType, JSCodable] = protobufJsType =>
     new JSCodable:
-      override def typeName: String = protobufJsType.getTypeUrl("").split("/").last
       override def encode(message: js.Any): js.Any = protobufJsType.encode(message.asInstanceOf[js.Object]).finish()
       override def decode(bytes: js.Any): js.Any = protobufJsType.decode(bytes.asInstanceOf[Uint8Array])
 end ProtobufJSType

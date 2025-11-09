@@ -4,15 +4,14 @@ import scala.concurrent.ExecutionContext
 import scala.scalajs.js
 
 import it.unibo.scafi
-import it.unibo.scafi.message.JSCodable
+import it.unibo.scafi.message.{ Codable, JSCodable }
+import it.unibo.scafi.message.JSBinaryCodable.jsCodable
 import it.unibo.scafi.message.JSCodable.given_Hash_Any
 import it.unibo.scafi.types.{ EqWrapper, JSTypes }
 
 import io.github.iltotore.iron.refineUnsafe
 
 import scafi.context.xc.ExchangeAggregateContext
-import scafi.message.UniversalCodable
-import scafi.message.JSBinaryCodable.jsBinaryCodable
 import scafi.runtime.bindings.ScafiEngineBinding
 import scafi.libraries.FullLibrary
 
@@ -35,11 +34,11 @@ object JSScafiRuntime extends PortableRuntime with ScafiEngineBinding with JSTyp
   trait JSRequirements extends Requirements with NoMemorySafeContext with JSAdts:
     override type AggregateLibrary = FullLibrary
 
-    override given deviceIdCodable[Format]: UniversalCodable[DeviceId, Format] =
-      new UniversalCodable[DeviceId, Format]:
-        override def register(id: DeviceId): Unit = jsBinaryCodable.register(id.value)
-        override def encode(id: DeviceId): Format = jsBinaryCodable.encode(id.value).asInstanceOf[Format]
-        override def decode(data: Format): DeviceId = EqWrapper(jsBinaryCodable.decode(data.asInstanceOf[Array[Byte]]))
+    override given deviceIdCodable[Format]: Conversion[DeviceId, Codable[DeviceId, Format]] = id =>
+      new Codable[DeviceId, Format]:
+        private val codable = jsCodable(id.value)
+        override def encode(id: DeviceId): Format = codable.encode(id.value).asInstanceOf[Format]
+        override def decode(data: Format): DeviceId = EqWrapper(codable.decode(data))
 
     override def library[ID](using Arena): ExchangeAggregateContext[ID] ?=> FullLibrary = FullLibrary()
 

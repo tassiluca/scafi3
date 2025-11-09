@@ -1,4 +1,5 @@
 package it.unibo.scafi.libraries
+import it.unibo.scafi.message.Codable
 import it.unibo.scafi.types.PortableTypes
 
 /**
@@ -7,7 +8,6 @@ import it.unibo.scafi.types.PortableTypes
 trait PortableLibrary:
   self: PortableTypes =>
   export it.unibo.scafi.language.AggregateFoundation
-  export it.unibo.scafi.message.UniversalCodable
 
   /**
    * The language type comprising all the needed syntaxes needed to implement the library functionalities.
@@ -34,5 +34,5 @@ trait PortableLibrary:
   /**
    * The universal codable instance used for encoding and decoding values to be sent over the network.
    */
-  given valueCodable[Value, Format]: UniversalCodable[Value, Format] = compiletime.deferred
+  given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] = compiletime.deferred
 end PortableLibrary

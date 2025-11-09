@@ -9,7 +9,8 @@ import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.libraries.FullLibrary.libraryRef
-import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
+import it.unibo.scafi.message.Codable
+import it.unibo.scafi.message.NativeCodable.nativeCodable
 import it.unibo.scafi.nativebindings.structs.{
   AggregateLibrary as CAggregateLibrary,
   Array as CArray,
@@ -26,8 +27,8 @@ class FullLibrary(using
     with NativeFieldBasedSharedData
     with NativeTypes:
 
-  override given valueCodable[Value, Format]: UniversalCodable[Value, Format] =
-    nativeBinaryCodable.asInstanceOf[UniversalCodable[Value, Format]]
+  override given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] =
+    nativeCodable.asInstanceOf[Conversion[Value, Codable[Value, Format]]]
 
   override given deviceIdConv[ID]: Conversion[language.DeviceId, ID] =
     _.asInstanceOf[EqWrapper[Ptr[CBinaryCodable]]].value.asInstanceOf[ID]
