@@ -19,8 +19,8 @@ trait PortableFieldCalculusLibrary extends PortableLibrary:
     share_(initial)(shareAndReturning)
 
   inline def share_[Value](initial: Value)(shareAndReturning: Function1[SharedData[Value], Value]): Value =
-    language.share(initial)(shareAndReturning(_))
+    language.share(initial)(shareAndReturning(_))(using valueCodable(initial))
 
   @JSExport
-  def neighborValues[Value](expr: Value): SharedData[Value] = language.neighborValues(expr)
+  def neighborValues[Value](expr: Value): SharedData[Value] = language.neighborValues(expr)(using valueCodable(expr))
 end PortableFieldCalculusLibrary

@@ -40,7 +40,6 @@ trait ScafiEngineBinding extends PortableRuntime:
         program: Function1[AggregateLibrary, Result],
         onResult: Function1[Result, Outcome[Boolean]],
     ): Outcome[Unit] =
-      deviceIdCodable.register(deviceId)
       val network = socketNetwork(deviceId, port, neighbors)
       network
         .start()
@@ -59,7 +58,9 @@ trait ScafiEngineBinding extends PortableRuntime:
     private def socketNetwork[ID](deviceId: ID, port: Int, neighbors: Map[ID, Endpoint]) =
       given ConnectionConfiguration = ConnectionConfiguration.basic
       val devicesNet = neighbors.view.map((id, e) => (id: DeviceId, toInetEndpoint(e))).toMap
-      SocketNetworkManager.withFixedNeighbors(deviceId: DeviceId, port.refineUnsafe, devicesNet)
+      SocketNetworkManager.withFixedNeighbors(deviceId: DeviceId, port.refineUnsafe, devicesNet)(using
+        deviceIdCodable(deviceId),
+      )
 
     private val reportAnyFailure: PartialFunction[Try[Unit], Unit] =
       case Failure(err) => Console.err.println(s"Error occurred: ${err.getMessage}")

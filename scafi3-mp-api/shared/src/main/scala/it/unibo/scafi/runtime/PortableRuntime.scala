@@ -1,7 +1,7 @@
 package it.unibo.scafi.runtime
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
-import it.unibo.scafi.message.UniversalCodable
+import it.unibo.scafi.message.Codable
 import it.unibo.scafi.runtime.network.sockets.InetTypes
 import it.unibo.scafi.types.{ MemorySafeContext, PortableTypes }
 
@@ -20,7 +20,7 @@ trait PortableRuntime:
     given [ID] => Conversion[ID, DeviceId] = compiletime.deferred
 
     /** The universal codable instance used for encoding and decoding device ids to be sent over the network. */
-    given deviceIdCodable[Format]: UniversalCodable[DeviceId, Format] = compiletime.deferred
+    given deviceIdCodable[Format]: Conversion[DeviceId, Codable[DeviceId, Format]] = compiletime.deferred
 
     /** A network endpoint consisting of an [[address]] and a [[port]]. */
     type Endpoint

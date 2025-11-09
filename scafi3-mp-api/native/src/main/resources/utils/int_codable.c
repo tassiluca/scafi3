@@ -56,7 +56,6 @@ static const void* int_value_decode(const uint8_t *buffer, size_t size) {
 }
 
 static void init_int_value(Int* iv, int value) {
-    iv->base.type_name = (const signed char*)"number";
     iv->base.encode = int_value_encode;
     iv->base.decode = int_value_decode;
     iv->base.eq.cmp = int_value_cmp;

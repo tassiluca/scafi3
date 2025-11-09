@@ -8,9 +8,9 @@ import scala.scalanative.unsafe.{ exported, fromCString, CInt, CVoidPtr, Ptr }
 import it.unibo.scafi
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
 import it.unibo.scafi.libraries.FullLibrary
-import it.unibo.scafi.message.{ CBinaryCodable, UniversalCodable }
+import it.unibo.scafi.message.{ CBinaryCodable, Codable }
 import it.unibo.scafi.message.CBinaryCodable.given_Hash_Ptr
-import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
+import it.unibo.scafi.message.NativeCodable.nativeCodable
 import it.unibo.scafi.nativebindings.structs.{
   AggregateLibrary as CAggregateLibrary,
   BinaryCodable as CBinaryCodable,
@@ -41,12 +41,11 @@ object NativeScafiRuntime extends PortableRuntime with ScafiEngineBinding with N
 
     override type AggregateLibrary = Ptr[CAggregateLibrary]
 
-    override given deviceIdCodable[Format]: UniversalCodable[DeviceId, Format] =
-      new UniversalCodable[DeviceId, Format]:
-        override def register(id: DeviceId): Unit = nativeBinaryCodable.register(id.value)
-        override def encode(id: DeviceId): Format = nativeBinaryCodable.encode(id.value).asInstanceOf[Format]
-        override def decode(data: Format): DeviceId =
-          EqWrapper(nativeBinaryCodable.decode(data.asInstanceOf[Array[Byte]]))
+    override given deviceIdCodable[Format]: Conversion[DeviceId, Codable[DeviceId, Format]] = id =>
+      new Codable[DeviceId, Format]:
+        private val codable = nativeCodable(id.value)
+        override def encode(id: DeviceId): Format = codable.encode(id.value).asInstanceOf[Format]
+        override def decode(data: Format): DeviceId = EqWrapper(codable.decode(data))
 
     override def library[ID](using Arena): ExchangeAggregateContext[ID] ?=> AggregateLibrary = FullLibrary().asNative
 

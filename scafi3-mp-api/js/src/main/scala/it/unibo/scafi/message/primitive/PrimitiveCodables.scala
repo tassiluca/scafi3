@@ -10,15 +10,14 @@ import scalajs.js.typedarray.Uint8Array
 
 object PrimitiveCodables:
 
-  private given stringCodable: JSCodable = deriveFromString("string", identity)
+  private given stringCodable: JSCodable = deriveFromString(identity)
 
-  private given numberCodable: JSCodable = deriveFromString("number", _.toDouble)
+  private given numberCodable: JSCodable = deriveFromString(_.toDouble)
 
-  private given booleanCodable: JSCodable = deriveFromString("boolean", _.toBoolean)
+  private given booleanCodable: JSCodable = deriveFromString(_.toBoolean)
 
   @SuppressWarnings(Array("DisableSyntax.asInstanceOf"))
-  private def deriveFromString(name: String, decodeStrategy: String => js.Any): JSCodable = new JSCodable:
-    override def typeName: String = name
+  private def deriveFromString(decodeStrategy: String => js.Any): JSCodable = new JSCodable:
     override def encode(message: js.Any): js.Any = message.toString.getBytes(UTF_8).toUint8Array
     override def decode(data: js.Any): js.Any =
       decodeStrategy(new String(data.asInstanceOf[Uint8Array].toByteArray, UTF_8))

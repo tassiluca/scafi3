@@ -13,9 +13,8 @@ import cats.kernel.Hash
  * A base trait for defining format- and library-agnostic binary codables for JavaScript objects.
  *
  * Any <strong>object</strong> passed to the library intended to be encoded or decoded in any format of choice is
- * expected to have a static members conforming this trait structure, i.e., providing a `typeName` property and coherent
- * `encode` and `decode` methods. Alternatively, the object can delegate the (de)serialization concerns to a property
- * named `codable`.
+ * expected to have a static members conforming this trait structure, i.e., providing coherent `encode` and `decode`
+ * methods. Alternatively, the object can delegate the (de)serialization concerns to a property named `codable`.
  *
  * The following <strong>special cases</strong> apply:
  *   - For `number`, `string` and `boolean` primitives, a default codable is provided and it is possible to use them
@@ -37,8 +36,6 @@ import cats.kernel.Hash
  *         this.name = name;
  *         this.surname = surname;
  *     }
- *
- *     static typeName = "Person"
  *
  *     static encode(person) {
  *         return JSON.stringify({
@@ -70,7 +67,6 @@ import cats.kernel.Hash
  *     }
  *
  *     static codable: Codable<Foo, Uint8Array> = {
- *         typeName: "Foo",
  *         encode: (foo) => toBinary(FooSchema, foo.instance),
  *         decode: (bytes) => {
  *             const decodedFoo = fromBinary(FooSchema, bytes);
@@ -81,9 +77,6 @@ import cats.kernel.Hash
  * }}}
  */
 trait JSCodable extends js.Object:
-
-  /** The name of the type this codable can encode/decode. */
-  def typeName: String
 
   /**
    * Encodes the provided message into a well-known format.

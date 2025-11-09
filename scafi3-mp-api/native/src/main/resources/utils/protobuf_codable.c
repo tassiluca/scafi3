@@ -62,7 +62,6 @@ ProtobufValue* protobuf_value_create(
     if (!message) return NULL;
     ProtobufValue* pv = malloc(sizeof(ProtobufValue));
     if (!pv) return NULL;
-    pv->base.type_name = (const signed char*)message->descriptor->name;
     pv->base.encode = protobuf_encode;
     pv->base.decode = decode_func;
     pv->base.eq.cmp = protobuf_cmp;

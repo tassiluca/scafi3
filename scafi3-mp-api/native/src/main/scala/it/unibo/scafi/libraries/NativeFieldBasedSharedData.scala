@@ -6,7 +6,6 @@ import scala.util.chaining.scalaUtilChainingOps
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.libraries.NativeFieldBasedSharedData.given
 import it.unibo.scafi.message.CBinaryCodable.given_Hash_Ptr
-import it.unibo.scafi.message.NativeBinaryCodable.nativeBinaryCodable
 import it.unibo.scafi.nativebindings.aliases.NValues
 import it.unibo.scafi.nativebindings.structs.{ BinaryCodable as CBinaryCodable, Field as CField }
 import it.unibo.scafi.types.{ CMap, EqWrapper, NativeTypes, PortableTypes }
@@ -48,7 +47,6 @@ end NativeFieldBasedSharedData
 object NativeFieldBasedSharedData:
 
   def of(default: Ptr[CBinaryCodable], neighborValues: Ptr[Byte]): Ptr[CField] =
-    nativeBinaryCodable.register(default)
     freshPointer[CField].tap: cFieldPtr =>
       (!cFieldPtr).default_value = default
       (!cFieldPtr).neighbor_values = neighborValues

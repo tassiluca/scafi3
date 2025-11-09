@@ -14,8 +14,6 @@ class JSApiTests extends CrossLanguageTests with JSTests:
 
   it should behave like sensorExchangeTestWith("protobuf")
 
-  it should behave like sensorExchangeTestWith("json")
-
   override def neighborsAsCode(id: ID, neighbors: Set[ID], ports: Seq[Port]): ProgramOutput = neighbors
     .map(nid => s"[$nid, Runtime.Endpoint('localhost', ${ports(nid)})]")
     .mkString("[", ", ", "]")
