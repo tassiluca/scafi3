@@ -88,7 +88,7 @@ trait PlatformTest extends should.Matchers with OS with FileSystem:
       case 0 => Using.resource(Source.fromInputStream(process.getInputStream))(_.mkString)
       case _ =>
         val err = Using.resource(Source.fromInputStream(process.getErrorStream))(_.mkString)
-        throw new RuntimeException(s"Process failed (exit code ${process.exitValue()}): $err.")
+        throw new RuntimeException(s"Process failed (working dir $workingDir, exit code ${process.exitValue()}): $err.")
 end PlatformTest
 
 object PlatformTest:
