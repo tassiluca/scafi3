@@ -5,8 +5,7 @@ import scala.scalajs.js
 
 import it.unibo.scafi
 import it.unibo.scafi.message.{ Codable, JSCodable }
-import it.unibo.scafi.message.JSBinaryCodable.jsCodable
-import it.unibo.scafi.message.JSCodable.given_Hash_Any
+import it.unibo.scafi.message.JSCodable.{ codableHash, jsAnyCodable }
 import it.unibo.scafi.types.{ EqWrapper, JSTypes }
 
 import io.github.iltotore.iron.refineUnsafe
@@ -36,11 +35,11 @@ object JSScafiRuntime extends PortableRuntime with ScafiEngineBinding with JSTyp
 
     override given deviceIdCodable[Format]: Conversion[DeviceId, Codable[DeviceId, Format]] = id =>
       new Codable[DeviceId, Format]:
-        private val codable = jsCodable(id.value)
+        private val codable = jsAnyCodable(id.value)
         override def encode(id: DeviceId): Format = codable.encode(id.value).asInstanceOf[Format]
         override def decode(data: Format): DeviceId = EqWrapper(codable.decode(data))
 
-    override def library[ID](using Arena): ExchangeAggregateContext[ID] ?=> FullLibrary = FullLibrary()
+    override def library(using Arena): ExchangeAggregateContext[DeviceId] ?=> FullLibrary = FullLibrary()
 
   @JSExportTopLevel("Runtime")
   object JSAPI extends Api with EngineBindings with JSRequirements

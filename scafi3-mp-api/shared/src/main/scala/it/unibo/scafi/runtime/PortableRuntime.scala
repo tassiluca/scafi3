@@ -36,7 +36,7 @@ trait PortableRuntime:
     type AggregateLibrary
 
     /** @return the concrete portable aggregate library instance. */
-    def library[ID](using Arena): ExchangeAggregateContext[ID] ?=> AggregateLibrary
+    def library(using Arena): ExchangeAggregateContext[DeviceId] ?=> AggregateLibrary
 
   /** The portable runtime API. */
   trait Api:
@@ -47,7 +47,7 @@ trait PortableRuntime:
      * @param localId
      *   the unique identifier of the device
      * @param port
-     *   the port on which the device listens for incoming messages
+     *   the network port on which the device listens for incoming messages
      * @param neighbors
      *   a map of neighboring device IDs to their network endpoints
      * @param program
