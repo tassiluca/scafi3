@@ -1,17 +1,21 @@
-import bindgen.plugin.BindgenPlugin
 import bindgen.interface.Binding
+import bindgen.plugin.BindgenPlugin
 import sbt.*
-import sbt.Keys.{ baseDirectory, resourceDirectory, sourceGenerators, sourceManaged, streams, thisProjectRef }
+import sbt.Keys.*
+
 import scala.sys.process.Process
 import scala.util.Try
 
 /**
- * A utility SBT plugin to generate native bindings using Scala Native Bindgen plugin inside a Docker container.
+ * SBT plugin providing a `generateBindings` task to produce native bindings using the Scala Native Bindgen plugin.
+ *
+ * The task runs inside a Docker container to ensure consistent environment setup and avoid local dependencies,
+ * such as specific (old) Clang versions.
  */
 object NativeBindingsUtils extends AutoPlugin {
 
-  override def trigger = noTrigger
-  override def requires: Plugins = BindgenPlugin
+  private val dockerImageName = "sn-bindgen-builder"
+  private val envVarName = "IN_BINDGEN_DOCKER"
 
   object autoImport {
     val generateBindings = taskKey[Seq[File]]("Generate native bindings using Docker")
@@ -20,51 +24,82 @@ object NativeBindingsUtils extends AutoPlugin {
   }
 
   import autoImport.*
-  
-  private val dockerImageName = "sn-bindgen-builder"
-  private val envVarName = "IN_BINDGEN_DOCKER"
+
+  private case class Config(
+    bindings: Seq[Binding],
+    buildDir: File,
+    cacheDir: File,
+    dockerfile: File,
+    projectId: String,
+    rootDir: File,
+  )
+
+  override def trigger = noTrigger
+
+  override def requires: Plugins = BindgenPlugin
 
   override lazy val projectSettings = Seq(
     bindgenDockerfile := (Compile / resourceDirectory).value / "Dockerfile.bindgen",
     nativeBindings := Seq.empty,
-    // Override bindgenBindings based on environment
-    BindgenPlugin.autoImport.bindgenBindings := {
-      // Inside Docker use the bindings from nativeBinding, while on host set to empty to prevent bindgen from running
-      if (sys.env.contains(envVarName)) nativeBindings.value else Seq.empty
-    },
-    generateBindings := {
-      implicit val log: Logger = streams.value.log
-      val headerFiles = nativeBindings.value.map(_.headerFile).toSet
-      val managedDir = (Compile / sourceManaged).value
-      val existingBindings = generatedFiles(managedDir)
-      val cacheDirectory = streams.value.cacheDirectory
-      if (isCI && existingBindings.nonEmpty) { // reuse existing bindings if available in CI
-        log.info(s"CI environment: Found ${existingBindings.size} existing binding files.")
-        existingBindings
-      } else { // local development: use Docker with cache invalidation based on header files
-        val missingHeaders = headerFiles.filterNot(_.exists())
-        if (missingHeaders.nonEmpty) {
-          log.warn(s"Header files not found.")
-          Seq.empty
-        } else {
-          FileFunction.cached(cacheDirectory / "bindgen") { _ =>
-            if (!isDockerAvailable) sys.error("Docker is needed to generate native bindings but is not available")
-            if (!imageExists(dockerImageName)) buildImage(dockerImageName, bindgenDockerfile.value)
-            runBindgen(dockerImageName, thisProjectRef.value.project, (ThisBuild / baseDirectory).value, envVarName)
-            generatedFiles(managedDir).toSet
-          }(headerFiles).toSeq
-        }
-      }
-    },
-    Compile / sourceGenerators := {
-      // Inside Docker: keep bindgen's generators as-is, on host use only custom Docker-based generator
-      if (sys.env.contains(envVarName)) (Compile / sourceGenerators).value else Seq(generateBindings.taskValue)
-    }
+    // Inside Docker use nativeBindings, on host use empty to prevent bindgen from running
+    BindgenPlugin.autoImport.bindgenBindings := (if (inDocker) nativeBindings.value else Seq.empty),
+    generateBindings := generateBindingsTask(
+      Config(
+        bindings = nativeBindings.value,
+        buildDir = (Compile / sourceManaged).value,
+        cacheDir = streams.value.cacheDirectory,
+        dockerfile = bindgenDockerfile.value,
+        projectId = thisProjectRef.value.project,
+        rootDir = (ThisBuild / baseDirectory).value
+      )
+    )(streams.value.log),
+    // Inside Docker keep bindgen's generators, on host use only Docker-based generator
+    Compile / sourceGenerators := (if (inDocker) (Compile / sourceGenerators).value else Seq(generateBindings.taskValue))
   )
+
+  private def inDocker: Boolean = sys.env.contains(envVarName)
+
+  private def generateBindingsTask(ctx: Config)(implicit log: Logger): Seq[File] = {
+    val existingBindings = generatedFiles(ctx.buildDir)
+    val missingHeaders = ctx.bindings.map(_.headerFile).filterNot(_.exists())
+    if (isCI && existingBindings.nonEmpty) { // Reuse existing bindings in CI if available
+      log.info(s"CI environment: Found ${existingBindings.size} existing binding files.")
+      existingBindings
+    } else if (missingHeaders.nonEmpty) {
+      log.warn("Header files not found.")
+      Seq.empty
+    } else {
+      generateWithDocker(ctx)
+    }
+  }
 
   private def isCI: Boolean = sys.env.get("CI").contains("true")
 
+  private def generateWithDocker(config: Config)(implicit log: Logger): Seq[File] = {
+    val headers = config.bindings.map(_.headerFile).toSet
+    FileFunction.cached(cacheBaseDirectory = config.cacheDir / "bindgen") { _ =>
+      if (!isDockerAvailable) {
+        sys.error("Docker is needed to generate native bindings but is not available")
+      }
+      if (!imageExists(dockerImageName)) {
+        buildImage(dockerImageName, config.dockerfile)
+      }
+      val tempHome = config.rootDir / "target" / "docker-home"
+      IO.createDirectory(tempHome)
+      runContainer(
+        imageName = dockerImageName,
+        command = s"sbt ${config.projectId}/bindgenGenerateScalaSources",
+        workDir = config.rootDir,
+        volumes = Map(config.rootDir -> "/project", tempHome -> "/home/sbtuser"),
+        envVars = Map("HOME" -> "/home/sbtuser", envVarName -> "true"),
+      )
+      generatedFiles(config.buildDir).toSet
+    }(headers).toSeq
+  }
+
   private def isDockerAvailable: Boolean = Try(Process("docker --version").! == 0).getOrElse(false)
+
+  private def generatedFiles(managedDir: File): Seq[File] = (managedDir ** "*.scala").get
 
   private def imageExists(imageName: String): Boolean = Process(s"docker image inspect $imageName").! == 0
 
@@ -75,20 +110,20 @@ object NativeBindingsUtils extends AutoPlugin {
     if (exitCode != 0) sys.error("Docker image build failed")
   }
 
-  private def runBindgen(imageName: String, projectId: String, rootDir: File, envVar: String)(implicit log: Logger): Unit = {
-    log.info(s"Generating bindings for $projectId...")
+  private def runContainer(
+    imageName: String,
+    command: String,
+    workDir: File,
+    volumes: Map[File, String] = Map.empty,
+    envVars: Map[String, String] = Map.empty,
+  )(implicit log: Logger): Unit = {
     val userId = sys.env.get("UID").orElse(Try(Process("id -u").!!.trim).toOption).getOrElse("1000")
     val groupId = sys.env.get("GID").orElse(Try(Process("id -g").!!.trim).toOption).getOrElse("1000")
-    // Create a temporary directory for SBT cache to avoid permission issues and speed up subsequent builds
-    val tempHome = rootDir / "target" / "docker-home"
-    IO.createDirectory(tempHome)
-    val command = s"docker run --rm --user $userId:$groupId -v ${rootDir.absolutePath}:/project " +
-      s"-v ${tempHome.absolutePath}:/home/sbtuser -e HOME=/home/sbtuser -e $envVar=true $imageName " +
-      s"sbt $projectId/bindgenGenerateScalaSources"
-    val exitCode = Process(command = Seq("sh", "-c", command), cwd = rootDir).!
-    if (exitCode != 0) sys.error("Binding generation failed")
+    val mounts = volumes.map { case (hostPath, destPath) => s"-v ${hostPath.absolutePath}:$destPath" }.mkString(" ")
+    val envVarArgs = envVars.map { case (key, value) => s"-e $key=$value" }.mkString(" ")
+    val dockerCmd = s"docker run --rm --user $userId:$groupId $mounts $envVarArgs $imageName $command"
+    val exitCode = Process(Seq("sh", "-c", dockerCmd), cwd = workDir).!
+    if (exitCode != 0) sys.error(s"Docker container $imageName execution failed")
   }
-
-  private def generatedFiles(managedDir: File): Seq[File] = (managedDir ** "*.scala").get
 
 }

@@ -35,16 +35,16 @@ object BuildUtils {
 
   /**
    * Moves native library files to a version-agnostic directory.
-   * @param linkedFile the linked native library file
+   * @param libraryFile the linked native library file
    * @param targetDir the target directory where to move the library
    * @param libraryName the base name of the library
    */
-  def moveNativeLibrary(linkedFile: File, targetDir: File, libraryName: String): File = {
+  def moveNativeLibrary(libraryFile: File, targetDir: File, libraryName: String): File = {
     val outputDir = targetDir / "nativeLink"
     val prefix = if (os == Windows) "" else "lib"
-    val mainLib = moveToDir(linkedFile, outputDir, s"$prefix$libraryName.$nativeLibExtension")
+    val mainLib = moveToDir(libraryFile, outputDir, s"$prefix$libraryName.$nativeLibExtension")
     if (os == Windows) {
-      val importLib = linkedFile.getParentFile / s"$libraryName.lib"
+      val importLib = libraryFile.getParentFile / s"$libraryName.lib"
       moveToDir(importLib, outputDir, s"$libraryName.lib")
     }
     mainLib

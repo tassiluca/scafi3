@@ -93,7 +93,7 @@ lazy val commonNativeSettings = Seq(
       .withCheckFeatures(true)
       .withCheckFatalWarnings(true)
   },
-  Compile / nativeLink := moveNativeLibrary((Compile / nativeLink).value, target.value, projectName),
+  Compile / nativeLink := moveNativeLibrary(libraryFile = (Compile / nativeLink).value, target.value, projectName),
   scalacOptions ++= Seq("-Wconf:msg=unused import&src=.*[\\\\/]src_managed[\\\\/].*:silent"),
   coverageEnabled := false,
 )
@@ -103,7 +103,6 @@ lazy val commonJsSettings = Seq(
     _.withModuleKind(ModuleKind.ESModule)
       .withOutputPatterns(OutputPatterns.fromJSFile("%s.mjs"))
       .withOptimizer(true)
-      .withMinify(true)
       .withCheckIR(true)
   },
   Compile / fastLinkJS / scalaJSLinkerOutputDirectory := target.value / "fastLinkJS",
