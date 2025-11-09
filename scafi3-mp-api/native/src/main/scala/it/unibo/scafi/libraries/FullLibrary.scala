@@ -11,10 +11,11 @@ import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.libraries.FullLibrary.libraryRef
 import it.unibo.scafi.message.Codable
 import it.unibo.scafi.message.NativeCodable.nativeCodable
-import it.unibo.scafi.nativebindings.structs.{
+import it.unibo.scafi.nativebindings.all.{
   AggregateLibrary as CAggregateLibrary,
   Array as CArray,
   BinaryCodable as CBinaryCodable,
+  DeviceId as CDeviceId,
   Field as CField,
   FieldBasedSharedData as CFieldBasedSharedData,
 }
@@ -37,7 +38,7 @@ class FullLibrary(using
     libraryRef.set(this)
     val lib = CAggregateLibrary()
     (!lib).Field = !CFieldBasedSharedData(default => NativeFieldBasedSharedData.of(default, CMap.empty))
-    (!lib).local_id = () => libraryRef.get().localId.asInstanceOf[Ptr[CBinaryCodable]]
+    (!lib).local_id = () => CDeviceId(libraryRef.get().localId)
     (!lib).branch = (condition: Boolean, trueBranch: Function0[Ptr[Byte]], falseBranch: Function0[Ptr[Byte]]) =>
       libraryRef.get().branch_(condition)(trueBranch)(falseBranch)
     (!lib).evolve = (initial: Ptr[Byte], evolution: Function1[Ptr[Byte], Ptr[Byte]]) =>

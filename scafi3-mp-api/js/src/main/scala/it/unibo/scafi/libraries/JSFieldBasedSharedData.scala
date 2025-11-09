@@ -4,7 +4,7 @@ import scala.scalajs.js
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.message.JSCodable
-import it.unibo.scafi.message.JSCodable.given_Hash_Any
+import it.unibo.scafi.message.JSCodable.codableHash
 import it.unibo.scafi.types.{ EqWrapper, PortableTypes }
 
 /**
@@ -14,7 +14,7 @@ import it.unibo.scafi.types.{ EqWrapper, PortableTypes }
 trait JSFieldBasedSharedData extends PortableLibrary:
   self: PortableTypes =>
 
-  override type Language <: AggregateFoundation & FieldBasedSharedData
+  override type Language <: AggregateFoundation & FieldBasedSharedData & { type DeviceId = EqWrapper[js.Any] }
 
   override type SharedData[Value] = Field[Value]
 
@@ -48,10 +48,10 @@ trait JSFieldBasedSharedData extends PortableLibrary:
   override given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = Iso(
     jsField =>
       val field = language.sharedDataApplicative.pure(jsField.default)
-      jsField.neighborValues.foldLeft(field)((f, n) => f.set(EqWrapper(n._1).asInstanceOf[language.DeviceId], n._2))
+      jsField.neighborValues.foldLeft(field)((f, n) => f.set(EqWrapper(n._1), n._2))
     ,
     scalaField =>
-      val nvalues: Map[language.DeviceId, Value] = scalaField.neighborValues.map((id, v) => (deviceIdConv(id), v)).toMap
+      val nvalues: Map[language.DeviceId, Value] = scalaField.neighborValues.map((id, v) => (deviceIdConv(id), v))
       Field(scalaField.default, nvalues.asInstanceOf[Map[js.Any, Value]]),
   )
 

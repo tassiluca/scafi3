@@ -1,11 +1,12 @@
 package it.unibo.scafi.message
 
 import scala.scalajs.js
+import scala.scalajs.js.typedarray.Uint8Array
 
 import it.unibo.scafi.message.primitive.PrimitiveCodables.asPrimitiveCodable
 import it.unibo.scafi.message.protobufjs.ProtobufJSType.fromProtobufJsMessage
 import it.unibo.scafi.utils.JSUtils.{ asDynamic, hasFunctions, hasProps, typed }
-import it.unibo.scafi.utils.Uint8ArrayOps.toByteArray
+import it.unibo.scafi.utils.Uint8ArrayOps.{ toByteArray, toUint8Array }
 
 import cats.kernel.Hash
 
@@ -135,13 +136,28 @@ object JSCodable:
         else None
       valid(message.asDynamic.constructor).orElse(valid(message.asDynamic.codable))
 
-  /** A `Hash` instance for `js.Any` values, which compares values by their encoded representation if possible. */
-  given Hash[js.Any] = new Hash[js.Any]:
+  /** A `Hash` instance for `js.Any` values, which compares values by their encoded representation, if possible. */
+  given codableHash: Hash[js.Any] = new Hash[js.Any]:
     override def hash(x: js.Any): Int = x.hashCode()
     override def eqv(x: js.Any, y: js.Any): Boolean = (JSCodable(x).encode(x), JSCodable(y).encode(y)) match
-      case (encodedX: js.typedarray.Uint8Array, encodedY: js.typedarray.Uint8Array) =>
-        encodedX.toByteArray.sameElements(encodedY.toByteArray)
-      case _ =>
-        scribe.error("Cannot yet compare non-primitive values")
-        false
+      case (encodedX: Uint8Array, encodedY: Uint8Array) => encodedX.toByteArray.sameElements(encodedY.toByteArray)
+      case _ => throw new IllegalArgumentException("Cannot yet compare non-binary encoded values.")
+
+  /**
+   * A codable that can encode and decode in any JavaScript object that either corresponds to a primitive type (i.e.,
+   * `string`, `number`, or `boolean`), or implements the [[JSCodable]] interface.
+   */
+  given jsAnyCodable: Conversion[js.Any, Codable[js.Any, Any]] = value =>
+    new Codable[js.Any, Any]:
+      private val codable = JSCodable(value)
+
+      override def encode(value: js.Any): Any =
+        codable.encode(value) match
+          case bytes: Uint8Array => bytes.toByteArray
+          case other => throw new IllegalArgumentException(s"$other (${js.typeOf(other)}) is not a supported format.")
+
+      override def decode(data: Any): js.Any =
+        data match
+          case bytes: Array[Byte] => codable.decode(bytes.toUint8Array)
+          case _ => throw new IllegalArgumentException(s"$data (${js.typeOf(data)}) is not a supported format.")
 end JSCodable

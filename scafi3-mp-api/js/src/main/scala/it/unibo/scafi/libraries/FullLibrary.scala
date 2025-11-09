@@ -8,7 +8,7 @@ import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.message.Codable
-import it.unibo.scafi.message.JSBinaryCodable.jsCodable
+import it.unibo.scafi.message.JSCodable.jsAnyCodable
 import it.unibo.scafi.types.{ EqWrapper, JSTypes }
 
 /**
@@ -19,13 +19,14 @@ import it.unibo.scafi.types.{ EqWrapper, JSTypes }
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 @JSExportTopLevel("FullLibrary")
 class FullLibrary(using
-    lang: AggregateFoundation & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax,
+    lang: AggregateFoundation & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax & {
+      type DeviceId = EqWrapper[js.Any]
+    },
 ) extends FullPortableLibrary
     with JSFieldBasedSharedData
     with JSTypes:
 
   override given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] =
-    jsCodable.asInstanceOf[Conversion[Value, Codable[Value, Format]]]
+    jsAnyCodable.asInstanceOf[Conversion[Value, Codable[Value, Format]]]
 
-  override given deviceIdConv[ID]: Conversion[language.DeviceId, ID] =
-    _.asInstanceOf[EqWrapper[js.Any]].value.asInstanceOf[ID]
+  override given deviceIdConv[ID]: Conversion[language.DeviceId, ID] = _.value.asInstanceOf[ID]
