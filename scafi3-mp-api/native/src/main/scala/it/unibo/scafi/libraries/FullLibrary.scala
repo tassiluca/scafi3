@@ -41,11 +41,11 @@ class FullLibrary(using
     (!lib).Field = !CFieldBasedSharedData(default => NativeFieldBasedSharedData.of(default, CMap.empty))
     (!lib).local_id = () => CDeviceId(libraryRef.get().localId)
     (!lib).branch = (condition: Boolean, trueBranch: Function0[Ptr[Byte]], falseBranch: Function0[Ptr[Byte]]) =>
-      libraryRef.get().branch_(condition)(trueBranch)(falseBranch)
+      libraryRef.get().branch(condition)(trueBranch)(falseBranch)
     (!lib).evolve = (initial: Ptr[Byte], evolution: Function1[Ptr[Byte], Ptr[Byte]]) =>
-      libraryRef.get().evolve_(initial)(evolution)
+      libraryRef.get().evolve(initial)(evolution)
     (!lib).share = (initial: Ptr[CBinaryCodable], f: Function1[Ptr[CField], Ptr[CBinaryCodable]]) =>
-      libraryRef.get().share_(initial)(f)
+      libraryRef.get().share(initial)(f)
     (!lib).neighbor_values = (value: Ptr[CBinaryCodable]) => libraryRef.get().neighborValues(value)
     lib
 end FullLibrary

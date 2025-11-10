@@ -9,18 +9,11 @@ trait PortableFieldCalculusLibrary extends PortableLibrary:
   override type Language <: AggregateFoundation & FieldCalculusSyntax
 
   @JSExport
-  def evolve[Value](initial: Value)(evolution: Function1[Value, Value]): Value = evolve_(initial)(evolution)
-
-  inline def evolve_[Value](initial: Value)(evolution: Function1[Value, Value]): Value =
-    language.evolve(initial)(evolution)
+  def evolve[Value](initial: Value)(evolution: Function1[Value, Value]): Value
 
   @JSExport
-  def share[Value](initial: Value)(shareAndReturning: Function1[SharedData[Value], Value]): Value =
-    share_(initial)(shareAndReturning)
-
-  inline def share_[Value](initial: Value)(shareAndReturning: Function1[SharedData[Value], Value]): Value =
-    language.share(initial)(shareAndReturning(_))(using valueCodable(initial))
+  def share[Value](initial: Value)(shareAndReturning: Function1[SharedData[Value], Value]): Value
 
   @JSExport
-  def neighborValues[Value](expr: Value): SharedData[Value] = language.neighborValues(expr)(using valueCodable(expr))
+  def neighborValues[Value](expr: Value): SharedData[Value]
 end PortableFieldCalculusLibrary
