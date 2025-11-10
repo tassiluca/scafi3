@@ -12,14 +12,14 @@ jobs:
       - name: Generate bindings for polyglot api
         uses: nicolasfara/build-check-deploy-sbt-action@1.0.31
         with:
-          build-command: sbt scafi3-mp-apiNative/generateBindings
+          build-command: sbt scafi3-polyglot-apiNative/generateBindings
           check-command: true
           should-run-codecov: false
       - name: Upload generated files
         uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ github.sha }}
-          path: scafi3-mp-api/native/target/scala-*/src_managed/main/*
+          path: scafi3-polyglot-api/native/target/scala-*/src_managed/main/*
           if-no-files-found: error
 
   build:
@@ -42,7 +42,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bindings-${{ github.sha }}
-          path: ./scafi3-mp-api/native/target/
+          path: ./scafi3-polyglot-api/native/target/
       - name: Setup native toolchain
         uses: aminya/setup-cpp@v1
         with:

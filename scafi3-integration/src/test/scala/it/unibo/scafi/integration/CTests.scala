@@ -17,8 +17,8 @@ trait CTests extends PlatformTest:
 
   override def templates(testName: String): Try[Set[Path]] = (
     resource(s"c/$testName").flatMap(findAll),
-    projectResource("scafi3-mp-api", "native", "src", "main", "resources").flatMap(findAll),
-    projectResource("scafi3-mp-api", "native", "target", "nativeLink").flatMap(findAll),
+    projectResource("scafi3-polyglot-api", "native", "src", "main", "resources").flatMap(findAll),
+    projectResource("scafi3-polyglot-api", "native", "target", "nativeLink").flatMap(findAll),
     resource("c/main.template.c"),
     resource("c/Makefile"),
   ).mapN(_ ++ _ ++ _ + _ + _)
