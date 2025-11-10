@@ -20,7 +20,9 @@ import it.unibo.scafi.utils.libraries.Iso.given
 trait NativeFieldBasedSharedData extends PortableLibrary:
   self: PortableTypes & NativeTypes =>
 
-  override type Language <: AggregateFoundation & FieldBasedSharedData
+  override type Language <: AggregateFoundation & FieldBasedSharedData & {
+    type DeviceId = EqWrapper[Ptr[CBinaryCodable]]
+  }
 
   override type SharedData[Value] = Ptr[CField]
 
@@ -28,8 +30,7 @@ trait NativeFieldBasedSharedData extends PortableLibrary:
     cFieldPtr =>
       val field = language.sharedDataApplicative.pure((!cFieldPtr).default_value.asInstanceOf[Value])
       val scalaNValues = CMap.of((!cFieldPtr).neighbor_values).toMap
-      scalaNValues.foldLeft(field): (f, n) =>
-        f.set(EqWrapper(n._1).asInstanceOf[language.DeviceId], n._2)
+      scalaNValues.foldLeft(field)((f, n) => f.set(EqWrapper(n._1), n._2))
     ,
     scalaField =>
       NativeFieldBasedSharedData.of(
