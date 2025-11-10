@@ -29,4 +29,4 @@ class FullLibrary(using
   override given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] =
     jsAnyCodable.asInstanceOf[Conversion[Value, Codable[Value, Format]]]
 
-  override given deviceIdConv[ID]: Conversion[language.DeviceId, ID] = _.value.asInstanceOf[ID]
+  override given deviceIdConversion[ID]: Conversion[language.DeviceId, ID] = _.value.asInstanceOf[ID]

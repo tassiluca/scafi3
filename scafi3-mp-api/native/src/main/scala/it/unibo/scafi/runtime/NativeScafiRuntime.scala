@@ -8,8 +8,8 @@ import scala.scalanative.unsafe.{ exported, fromCString, CInt, CVoidPtr, Ptr }
 import it.unibo.scafi
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
 import it.unibo.scafi.libraries.FullLibrary
-import it.unibo.scafi.message.{ CBinaryCodable, Codable }
-import it.unibo.scafi.message.CBinaryCodable.given_Hash_Ptr
+import it.unibo.scafi.message.Codable
+import it.unibo.scafi.message.HashInstances.cBinaryCodableHash
 import it.unibo.scafi.message.NativeCodable.nativeCodable
 import it.unibo.scafi.nativebindings.structs.{
   AggregateLibrary as CAggregateLibrary,

@@ -23,7 +23,9 @@ import it.unibo.scafi.types.{ CMap, EqWrapper, NativeTypes }
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 class FullLibrary(using
-    lang: AggregateFoundation & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax,
+    lang: AggregateFoundation & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax & {
+      type DeviceId = EqWrapper[Ptr[CBinaryCodable]]
+    },
 ) extends FullPortableLibrary
     with NativeFieldBasedSharedData
     with NativeTypes:
@@ -31,8 +33,7 @@ class FullLibrary(using
   override given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] =
     nativeCodable.asInstanceOf[Conversion[Value, Codable[Value, Format]]]
 
-  override given deviceIdConv[ID]: Conversion[language.DeviceId, ID] =
-    _.asInstanceOf[EqWrapper[Ptr[CBinaryCodable]]].value.asInstanceOf[ID]
+  override given deviceIdConversion[ID]: Conversion[language.DeviceId, ID] = _.value.asInstanceOf[ID]
 
   def asNative(using Zone): Ptr[CAggregateLibrary] =
     libraryRef.set(this)

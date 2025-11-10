@@ -12,11 +12,12 @@ import it.unibo.scafi.utils.Uint8ArrayOps.{ toByteArray, toUint8Array }
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object NativeCodable:
 
+  /** @return an instance of [[Codable]] for native `CBinaryCodable`. */
   given nativeCodable: Conversion[Ptr[CBinaryCodable], Codable[Ptr[CBinaryCodable], Any]] = value =>
     new Codable[Ptr[CBinaryCodable], Any]:
       override def encode(value: Ptr[CBinaryCodable]): Array[Byte] = Zone:
         val encodedSize = alloc[size_t]()
-        val rawData = (!value).encode(value, encodedSize) // TODO
+        val rawData = (!value).encode(value, encodedSize)
         val data = rawData.toByteArray(!encodedSize)
         stdlib.free(rawData)
         data

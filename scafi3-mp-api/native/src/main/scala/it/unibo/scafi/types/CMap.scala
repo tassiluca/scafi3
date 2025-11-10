@@ -7,7 +7,7 @@ import scala.language.unsafeNulls
 import scala.scalanative.unsafe.{ exported, CFuncPtr1, CSize, CVoidPtr, Ptr, UnsafeRichLong }
 import scala.scalanative.unsafe.Size.intToSize
 
-import it.unibo.scafi.message.CEq.given
+import it.unibo.scafi.message.HashInstances.{ cEqHash, catsSyntaxEq }
 import it.unibo.scafi.nativebindings.structs.Eq as CEq
 
 /**

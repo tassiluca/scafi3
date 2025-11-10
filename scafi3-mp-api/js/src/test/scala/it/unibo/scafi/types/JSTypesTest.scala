@@ -1,12 +1,10 @@
 package it.unibo.scafi.types
 
-import it.unibo.scafi.test.AsyncSpec
-
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext
-
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.scalajs.js
 import scala.scalajs.js.timers.setTimeout
+
+import it.unibo.scafi.test.AsyncSpec
 
 class JSTypesTest extends AsyncSpec with JSTypes:
 
