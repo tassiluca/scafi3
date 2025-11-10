@@ -1,11 +1,10 @@
-package it.unibo.scafi.nativebindings.it.unibo.scafi.types
+package it.unibo.scafi.types
 
 import scala.scalanative.unsafe.{ alloc, CBool, CInt, CStruct2, Ptr, Zone }
 import scala.scalanative.unsigned.toUInt
 import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.nativebindings.structs.Eq as CEq
-import it.unibo.scafi.types.{ CMap, NativeTypes }
 
 import org.scalatest.matchers.should
 import org.scalatest.wordspec.AnyWordSpec

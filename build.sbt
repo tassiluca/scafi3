@@ -139,7 +139,7 @@ lazy val `scafi3-distributed` = crossProject(JSPlatform, JVMPlatform, NativePlat
 lazy val `scafi3-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .in(file("scafi3-mp-api"))
-  .dependsOn(`scafi3-core` % "compile->compile;test->test", `scafi3-distributed`)
+  .dependsOn(`scafi3-core` % "compile->compile;test->test", `scafi3-distributed` % "compile->compile;test->test")
   .nativeEnablePlugins(BindgenPlugin, NativeBindingsUtils)
   .nativeSettings(
     commonNativeSettings,
