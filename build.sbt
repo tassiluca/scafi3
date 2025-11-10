@@ -136,9 +136,9 @@ lazy val `scafi3-distributed` = crossProject(JSPlatform, JVMPlatform, NativePlat
     ),
   )
 
-lazy val `scafi3-mp-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+lazy val `scafi3-polyglot-api` = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Full)
-  .in(file("scafi3-mp-api"))
+  .in(file("scafi3-polyglot-api"))
   .dependsOn(`scafi3-core` % "compile->compile;test->test", `scafi3-distributed` % "compile->compile;test->test")
   .nativeEnablePlugins(BindgenPlugin, NativeBindingsUtils)
   .nativeSettings(
@@ -164,7 +164,7 @@ lazy val `scafi3-integration` = project
     commonSettings,
     publish / skip := true,
     Test / test := (Test / test)
-      .dependsOn(`scafi3-mp-api`.js / Compile / fullLinkJS, `scafi3-mp-api`.native / Compile / nativeLink)
+      .dependsOn(`scafi3-polyglot-api`.js / Compile / fullLinkJS, `scafi3-polyglot-api`.native / Compile / nativeLink)
       .tag(ExclusiveTestTag)
       .value,
   )
@@ -203,7 +203,7 @@ lazy val root = project
   .in(file("."))
   .enablePlugins(ScalaUnidocPlugin)
   .aggregate(`alchemist-incarnation-scafi3`, `scafi3-integration`)
-  .aggregate(crossProjects(`scafi3-core`, `scafi3-distributed`, `scafi3-mp-api`).map(_.project)*)
+  .aggregate(crossProjects(`scafi3-core`, `scafi3-distributed`, `scafi3-polyglot-api`).map(_.project)*)
   .settings(
     name := projectName,
     publish / skip := true,

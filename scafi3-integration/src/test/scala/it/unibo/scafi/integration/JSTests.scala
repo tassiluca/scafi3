@@ -20,7 +20,7 @@ trait JSTests extends PlatformTest:
     resource("js/app.template.mjs"),
     resource("js/package.json"),
     resource("js/build-protos.js"),
-    projectResource("scafi3-mp-api", "js", "target", "fullLinkJS", "main.mjs"),
+    projectResource("scafi3-polyglot-api", "js", "target", "fullLinkJS", "main.mjs"),
   ).mapN(_ + _ + _ + _ + _)
 
   override def compile(workingDir: Path): Try[String] = Success("JS does not require compilation")
