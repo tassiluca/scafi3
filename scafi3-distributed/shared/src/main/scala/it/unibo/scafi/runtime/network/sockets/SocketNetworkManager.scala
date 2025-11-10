@@ -1,9 +1,10 @@
 package it.unibo.scafi.runtime.network.sockets
 
 import scala.concurrent.ExecutionContext
+
 import it.unibo.scafi.message.{ BinaryCodable, BinaryDecodable, BinaryEncodable }
-import it.unibo.scafi.runtime.network.CodableInstances.given
 import it.unibo.scafi.runtime.network.{ ExpirationConfiguration, Neighborhood, TimeRetention }
+import it.unibo.scafi.runtime.network.CodableInstances.given
 import it.unibo.scafi.runtime.network.sockets.InetTypes.{ Endpoint, Port }
 
 object SocketNetworkManager:

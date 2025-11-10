@@ -1,12 +1,13 @@
 package it.unibo.scafi.runtime.network.sockets
 
 import java.util.concurrent.atomic.AtomicReference
+
 import scala.concurrent.{ ExecutionContext, Future }
+
 import it.unibo.scafi.message.{ Export, ValueTree }
-import it.unibo.scafi.runtime.network.LatestBufferingNetwork
+import it.unibo.scafi.runtime.network.{ ExpirationPolicy, LatestBufferingNetwork }
 import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
 import it.unibo.scafi.utils.Channel
-import it.unibo.scafi.runtime.network.ExpirationPolicy
 
 /**
  * A [[NetworkManager]] using a connection-oriented networking stack for communicating with neighbors.
