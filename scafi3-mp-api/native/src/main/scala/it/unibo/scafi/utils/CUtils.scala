@@ -1,9 +1,9 @@
 package it.unibo.scafi.utils
 
 import scala.reflect.ClassTag
-import scala.scalanative.libc.stdlib.malloc
+import scala.scalanative.libc.stdlib.{ free, malloc }
 import scala.scalanative.posix.string.strdup
-import scala.scalanative.unsafe.{ sizeOf, toCString, CString, Ptr, Zone }
+import scala.scalanative.unsafe.{ fromCString, sizeOf, toCString, CString, Ptr, Zone }
 
 /** A bunch of utilities for C interop. */
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf", "scalafix:DisableSyntax.null"))
@@ -42,7 +42,7 @@ object CUtils:
   inline def requireNonNull[T](obj: T): T =
     if obj.asInstanceOf[AnyRef] == null then throw new NullPointerException(s"Object $obj is null") else obj
 
-  extension (str: String)
+  extension (string: String)
     /**
      * Converts a Scala String to a C-style string (null-terminated array of characters) that is not confined to a zone.
      * @return
@@ -50,7 +50,20 @@ object CUtils:
      * @note
      *   the pointer is allocated and must be manually freed by the caller.
      */
-    def toUnconfinedCString: CString = Zone(strdup(toCString(str)))
+    def toUnconfinedCString: CString = Zone(strdup(toCString(string)))
+
+  extension (cString: CString)
+
+    /**
+     * Converts a C-style string (null-terminated array of characters) to a Scala String, freeing the C string after
+     * use.
+     * @return
+     *   a Scala String representing the C string
+     */
+    def fromSafeCString: String =
+      val res = fromCString(cString)
+      free(cString)
+      res
 
   /** In C a pointer to any type can be treated as a `void*`. */
   given asVoidPtr[T]: Conversion[Ptr[T], Ptr[Byte]] = _.asInstanceOf[Ptr[Byte]]

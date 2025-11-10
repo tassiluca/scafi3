@@ -51,7 +51,7 @@ trait JSFieldBasedSharedData extends PortableLibrary:
       jsField.neighborValues.foldLeft(field)((f, n) => f.set(EqWrapper(n._1), n._2))
     ,
     scalaField =>
-      val nvalues: Map[language.DeviceId, Value] = scalaField.neighborValues.map((id, v) => (deviceIdConv(id), v))
+      val nvalues: Map[language.DeviceId, Value] = scalaField.neighborValues.map((id, v) => (deviceIdConversion(id), v))
       Field(scalaField.default, nvalues.asInstanceOf[Map[js.Any, Value]]),
   )
 

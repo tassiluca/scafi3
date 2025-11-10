@@ -1,15 +1,15 @@
 package it.unibo.scafi.libraries
 
-import scala.scalanative.unsafe.{ exported, fromCString, CString, Ptr }
+import scala.scalanative.unsafe.{ exported, CString, Ptr }
 import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.libraries.NativeFieldBasedSharedData.given
-import it.unibo.scafi.message.CBinaryCodable.given_Hash_Ptr
+import it.unibo.scafi.message.HashInstances.cBinaryCodableHash
 import it.unibo.scafi.nativebindings.aliases.NValues
 import it.unibo.scafi.nativebindings.structs.{ BinaryCodable as CBinaryCodable, Field as CField }
 import it.unibo.scafi.types.{ CMap, EqWrapper, NativeTypes, PortableTypes }
-import it.unibo.scafi.utils.CUtils.{ asVoidPtr, freshPointer, toUnconfinedCString }
+import it.unibo.scafi.utils.CUtils.{ asVoidPtr, freshPointer, fromSafeCString, toUnconfinedCString }
 import it.unibo.scafi.utils.libraries.Iso
 import it.unibo.scafi.utils.libraries.Iso.given
 
@@ -34,7 +34,7 @@ trait NativeFieldBasedSharedData extends PortableLibrary:
     scalaField =>
       NativeFieldBasedSharedData.of(
         scalaField.default.asInstanceOf[Ptr[CBinaryCodable]],
-        scalaField.neighborValues.map((id, v) => (deviceIdConv(id), v)).toMap,
+        scalaField.neighborValues.map((id, v) => (deviceIdConversion(id), v)).toMap,
       ),
   )
 
@@ -54,11 +54,11 @@ object NativeFieldBasedSharedData:
   @exported("field_to_str")
   def fieldToString(sd: Ptr[CField]): CString =
     val defaultValuePtr = (!sd).default_value
-    val defaultStr = fromCString((!defaultValuePtr).to_str(defaultValuePtr))
+    val defaultStr = fromSafeCString((!defaultValuePtr).to_str(defaultValuePtr))
     val neighborsStr = CMap
       .of[Ptr[CBinaryCodable], Ptr[CBinaryCodable]]((!sd).neighbor_values)
       .toMap
-      .map((nid, nv) => fromCString((!nid).to_str(nid)) + " -> " + fromCString((!nv).to_str(nv)))
+      .map((nid, nv) => fromSafeCString((!nid).to_str(nid)) + " -> " + fromSafeCString((!nv).to_str(nv)))
       .toList
       .sorted
       .mkString("[", ", ", "]")
