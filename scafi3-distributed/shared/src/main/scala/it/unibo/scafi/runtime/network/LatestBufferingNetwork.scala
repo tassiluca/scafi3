@@ -5,20 +5,20 @@ import it.unibo.scafi.message.{ Import, ValueTree }
 /**
  * A [[NetworkManager]] implementation that collects received messages in a buffer where only the most recent message
  * per neighbor is kept and where messages whose exceed a certain configurable lifetime may be dropped according to an
- * [[ExpirationPolicy]]. By default, no messages are dropped.
+ * [[ExpirationPolicy]].
  */
 trait LatestBufferingNetwork extends NetworkManager:
   self: ExpirationPolicy =>
 
-  private var inValues = Map[DeviceId, Message]()
+  private var inbox = Map[DeviceId, Message]()
 
   override def receive: Import[DeviceId] = synchronized:
-    val filteredInValues = inValues.filterNot(_.shouldBeDropped)
-    inValues = filteredInValues
+    val filteredInValues = inbox.filterNot(_.shouldBeDropped)
+    inbox = filteredInValues
     Import(filteredInValues.map(_ -> _.valueTree))
 
   override def deliverableReceived(from: DeviceId, message: ValueTree): Unit = synchronized:
-    inValues = inValues + (from -> Message(metadata, message))
+    inbox = inbox + (from -> Message(metadata, message))
 end LatestBufferingNetwork
 
 /**
@@ -26,7 +26,7 @@ end LatestBufferingNetwork
  */
 trait ExpirationPolicy:
 
-  /** Type representing the device identifier. */
+  /** The type of the neighbor device identifier. */
   type DeviceId
 
   /** Metadata associated with received neighbor message. */
