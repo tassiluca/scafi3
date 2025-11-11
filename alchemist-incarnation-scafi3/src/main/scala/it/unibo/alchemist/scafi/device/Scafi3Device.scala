@@ -5,10 +5,9 @@ import scala.math.Ordering.Implicits.infixOrderingOps
 import it.unibo.alchemist.model.{ Environment, Node, NodeProperty, Position as AlchemistPosition, Time }
 import it.unibo.alchemist.scafi.device.Scafi3Device.given
 import it.unibo.scafi.message.Export
-import it.unibo.scafi.runtime.network.LatestBufferingNetwork
+import it.unibo.scafi.runtime.network.{ ExpirationPolicy, LatestBufferingNetwork }
 
 import org.apache.commons.math3.random.RandomGenerator
-import it.unibo.scafi.runtime.network.ExpirationPolicy
 
 class Scafi3Device[T, Position <: AlchemistPosition[Position]](
     val random: RandomGenerator,
