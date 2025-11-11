@@ -11,10 +11,10 @@ trait TimeRetention(using config: ExpirationConfiguration) extends ExpirationPol
 
   override type Metadata = Duration
 
-  override def metadata: Metadata = Duration(System.currentTimeMillis(), MILLISECONDS)
+  override def current: Metadata = Duration(System.currentTimeMillis(), MILLISECONDS)
 
   extension (neighborMsg: (DeviceId, Message))
-    override def shouldBeDropped: Boolean = (metadata - neighborMsg._2.metadata) > config.limit
+    override def shouldBeDropped: Boolean = (current - neighborMsg._2.metadata) > config.limit
 
 /** Configuration for expiration policies based on time retention. */
 case class ExpirationConfiguration(limit: Duration)
