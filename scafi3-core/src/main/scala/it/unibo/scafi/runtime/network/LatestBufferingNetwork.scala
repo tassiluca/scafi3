@@ -14,11 +14,20 @@ trait LatestBufferingNetwork extends NetworkManager:
 
   override def receive: Import[DeviceId] = synchronized:
     val filteredInValues = inbox.filterNot(_.shouldBeDropped)
-    inbox = filteredInValues
+    inbox = if shouldCleanOnReceive then Map.empty else filteredInValues
     Import(filteredInValues.map(_ -> _.valueTree))
 
   override def deliverableReceived(from: DeviceId, message: ValueTree): Unit = synchronized:
-    inbox = inbox + (from -> Message(metadata, message))
+    inbox += from -> Message(current, message)
+
+  /**
+   * Indicates whether the inbox should be cleaned after each receive operation.
+   *
+   * By default, this is set to false, meaning that the inbox is not automatically cleaned after each receive.
+   * @return
+   *   true if the inbox should be cleaned on receive, false otherwise.
+   */
+  protected def shouldCleanOnReceive: Boolean = false
 end LatestBufferingNetwork
 
 /**
@@ -36,7 +45,7 @@ trait ExpirationPolicy:
   protected case class Message(metadata: Metadata, valueTree: ValueTree)
 
   /** Provides the current metadata context for newly received messages. */
-  protected def metadata: Metadata
+  protected def current: Metadata
 
   extension (neighborMsg: (DeviceId, Message))
     /**
