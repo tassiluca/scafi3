@@ -152,6 +152,7 @@ lazy val `scafi3-polyglot-api` = crossProject(JSPlatform, JVMPlatform, NativePla
   .settings(commonSettings)
   .settings(
     name := "scafi3-polyglot-api",
+    publish / skip := true,
     libraryDependencies ++= Seq(
       "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided",
     ),
