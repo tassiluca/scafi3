@@ -6,7 +6,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 
 import it.unibo.scafi.message.{ Export, ValueTree }
 import it.unibo.scafi.runtime.network.{ ExpirationPolicy, LatestBufferingNetwork }
-import it.unibo.scafi.runtime.network.sockets.InetTypes.Port
+import it.unibo.scafi.runtime.network.sockets.InetTypes.{ Endpoint, Port }
 import it.unibo.scafi.utils.Channel
 
 /**
@@ -16,9 +16,8 @@ import it.unibo.scafi.utils.Channel
  */
 trait ConnectionOrientedNetworkManager[ID](override val localId: ID, port: Port)(using ExecutionContext)
     extends LatestBufferingNetwork
-    with ConnectionOrientedNetworking
     with AutoCloseable:
-  self: InetAwareNeighborhoodResolver & ExpirationPolicy =>
+  self: ConnectionOrientedNetworking & InetAwareNeighborhoodResolver & ExpirationPolicy =>
 
   override type DeviceId = ID
 
