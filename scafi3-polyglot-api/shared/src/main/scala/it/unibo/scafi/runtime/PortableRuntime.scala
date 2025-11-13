@@ -36,7 +36,7 @@ trait PortableRuntime:
     type AggregateLibrary
 
     /** @return the concrete portable aggregate library instance. */
-    def library(using Arena): ExchangeAggregateContext[DeviceId] ?=> AggregateLibrary
+    def library(using ArenaCtx): ExchangeAggregateContext[DeviceId] ?=> AggregateLibrary
 
   /** The portable runtime API. */
   trait Api:

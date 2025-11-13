@@ -8,8 +8,9 @@ import it.unibo.scafi.libraries.NativeFieldBasedSharedData.given
 import it.unibo.scafi.message.HashInstances.cBinaryCodableHash
 import it.unibo.scafi.nativebindings.aliases.NValues
 import it.unibo.scafi.nativebindings.structs.{ BinaryCodable as CBinaryCodable, Field as CField }
+import it.unibo.scafi.runtime.NativeMemoryContext
 import it.unibo.scafi.types.{ CMap, EqWrapper, NativeTypes, PortableTypes }
-import it.unibo.scafi.utils.CUtils.{ asVoidPtr, freshPointer, fromSafeCString, toUnconfinedCString }
+import it.unibo.scafi.utils.CUtils.{ asVoidPtr, fromSafeCString, toUnconfinedCString }
 import it.unibo.scafi.utils.libraries.Iso
 import it.unibo.scafi.utils.libraries.Iso.given
 
@@ -17,7 +18,7 @@ import it.unibo.scafi.utils.libraries.Iso.given
  * A custom portable definition of a field-based `SharedData` structure for native platform.
  */
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
-trait NativeFieldBasedSharedData extends PortableLibrary:
+trait NativeFieldBasedSharedData extends PortableLibrary with NativeMemoryContext:
   self: PortableTypes & NativeTypes =>
 
   override type Language <: AggregateFoundation & FieldBasedSharedData & {
@@ -26,31 +27,32 @@ trait NativeFieldBasedSharedData extends PortableLibrary:
 
   override type SharedData[Value] = Ptr[CField]
 
-  override given [Value] => Iso[SharedData[Value], language.SharedData[Value]] = Iso(
+  override given [Value](using ArenaCtx): Iso[SharedData[Value], language.SharedData[Value]] = Iso(
     cFieldPtr =>
       val field = language.sharedDataApplicative.pure((!cFieldPtr).default_value.asInstanceOf[Value])
       val scalaNValues = CMap.of((!cFieldPtr).neighbor_values).toMap
       scalaNValues.foldLeft(field)((f, n) => f.set(EqWrapper(n._1), n._2))
     ,
     scalaField =>
-      NativeFieldBasedSharedData.of(
+      of(
         scalaField.default.asInstanceOf[Ptr[CBinaryCodable]],
         scalaField.neighborValues.map((id, v) => (deviceIdConversion(id), v)).toMap,
       ),
   )
 
-  def withoutSelf[Value](field: Ptr[CField]): Seq[Ptr[CBinaryCodable]] =
+  def of(default: Ptr[CBinaryCodable], neighborValues: Ptr[Byte])(using arena: ArenaCtx): Ptr[CField] =
+    arena.track(default)
+    allocateTracking[CField].tap: cFieldPtr =>
+      (!cFieldPtr).default_value = default
+      (!cFieldPtr).neighbor_values = neighborValues
+
+  def withoutSelf[Value](field: Ptr[CField])(using ArenaCtx): Seq[Ptr[CBinaryCodable]] =
     val scalaField = given_Iso_SharedData_SharedData.to(field)
     scalaField.withoutSelf.toSeq
 end NativeFieldBasedSharedData
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object NativeFieldBasedSharedData:
-
-  def of(default: Ptr[CBinaryCodable], neighborValues: Ptr[Byte]): Ptr[CField] =
-    freshPointer[CField].tap: cFieldPtr =>
-      (!cFieldPtr).default_value = default
-      (!cFieldPtr).neighbor_values = neighborValues
 
   @exported("field_to_str")
   def fieldToString(sd: Ptr[CField]): CString =

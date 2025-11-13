@@ -5,6 +5,7 @@ import scala.scalajs.js
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.message.JSCodable
 import it.unibo.scafi.message.JSCodable.codableHash
+import it.unibo.scafi.runtime.{ NoArena, NoMemorySafeContext }
 import it.unibo.scafi.types.{ EqWrapper, PortableTypes }
 
 /**
@@ -12,7 +13,7 @@ import it.unibo.scafi.types.{ EqWrapper, PortableTypes }
  */
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait JSFieldBasedSharedData extends PortableLibrary:
-  self: PortableTypes =>
+  self: PortableTypes & NoMemorySafeContext =>
 
   override type Language <: AggregateFoundation & FieldBasedSharedData & { type DeviceId = EqWrapper[js.Any] }
 
@@ -30,7 +31,9 @@ trait JSFieldBasedSharedData extends PortableLibrary:
   case class Field[Value](default: Value, neighborValues: Map[js.Any, Value]):
 
     @JSExport("withoutSelf")
-    def jsWithoutSelf(): Seq[Value] = given_Iso_SharedData_SharedData.to(this).withoutSelf.toSeq
+    def jsWithoutSelf(): Seq[Value] =
+      given ArenaCtx = NoArena()
+      given_Iso_SharedData_SharedData.to(this).withoutSelf.toSeq
 
     override def toString(): String = s"Field($default, ${neighborValues.toMap.toSeq.sortBy(_._1.toString).toMap})"
 
@@ -45,7 +48,7 @@ trait JSFieldBasedSharedData extends PortableLibrary:
      */
     def of[Value](default: Value): Field[Value] = Field(default, Map.empty)
 
-  override given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = Iso(
+  override given [Value](using ArenaCtx): Iso[SharedData[Value], language.SharedData[Value]] = Iso(
     jsField =>
       val field = language.sharedDataApplicative.pure(jsField.default)
       jsField.neighborValues.foldLeft(field)((f, n) => f.set(EqWrapper(n._1), n._2))
