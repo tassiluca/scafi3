@@ -9,6 +9,7 @@ import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.message.Codable
 import it.unibo.scafi.message.JSCodable.jsAnyCodable
+import it.unibo.scafi.runtime.NoMemorySafeContext
 import it.unibo.scafi.types.{ EqWrapper, JSTypes }
 
 /**
@@ -24,7 +25,8 @@ class FullLibrary(using
     },
 ) extends FullPortableLibrary
     with JSFieldBasedSharedData
-    with JSTypes:
+    with JSTypes
+    with NoMemorySafeContext:
 
   override given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] =
     jsAnyCodable.asInstanceOf[Conversion[Value, Codable[Value, Format]]]

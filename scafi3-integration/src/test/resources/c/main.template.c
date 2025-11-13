@@ -18,23 +18,23 @@
 
 #define ITERATIONS 10
 
-const void* last_round_result = NULL;
-
 const void* aggregate_program(const AggregateLibrary* lang);
 
 bool on_result(const void* result) {
     static int round = 0;
-    last_round_result = result;
     sleep(1);
-    return ++round < ITERATIONS;
+    if (round == ITERATIONS) {
+        printf("%s", field_to_str((const Field*) result));
+        return false;
+    } else {
+        round += 1;
+        return true;
+    }
 }
 
 int main(void) {
     Neighborhood neighbors = Neighborhood_empty();
     {{ neighbors }}
     engine(device({{ deviceId }}), {{ port }}, neighbors, aggregate_program, on_result);
-    char* result = field_to_str((const Field*) last_round_result);
-    printf("%s", result);
-    free(result);
     return 0;
 }

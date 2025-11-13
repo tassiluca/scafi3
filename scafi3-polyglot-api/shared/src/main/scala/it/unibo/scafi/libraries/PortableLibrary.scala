@@ -1,12 +1,13 @@
 package it.unibo.scafi.libraries
+
 import it.unibo.scafi.message.Codable
-import it.unibo.scafi.types.PortableTypes
+import it.unibo.scafi.types.{ MemorySafeContext, PortableTypes }
 
 /**
  * The root base trait for all portable libraries.
  */
 trait PortableLibrary:
-  self: PortableTypes =>
+  self: PortableTypes & MemorySafeContext =>
   export it.unibo.scafi.language.AggregateFoundation
 
   /**
@@ -27,7 +28,7 @@ trait PortableLibrary:
   /**
    * [[SharedData]] is isomorphic to [[language.SharedData]].
    */
-  given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
+  given [Value](using ArenaCtx): Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
 
   /**
    * A conversion from the [[language.DeviceId]] type to a generic type `ID`, to be specialized by concrete

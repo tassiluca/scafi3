@@ -39,7 +39,7 @@ object JSScafiRuntime extends PortableRuntime with ScafiEngineBinding with JSTyp
         override def encode(id: DeviceId): Format = codable.encode(id.value).asInstanceOf[Format]
         override def decode(data: Format): DeviceId = EqWrapper(codable.decode(data))
 
-    override def library(using Arena): ExchangeAggregateContext[DeviceId] ?=> FullLibrary = FullLibrary()
+    override def library(using ArenaCtx): ExchangeAggregateContext[DeviceId] ?=> FullLibrary = FullLibrary()
 
   @JSExportTopLevel("Runtime")
   object JSAPI extends Api with EngineBindings with JSRequirements
