@@ -31,6 +31,7 @@ else
 	SCAFI3_LIB = libscafi3.so
 	LIBLINK = -L. -Wl,-rpath,. -lscafi3
 	DOWNLOAD_CMD = curl -fsSL $(1) -o $(2)
+	CFLAGS += -fsanitize=address -g
 endif
 
 # Protobuf dependencies
