@@ -18,10 +18,7 @@ trait Arena:
 
   def collect(): Unit =
     val current = trackedObjects.getAndSet(Map.empty)
-    current.foreach: (o, f) =>
-      f match
-        case Some(fn) => fn(o)
-        case None => defaultFree(o)
+    current.foreach((o, f) => f.fold(defaultFree)(_(o)))
 
   def defaultFree(obj: Object): Unit
 end Arena
