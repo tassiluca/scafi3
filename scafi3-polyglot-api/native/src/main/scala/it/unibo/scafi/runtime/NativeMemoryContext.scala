@@ -9,7 +9,7 @@ import it.unibo.scafi.utils.CUtils.freshPointer
 class ZoneBasedArena extends Arena:
   override type Object = CVoidPtr
 
-  inline override def free(obj: Object): Unit = stdlib.free(obj)
+  inline override def defaultFree(obj: Object): Unit = stdlib.free(obj)
 
 /**
  * A memory-safe context implementation for native platforms using `Zone` for scoped memory management.
@@ -22,5 +22,5 @@ trait NativeMemoryContext extends MemorySafeContext:
 
   inline def allocateTracking[T](using arena: ArenaCtx): Ptr[T] =
     val ptr = freshPointer[T]
-    arena.track(ptr)
+    arena.track(ptr)(arena.defaultFree)
     ptr

@@ -22,12 +22,6 @@ typedef struct Int {
 BinaryCodable* int_of(int value);
 
 /**
- * Frees the memory allocated for the given `Int` instance.
- * @param iv a pointer to the `Int` instance to free
- */
-void int_free(Int* iv);
-
-/**
  * A macro to create a device identifier from an integer value.
  * @param x the integer value
  * @return a pointer to the created `BinaryCodable` instance

@@ -9,16 +9,22 @@ trait Arena:
 
   type Object
 
-  private val trackedObjects: AtomicReference[Set[Object]] = new AtomicReference(Set.empty)
+  type FreeFn = Object => Unit
 
-  def track(obj: Object): Unit =
-    val _ = trackedObjects.updateAndGet(_ + obj)
+  private val trackedObjects: AtomicReference[Map[Object, Option[FreeFn]]] = new AtomicReference(Map.empty)
+
+  def track(obj: Object)(freeFn: FreeFn): Unit =
+    val _ = trackedObjects.updateAndGet(_ + (obj -> Some(freeFn)))
 
   def collect(): Unit =
-    val current = trackedObjects.getAndSet(Set.empty)
-    current.foreach(free)
+    val current = trackedObjects.getAndSet(Map.empty)
+    current.foreach: (o, f) =>
+      f match
+        case Some(fn) => fn(o)
+        case None => defaultFree(o)
 
-  def free(obj: Object): Unit
+  def defaultFree(obj: Object): Unit
+end Arena
 
 /**
  * A context allowing executing memory-safe operations within a scoped memory region.

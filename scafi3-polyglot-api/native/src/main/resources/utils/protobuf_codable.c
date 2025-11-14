@@ -1,4 +1,5 @@
 #include "protobuf_codable.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,6 +55,15 @@ const signed char* protobuf_default_to_str(const void* data) {
     return str;
 }
 
+static void protobuf_free(void* data) {
+    if (!data) return;
+    ProtobufValue* pv = (ProtobufValue*)data;
+    if (pv->message) {
+        protobuf_c_message_free_unpacked(pv->message, NULL);
+    }
+    free(pv);
+}
+
 ProtobufValue* protobuf_value_create(
     ProtobufCMessage* message,
     const void* (*decode_func)(const uint8_t*, size_t),
@@ -67,16 +77,8 @@ ProtobufValue* protobuf_value_create(
     pv->base.eq.cmp = protobuf_cmp;
     pv->base.eq.hash = protobuf_hash;
     pv->base.to_str = to_str_func ? to_str_func : protobuf_default_to_str;
+    pv->base.free = protobuf_free;
     pv->message = message;
     pv->descriptor = message->descriptor;
     return pv;
-}
-
-void protobuf_value_free(ProtobufValue* pv) {
-    if (pv) {
-        if (pv->message) {
-            protobuf_c_message_free_unpacked(pv->message, NULL);
-        }
-        free(pv);
-    }
 }

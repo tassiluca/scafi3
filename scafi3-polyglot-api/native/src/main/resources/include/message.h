@@ -55,6 +55,12 @@ typedef struct BinaryCodable {
      * @return Pointer to the string representation.
      */
     const signed char* (*to_str)(const void* data);
+
+    /**
+     * Frees all resources associated with an instance.
+     * @param data The instance to free. After this call, the pointer is invalid.
+     */
+    void (*free)(void* data);
 } BinaryCodable;
 
 #endif // MESSAGE_H
