@@ -27,7 +27,7 @@ trait NativeFieldBasedSharedData extends PortableLibrary with NativeMemoryContex
 
   override type SharedData[Value] = Ptr[CField]
 
-  override given [Value](using ArenaCtx): Iso[SharedData[Value], language.SharedData[Value]] = Iso(
+  override given [Value](using arena: ArenaCtx): Iso[SharedData[Value], language.SharedData[Value]] = Iso(
     cFieldPtr =>
       val field = language.sharedDataApplicative.pure((!cFieldPtr).default_value.asInstanceOf[Value])
       val scalaNValues = CMap.of((!cFieldPtr).neighbor_values).toMap
@@ -36,12 +36,14 @@ trait NativeFieldBasedSharedData extends PortableLibrary with NativeMemoryContex
     scalaField =>
       of(
         scalaField.default.asInstanceOf[Ptr[CBinaryCodable]],
-        scalaField.neighborValues.map((id, v) => (deviceIdConversion(id), v)).toMap,
+        scalaField.neighborValues.map: (id, v) =>
+          arena.track(v.asInstanceOf[Ptr[CBinaryCodable]])(o => (!o.asInstanceOf[Ptr[CBinaryCodable]]).free(o))
+          (deviceIdConversion(id), v),
       ),
   )
 
   def of(default: Ptr[CBinaryCodable], neighborValues: Ptr[Byte])(using arena: ArenaCtx): Ptr[CField] =
-    arena.track(default)
+    arena.track(default)(o => (!o.asInstanceOf[Ptr[CBinaryCodable]]).free(o))
     allocateTracking[CField].tap: cFieldPtr =>
       (!cFieldPtr).default_value = default
       (!cFieldPtr).neighbor_values = neighborValues
