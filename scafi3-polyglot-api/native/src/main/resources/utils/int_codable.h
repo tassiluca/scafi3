@@ -21,13 +21,4 @@ typedef struct Int {
  */
 BinaryCodable* int_of(int value);
 
-/**
- * A macro to create a device identifier from an integer value.
- * @param x the integer value
- * @return a pointer to the created `BinaryCodable` instance
- */
-#define device(x) _Generic((x), \
-    int: int_of                 \
-)(x)
-
 #endif

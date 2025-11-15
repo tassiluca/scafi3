@@ -13,4 +13,4 @@ trait PortableCommonLibrary extends PortableLibrary:
    *   the device id of the current device
    */
   @JSExport
-  def localId[ID]: ID = language.localId
+  def localId: language.DeviceId = language.localId

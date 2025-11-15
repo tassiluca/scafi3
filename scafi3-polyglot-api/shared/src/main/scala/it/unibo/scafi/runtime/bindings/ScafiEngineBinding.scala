@@ -33,10 +33,10 @@ trait ScafiEngineBinding extends PortableRuntime:
 
     /* WARNING: Inline is needed here for native platform to ensure function pointers are correctly handled at
      * call site. Removing it does not lead to compilation errors but to runtime segfaults! */
-    inline override def engine[ID, Result](
-        deviceId: ID,
+    inline override def engine[Result](
+        deviceId: DeviceId,
         port: Int,
-        neighbors: Map[ID, Endpoint],
+        neighbors: Map[DeviceId, Endpoint],
         program: Function1[AggregateLibrary, Result],
         onResult: Function1[Result, Outcome[Boolean]],
     ): Outcome[Unit] = safelyRun:
@@ -56,12 +56,10 @@ trait ScafiEngineBinding extends PortableRuntime:
           _ <- if outcome then engine.cycling(onResult) else Future.successful(())
         yield ()
 
-    private def socketNetwork[ID](deviceId: ID, port: Int, neighbors: Map[ID, Endpoint]) =
+    private def socketNetwork(deviceId: DeviceId, port: Int, neighbors: Map[DeviceId, Endpoint]) =
       given ConnectionConfiguration = ConnectionConfiguration.basic
-      val devicesNet = neighbors.view.map((id, e) => (id: DeviceId, toInetEndpoint(e))).toMap
-      SocketNetworkManager.withFixedNeighbors(deviceId: DeviceId, port.refineUnsafe, devicesNet)(using
-        deviceIdCodable(deviceId),
-      )
+      val devicesNet = neighbors.view.map((id, e) => (id, toInetEndpoint(e))).toMap
+      SocketNetworkManager.withFixedNeighbors(deviceId: DeviceId, port.refineUnsafe, devicesNet)
 
     private val reportAnyFailure: PartialFunction[Try[Unit], Unit] =
       case Failure(err) => Console.err.println(s"Error occurred: ${err.getMessage}")

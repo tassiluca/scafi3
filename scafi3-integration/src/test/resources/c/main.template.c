@@ -35,6 +35,6 @@ bool on_result(const void* result) {
 int main(void) {
     Neighborhood neighbors = Neighborhood_empty();
     {{ neighbors }}
-    engine(device({{ deviceId }}), {{ port }}, neighbors, aggregate_program, on_result);
+    engine({{ deviceId }}, {{ port }}, neighbors, aggregate_program, on_result);
     return 0;
 }

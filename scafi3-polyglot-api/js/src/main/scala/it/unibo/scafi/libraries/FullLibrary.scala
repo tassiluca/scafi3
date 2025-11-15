@@ -1,6 +1,5 @@
 package it.unibo.scafi.libraries
 
-import scala.scalajs.js
 import scala.scalajs.js.annotation.JSExportTopLevel
 
 import it.unibo.scafi.language.AggregateFoundation
@@ -10,7 +9,7 @@ import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.message.Codable
 import it.unibo.scafi.message.JSCodable.jsAnyCodable
 import it.unibo.scafi.runtime.NoMemorySafeContext
-import it.unibo.scafi.types.{ EqWrapper, JSTypes }
+import it.unibo.scafi.types.JSTypes
 
 /**
  * A JavaScript version of the full Scafi library.
@@ -20,9 +19,7 @@ import it.unibo.scafi.types.{ EqWrapper, JSTypes }
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 @JSExportTopLevel("FullLibrary")
 class FullLibrary(using
-    lang: AggregateFoundation & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax & {
-      type DeviceId = EqWrapper[js.Any]
-    },
+    lang: AggregateFoundation & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax & { type DeviceId = Int },
 ) extends FullPortableLibrary
     with JSFieldBasedSharedData
     with JSTypes
@@ -30,5 +27,3 @@ class FullLibrary(using
 
   override given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] =
     jsAnyCodable.asInstanceOf[Conversion[Value, Codable[Value, Format]]]
-
-  override given deviceIdConversion[ID]: Conversion[language.DeviceId, ID] = _.value.asInstanceOf[ID]
