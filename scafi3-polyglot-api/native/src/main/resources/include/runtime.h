@@ -27,7 +27,7 @@ struct Endpoint {
 /** 
  * A mapping from device ids to endpoints representing the neighborhood.
  */
-MAP_OF(Neighborhood, DeviceId, struct Endpoint*)
+MAP_INT_TO(Neighborhood, struct Endpoint*)
 
 /**
  * Entry point for Scafi3 aggregate programs in a distributed environment with socket-based networking.
@@ -39,7 +39,7 @@ MAP_OF(Neighborhood, DeviceId, struct Endpoint*)
  *                  continue or stop
  */
 void engine(
-    const BinaryCodable* local_id,
+    DeviceId local_id,
     int port, 
     const Neighborhood neighbors,
     const void* (*aggregate_program)(const AggregateLibrary* library),

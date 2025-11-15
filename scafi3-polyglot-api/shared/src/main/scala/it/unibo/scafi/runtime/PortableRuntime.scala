@@ -1,7 +1,7 @@
 package it.unibo.scafi.runtime
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
-import it.unibo.scafi.message.Codable
+import it.unibo.scafi.message.BinaryCodable
 import it.unibo.scafi.runtime.network.sockets.InetTypes
 import it.unibo.scafi.types.{ MemorySafeContext, PortableTypes }
 
@@ -16,11 +16,8 @@ trait PortableRuntime:
     /** The type used internally to the scafi core engine to identify devices. */
     type DeviceId
 
-    /** Generic type can be turned into internal `DeviceId` representation and viceversa. */
-    given [ID] => Conversion[ID, DeviceId] = compiletime.deferred
-
-    /** The universal codable instance used for encoding and decoding device ids to be sent over the network. */
-    given deviceIdCodable[Format]: Conversion[DeviceId, Codable[DeviceId, Format]] = compiletime.deferred
+    /** Provides a [[BinaryCodable]] instance for [[DeviceId]] type. */
+    given BinaryCodable[DeviceId] = compiletime.deferred
 
     /** A network endpoint consisting of an [[address]] and a [[port]]. */
     type Endpoint
@@ -57,10 +54,10 @@ trait PortableRuntime:
      *   continue or stop
      */
     @JSExport
-    def engine[ID, Result](
-        localId: ID,
+    def engine[Result](
+        localId: DeviceId,
         port: Int,
-        neighbors: Map[ID, Endpoint],
+        neighbors: Map[DeviceId, Endpoint],
         program: Function1[AggregateLibrary, Result],
         onResult: Function1[Result, Outcome[Boolean]],
     ): Outcome[Unit]

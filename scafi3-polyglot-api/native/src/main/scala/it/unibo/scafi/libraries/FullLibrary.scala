@@ -20,13 +20,11 @@ import it.unibo.scafi.nativebindings.all.{
   FieldBasedSharedData as CFieldBasedSharedData,
 }
 import it.unibo.scafi.runtime.{ NativeMemoryContext, ZoneBasedArena }
-import it.unibo.scafi.types.{ CMap, EqWrapper, NativeTypes }
+import it.unibo.scafi.types.{ CMap, NativeTypes }
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 class FullLibrary(using
-    lang: AggregateFoundation & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax & {
-      type DeviceId = EqWrapper[Ptr[CBinaryCodable]]
-    },
+    lang: AggregateFoundation & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax & { type DeviceId = Int },
 ) extends FullPortableLibrary
     with NativeFieldBasedSharedData
     with NativeTypes
@@ -34,8 +32,6 @@ class FullLibrary(using
 
   override given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] =
     nativeCodable.asInstanceOf[Conversion[Value, Codable[Value, Format]]]
-
-  override given deviceIdConversion[ID]: Conversion[language.DeviceId, ID] = _.value.asInstanceOf[ID]
 
   def asNative(using ArenaCtx): Ptr[CAggregateLibrary] =
     libraryRef.set(this)

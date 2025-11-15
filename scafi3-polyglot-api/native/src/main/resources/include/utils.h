@@ -47,16 +47,16 @@
 /**
  * Defines a map type with specified key and value types.
  */
-#define MAP_OF(Name, KeysTypePtr, ValuesTypePtr)                                                         \
+#define MAP_INT_TO(Name, ValuesTypePtr)                                                                  \
     typedef Map Name;                                                                                    \
     static inline Name Name##_empty() {                                                                  \
         return map_empty();                                                                              \
     }                                                                                                    \
-    static inline ValuesTypePtr Name##_put(Name map, const KeysTypePtr key, const ValuesTypePtr value) { \
-        return (ValuesTypePtr)map_put(map, EQ_CAST(key), value);                                         \
+    static inline ValuesTypePtr Name##_put(Name map, int key, const ValuesTypePtr value) {               \
+        return (ValuesTypePtr)map_put(map, (void*)(uintptr_t)key, value);                                \
     }                                                                                                    \
-    static inline ValuesTypePtr Name##_get(const Name map, const KeysTypePtr key) {                      \
-        return (ValuesTypePtr)map_get(map, EQ_CAST(key));                                                \
+    static inline ValuesTypePtr Name##_get(const Name map, int key) {                                    \
+        return (ValuesTypePtr)map_get(map, (void*)(uintptr_t)key);                                       \
     }                                                                                                    \
     static inline void Name##_foreach(const Name map, void (*f)(const ValuesTypePtr value)) {            \
         map_foreach(map, (void(*)(const void*))f);                                                       \

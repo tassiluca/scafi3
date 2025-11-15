@@ -31,12 +31,6 @@ trait PortableLibrary:
   given [Value](using ArenaCtx): Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
 
   /**
-   * A conversion from the [[language.DeviceId]] type to a generic type `ID`, to be specialized by concrete
-   * implementations.
-   */
-  given deviceIdConversion[ID]: Conversion[language.DeviceId, ID] = compiletime.deferred
-
-  /**
    * The conversion from a value of type `Value` to a codable representation of it in format `Format`.
    */
   given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] = compiletime.deferred

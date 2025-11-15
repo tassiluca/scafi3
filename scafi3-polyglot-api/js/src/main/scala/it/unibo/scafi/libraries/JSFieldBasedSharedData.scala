@@ -1,21 +1,16 @@
 package it.unibo.scafi.libraries
 
-import scala.scalajs.js
-
 import it.unibo.scafi.language.xc.FieldBasedSharedData
-import it.unibo.scafi.message.JSCodable
-import it.unibo.scafi.message.JSCodable.codableHash
 import it.unibo.scafi.runtime.{ NoArena, NoMemorySafeContext }
-import it.unibo.scafi.types.{ EqWrapper, PortableTypes }
+import it.unibo.scafi.types.PortableTypes
 
 /**
  * A custom portable definition of a field-based `SharedData` structure for js platform.
  */
-@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 trait JSFieldBasedSharedData extends PortableLibrary:
   self: PortableTypes & NoMemorySafeContext =>
 
-  override type Language <: AggregateFoundation & FieldBasedSharedData & { type DeviceId = EqWrapper[js.Any] }
+  override type Language <: AggregateFoundation & FieldBasedSharedData & { type DeviceId = Int }
 
   override type SharedData[Value] = Field[Value]
 
@@ -28,7 +23,7 @@ trait JSFieldBasedSharedData extends PortableLibrary:
    *   the values for all devices, aligned and unaligned
    */
   @JSExportAll
-  case class Field[Value](default: Value, neighborValues: Map[js.Any, Value]):
+  case class Field[Value](default: Value, neighborValues: Map[language.DeviceId, Value]):
 
     @JSExport("withoutSelf")
     def jsWithoutSelf(): Seq[Value] =
@@ -51,11 +46,11 @@ trait JSFieldBasedSharedData extends PortableLibrary:
   override given [Value](using ArenaCtx): Iso[SharedData[Value], language.SharedData[Value]] = Iso(
     jsField =>
       val field = language.sharedDataApplicative.pure(jsField.default)
-      jsField.neighborValues.foldLeft(field)((f, n) => f.set(EqWrapper(n._1), n._2))
+      jsField.neighborValues.foldLeft(field)((f, n) => f.set(n._1, n._2))
     ,
     scalaField =>
-      val nvalues: Map[language.DeviceId, Value] = scalaField.neighborValues.map((id, v) => (deviceIdConversion(id), v))
-      Field(scalaField.default, nvalues.asInstanceOf[Map[js.Any, Value]]),
+      val nvalues: Map[language.DeviceId, Value] = scalaField.neighborValues.map((id, v) => (id, v))
+      Field(scalaField.default, nvalues),
   )
 
 end JSFieldBasedSharedData

@@ -7,12 +7,12 @@
 /** 
  * A device identifier is represented as a generic binary codable value. 
  */
-typedef BinaryCodable* DeviceId;
+typedef int DeviceId;
 
 /** 
  * A mapping from device ids to binary codable values. 
  */
-MAP_OF(NValues, DeviceId, BinaryCodable*)
+MAP_INT_TO(NValues, BinaryCodable*)
 
 /**
  * A Field (NValue in https://doi.org/10.1016/j.jss.2024.111976) is a mapping from device ids to values. For

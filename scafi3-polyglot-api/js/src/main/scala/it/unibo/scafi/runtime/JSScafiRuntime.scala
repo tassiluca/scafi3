@@ -1,12 +1,12 @@
 package it.unibo.scafi.runtime
 
+import java.nio.charset.StandardCharsets
+
 import scala.concurrent.ExecutionContext
-import scala.scalajs.js
 
 import it.unibo.scafi
-import it.unibo.scafi.message.{ Codable, JSCodable }
-import it.unibo.scafi.message.JSCodable.{ codableHash, jsAnyCodable }
-import it.unibo.scafi.types.{ EqWrapper, JSTypes }
+import it.unibo.scafi.message.BinaryCodable
+import it.unibo.scafi.types.JSTypes
 
 import io.github.iltotore.iron.refineUnsafe
 
@@ -14,15 +14,16 @@ import scafi.context.xc.ExchangeAggregateContext
 import scafi.runtime.bindings.ScafiEngineBinding
 import scafi.libraries.FullLibrary
 
-@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 object JSScafiRuntime extends PortableRuntime with ScafiEngineBinding with JSTypes:
 
   given ExecutionContext = scalajs.concurrent.JSExecutionContext.Implicits.queue
 
   trait JSAdts extends Adts:
-    override type DeviceId = EqWrapper[js.Any]
+    override type DeviceId = Int
 
-    override given [ID] => Conversion[ID, DeviceId] = id => EqWrapper(id.asInstanceOf[js.Any])
+    override given BinaryCodable[DeviceId] = new BinaryCodable[DeviceId]:
+      def encode(msg: DeviceId): Array[Byte] = msg.toString.getBytes(StandardCharsets.UTF_8)
+      def decode(bytes: Array[Byte]): DeviceId = new String(bytes, StandardCharsets.UTF_8).toInt
 
     @JSExport @JSExportAll
     case class Endpoint(address: String, port: Int)
@@ -32,12 +33,6 @@ object JSScafiRuntime extends PortableRuntime with ScafiEngineBinding with JSTyp
 
   trait JSRequirements extends Requirements with NoMemorySafeContext with JSAdts:
     override type AggregateLibrary = FullLibrary
-
-    override given deviceIdCodable[Format]: Conversion[DeviceId, Codable[DeviceId, Format]] = id =>
-      new Codable[DeviceId, Format]:
-        private val codable = jsAnyCodable(id.value)
-        override def encode(id: DeviceId): Format = codable.encode(id.value).asInstanceOf[Format]
-        override def decode(data: Format): DeviceId = EqWrapper(codable.decode(data))
 
     override def library(using ArenaCtx): ExchangeAggregateContext[DeviceId] ?=> FullLibrary = FullLibrary()
 

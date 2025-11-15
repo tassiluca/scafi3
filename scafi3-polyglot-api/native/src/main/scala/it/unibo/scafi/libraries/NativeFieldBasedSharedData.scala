@@ -5,11 +5,10 @@ import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
 import it.unibo.scafi.libraries.NativeFieldBasedSharedData.given
-import it.unibo.scafi.message.HashInstances.cBinaryCodableHash
 import it.unibo.scafi.nativebindings.aliases.NValues
 import it.unibo.scafi.nativebindings.structs.{ BinaryCodable as CBinaryCodable, Field as CField }
 import it.unibo.scafi.runtime.NativeMemoryContext
-import it.unibo.scafi.types.{ CMap, EqWrapper, NativeTypes, PortableTypes }
+import it.unibo.scafi.types.{ CMap, NativeTypes, PortableTypes }
 import it.unibo.scafi.utils.CUtils.{ asVoidPtr, fromSafeCString, toUnconfinedCString }
 import it.unibo.scafi.utils.libraries.Iso
 import it.unibo.scafi.utils.libraries.Iso.given
@@ -21,9 +20,7 @@ import it.unibo.scafi.utils.libraries.Iso.given
 trait NativeFieldBasedSharedData extends PortableLibrary with NativeMemoryContext:
   self: PortableTypes & NativeTypes =>
 
-  override type Language <: AggregateFoundation & FieldBasedSharedData & {
-    type DeviceId = EqWrapper[Ptr[CBinaryCodable]]
-  }
+  override type Language <: AggregateFoundation & FieldBasedSharedData
 
   override type SharedData[Value] = Ptr[CField]
 
@@ -31,14 +28,14 @@ trait NativeFieldBasedSharedData extends PortableLibrary with NativeMemoryContex
     cFieldPtr =>
       val field = language.sharedDataApplicative.pure((!cFieldPtr).default_value.asInstanceOf[Value])
       val scalaNValues = CMap.of((!cFieldPtr).neighbor_values).toMap
-      scalaNValues.foldLeft(field)((f, n) => f.set(EqWrapper(n._1), n._2))
+      scalaNValues.foldLeft(field)((f, n) => f.set(n._1, n._2))
     ,
     scalaField =>
       of(
         scalaField.default.asInstanceOf[Ptr[CBinaryCodable]],
         scalaField.neighborValues.map: (id, v) =>
           arena.track(v.asInstanceOf[Ptr[CBinaryCodable]])(o => (!o.asInstanceOf[Ptr[CBinaryCodable]]).free(o))
-          (deviceIdConversion(id), v),
+          (id, v),
       ),
   )
 
@@ -61,9 +58,9 @@ object NativeFieldBasedSharedData:
     val defaultValuePtr = (!sd).default_value
     val defaultStr = fromSafeCString((!defaultValuePtr).to_str(defaultValuePtr))
     val neighborsStr = CMap
-      .of[Ptr[CBinaryCodable], Ptr[CBinaryCodable]]((!sd).neighbor_values)
+      .of[Int, Ptr[CBinaryCodable]]((!sd).neighbor_values)
       .toMap
-      .map((nid, nv) => fromSafeCString((!nid).to_str(nid)) + " -> " + fromSafeCString((!nv).to_str(nv)))
+      .map((nid, nv) => nid.toString + " -> " + fromSafeCString((!nv).to_str(nv)))
       .toList
       .sorted
       .mkString("[", ", ", "]")
