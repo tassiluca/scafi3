@@ -3,7 +3,7 @@ package it.unibo.scafi.types
 /**
  * Represents a memory-safe allocation scope for the platform in use guaranteeing automatic memory management.
  */
-trait Arena:
+trait Allocator:
 
   /** The type of managed objects tracked by this arena. */
   type ManagedObject
@@ -34,14 +34,15 @@ trait Arena:
    *   the managed object to dispose
    */
   def dispose(obj: ManagedObject): Unit
-end Arena
+end Allocator
 
 /**
  * A context allowing executing memory-safe operations within a scoped memory region.
  */
 trait MemorySafeContext:
 
-  type ArenaCtx <: Arena
+  /** The type of [[Allocator]] used to manage memory in this context. */
+  type Arena <: Allocator
 
   /**
    * Executes the given block safely within an `Arena` context.
@@ -50,13 +51,13 @@ trait MemorySafeContext:
    * @return
    *   the result of the block execution
    */
-  def safelyRun[T](block: ArenaCtx ?=> T): T
+  def safelyRun[T](block: Arena ?=> T): T
 
   /**
    * Collects and disposes all managed objects tracked by the current arena.
    * @param arena
    *   the current arena context
    */
-  inline def collect()(using arena: ArenaCtx): Unit = arena.collect()
+  inline def collect()(using arena: Arena): Unit = arena.collect()
 
 end MemorySafeContext

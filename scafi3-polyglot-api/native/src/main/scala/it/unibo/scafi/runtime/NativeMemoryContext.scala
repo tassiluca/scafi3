@@ -2,11 +2,16 @@ package it.unibo.scafi.runtime
 
 import scala.scalanative.libc.stdlib
 import scala.scalanative.unsafe.{ CVoidPtr, Ptr }
+import scala.util.chaining.scalaUtilChainingOps
 
-import it.unibo.scafi.types.{ Arena, MemorySafeContext }
+import it.unibo.scafi.types.{ Allocator, MemorySafeContext }
 import it.unibo.scafi.utils.CUtils.freshPointer
 
-class ZoneBasedArena extends Arena:
+/**
+ * A memory allocator for native platforms that uses `stdlib.free` to deallocate memory.
+ */
+class NativeAllocator extends Allocator:
+
   override type ManagedObject = CVoidPtr
 
   inline override def dispose(obj: ManagedObject): Unit = stdlib.free(obj)
@@ -16,11 +21,9 @@ class ZoneBasedArena extends Arena:
  */
 trait NativeMemoryContext extends MemorySafeContext:
 
-  override type ArenaCtx = ZoneBasedArena
+  override type Arena = NativeAllocator
 
-  inline override def safelyRun[T](block: ArenaCtx ?=> T): T = block(using ZoneBasedArena())
+  inline override def safelyRun[T](block: Arena ?=> T): T = block(using NativeAllocator())
 
-  inline def allocateTracking[T](using arena: ArenaCtx): Ptr[T] =
-    val ptr = freshPointer[T]
-    arena.track(ptr)(arena.dispose)
-    ptr
+  inline def allocateTracking[T](using arena: Arena): Ptr[T] =
+    freshPointer[T].tap(ptr => arena.track(ptr)(arena.dispose))

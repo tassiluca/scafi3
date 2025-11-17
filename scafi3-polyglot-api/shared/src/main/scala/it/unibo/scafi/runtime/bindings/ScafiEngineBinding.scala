@@ -48,7 +48,7 @@ trait ScafiEngineBinding extends PortableRuntime:
         .andThen(reportAnyFailure)
 
     extension [Result](engine: Engine[Result])
-      def cycling(onResult: Result => Future[Boolean])(using ArenaCtx): Future[Unit] =
+      def cycling(onResult: Result => Future[Boolean])(using Arena): Future[Unit] =
         for
           cycleResult <- Future(engine.cycle())
           outcome <- onResult(cycleResult)

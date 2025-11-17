@@ -19,7 +19,7 @@ import it.unibo.scafi.nativebindings.all.{
   Field as CField,
   FieldBasedSharedData as CFieldBasedSharedData,
 }
-import it.unibo.scafi.runtime.{ NativeMemoryContext, ZoneBasedArena }
+import it.unibo.scafi.runtime.{ NativeAllocator, NativeMemoryContext }
 import it.unibo.scafi.types.{ CMap, NativeTypes }
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
@@ -33,9 +33,9 @@ class FullLibrary(using
   override given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] =
     nativeCodable.asInstanceOf[Conversion[Value, Codable[Value, Format]]]
 
-  def asNative(using ArenaCtx): Ptr[CAggregateLibrary] =
+  def asNative(using Arena): Ptr[CAggregateLibrary] =
     libraryRef.set(this)
-    arenaRef.set(summon[ArenaCtx])
+    arenaRef.set(summon[Arena])
     val lib = allocateTracking[CAggregateLibrary]
     val ptr = allocateTracking[CFieldBasedSharedData]
     (!ptr).of = (default: Ptr[CBinaryCodable]) => libraryRef.get().of(default, CMap.empty)(using arenaRef.get())
@@ -62,7 +62,7 @@ object FullLibrary:
    * This is not ideal, but does not cause issues in practice since rounds are executed sequentially and independently.
    */
   private[FullLibrary] val libraryRef = new AtomicReference[FullLibrary]()
-  private[FullLibrary] val arenaRef = new AtomicReference[ZoneBasedArena]()
+  private[FullLibrary] val arenaRef = new AtomicReference[NativeAllocator]()
 
   @exported("without_self")
   def withoutSelf(field: Ptr[CField]): Ptr[CArray] = libraryRef.get().withoutSelf(field)(using arenaRef.get())

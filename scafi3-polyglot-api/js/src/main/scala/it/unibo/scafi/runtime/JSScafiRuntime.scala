@@ -34,7 +34,7 @@ object JSScafiRuntime extends PortableRuntime with ScafiEngineBinding with JSTyp
   trait JSRequirements extends Requirements with NoMemorySafeContext with JSAdts:
     override type AggregateLibrary = FullLibrary
 
-    override def library(using ArenaCtx): ExchangeAggregateContext[DeviceId] ?=> FullLibrary = FullLibrary()
+    override def library(using Arena): ExchangeAggregateContext[DeviceId] ?=> FullLibrary = FullLibrary()
 
   @JSExportTopLevel("Runtime")
   object JSAPI extends Api with EngineBindings with JSRequirements

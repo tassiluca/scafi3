@@ -37,7 +37,7 @@ object NativeScafiRuntime extends PortableRuntime with ScafiEngineBinding with N
 
     override type AggregateLibrary = Ptr[CAggregateLibrary]
 
-    override def library(using ArenaCtx): ExchangeAggregateContext[DeviceId] ?=> AggregateLibrary =
+    override def library(using Arena): ExchangeAggregateContext[DeviceId] ?=> AggregateLibrary =
       FullLibrary().asNative
 
   object NativeApi extends Api with NativeAdts with EngineBindings with NativeRequirements:
