@@ -53,10 +53,10 @@
         return map_empty();                                                                              \
     }                                                                                                    \
     static inline ValuesTypePtr Name##_put(Name map, int key, const ValuesTypePtr value) {               \
-        return (ValuesTypePtr)map_put(map, (void*)(uintptr_t)key, value);                                \
+        return (ValuesTypePtr)map_int_put(map, key, value);                                              \
     }                                                                                                    \
     static inline ValuesTypePtr Name##_get(const Name map, int key) {                                    \
-        return (ValuesTypePtr)map_get(map, (void*)(uintptr_t)key);                                       \
+        return (ValuesTypePtr)map_int_get(map, key);                                                     \
     }                                                                                                    \
     static inline void Name##_foreach(const Name map, void (*f)(const ValuesTypePtr value)) {            \
         map_foreach(map, (void(*)(const void*))f);                                                       \

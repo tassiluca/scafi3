@@ -62,7 +62,7 @@ class NativeTypesTest extends AnyWordSpec with should.Matchers with NativeTypes:
           CMap.free(cMap)
 
   "C function pointers" should:
-    "be isomorphic to Scala lambdas" in:
+    "be convertible to Scala lambdas" in:
       Zone:
         val cFuncPtr0: Function0[Int] = () => 42
         val backToScala0: () => Int = cFuncPtr0
