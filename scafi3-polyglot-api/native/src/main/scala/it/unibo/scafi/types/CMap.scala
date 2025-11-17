@@ -7,8 +7,11 @@ import scala.language.unsafeNulls
 import scala.scalanative.unsafe.{ exported, CFuncPtr1, CSize, CVoidPtr, Ptr, UnsafeRichLong }
 import scala.scalanative.unsafe.Size.intToSize
 
-import it.unibo.scafi.message.HashInstances.{ cEqHash, catsSyntaxEq }
 import it.unibo.scafi.nativebindings.structs.Eq as CEq
+import it.unibo.scafi.utils.CUtils.asVoidPtr
+
+import cats.implicits.catsSyntaxEq
+import cats.kernel.Hash
 
 /**
  * A facade around a mutable map to be used in C/C++ code via Scala Native. From the C/C++ side, the map is represented
@@ -58,4 +61,9 @@ object CMap:
 
   @exported("map_free")
   def free(handle: Ptr[Byte]): Unit = synchronized(activeRefs.remove(handle.toLong)): Unit
+
+  /** An instance of [[Hash]] for [[CEq]]. */
+  given cEqHash: Hash[Ptr[CEq]] = new Hash[Ptr[CEq]]:
+    override def hash(x: Ptr[CEq]): Int = (!x).hash(x).toInt
+    override def eqv(x: Ptr[CEq], y: Ptr[CEq]): Boolean = (!x).cmp(x, y)
 end CMap

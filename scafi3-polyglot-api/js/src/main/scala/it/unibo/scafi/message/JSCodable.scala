@@ -8,8 +8,6 @@ import it.unibo.scafi.message.protobufjs.ProtobufJSType.fromProtobufJsMessage
 import it.unibo.scafi.utils.JSUtils.{ asDynamic, hasFunctions, hasProps, typed }
 import it.unibo.scafi.utils.Uint8ArrayOps.{ toByteArray, toUint8Array }
 
-import cats.kernel.Hash
-
 /**
  * A base trait for defining format- and library-agnostic binary codables for JavaScript objects.
  *
@@ -135,13 +133,6 @@ object JSCodable:
         then Some(Type)
         else None
       valid(message.asDynamic.constructor).orElse(valid(message.asDynamic.codable))
-
-  /** A `Hash` instance for `js.Any` values, which compares values by their encoded representation, if possible. */
-  given codableHash: Hash[js.Any] = new Hash[js.Any]:
-    override def hash(x: js.Any): Int = x.hashCode()
-    override def eqv(x: js.Any, y: js.Any): Boolean = (JSCodable(x).encode(x), JSCodable(y).encode(y)) match
-      case (encodedX: Uint8Array, encodedY: Uint8Array) => encodedX.toByteArray.sameElements(encodedY.toByteArray)
-      case _ => throw new IllegalArgumentException("Cannot yet compare non-binary encoded values.")
 
   /**
    * A codable that can encode and decode in any JavaScript object that either corresponds to a primitive type (i.e.,
