@@ -28,11 +28,11 @@ trait FullPortableLibrary[Lang <: AggregateFoundation & BranchingSyntax & FieldC
   inline override def evolve[Value](initial: Value)(evolution: Function1[Value, Value]): Value =
     language.evolve(initial)(evolution)
 
-  inline override def neighborValues[Value](expr: Value)(using ArenaCtx): SharedData[Value] =
+  inline override def neighborValues[Value](expr: Value)(using Arena): SharedData[Value] =
     language.neighborValues(expr)(using valueCodable(expr))
 
   inline override def share[Value](
       initial: Value,
-  )(shareAndReturning: Function1[SharedData[Value], Value])(using ArenaCtx): Value =
+  )(shareAndReturning: Function1[SharedData[Value], Value])(using Arena): Value =
     language.share(initial)(shareAndReturning(_))(using valueCodable(initial))
 end FullPortableLibrary

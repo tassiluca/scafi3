@@ -28,7 +28,7 @@ trait PortableLibrary:
   /**
    * [[SharedData]] is isomorphic to [[language.SharedData]].
    */
-  given [Value](using ArenaCtx): Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
+  given [Value](using Arena): Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
 
   /**
    * The conversion from a value of type `Value` to a codable representation of it in format `Format`.

@@ -1,16 +1,17 @@
 package it.unibo.scafi.runtime
 
-import it.unibo.scafi.types.{ Arena, MemorySafeContext }
-
-class NoArena extends Arena:
-  override type ManagedObject = Any
-  inline override def dispose(obj: Any): Unit = ()
+import it.unibo.scafi.types.{ Allocator, MemorySafeContext }
 
 /**
- * A context where memory safety is enforced by construction by the underlying platform (e.g., JVM, JavaScript).
+ * A context where memory safety is enforced by construction by the underlying platform (e.g., JVM, JavaScript) and no
+ * explicit memory management is needed.
  */
 trait NoMemorySafeContext extends MemorySafeContext:
 
-  override type ArenaCtx = NoArena
+  override type Arena = TransparentAllocator
 
-  inline override def safelyRun[R](f: ArenaCtx ?=> R): R = f(using NoArena())
+  class TransparentAllocator extends Allocator:
+    override type ManagedObject = Any
+    inline override def dispose(obj: Any): Unit = ()
+
+  inline override def safelyRun[R](f: Arena ?=> R): R = f(using TransparentAllocator())

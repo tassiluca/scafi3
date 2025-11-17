@@ -24,28 +24,24 @@ trait NativeFieldBasedSharedData extends PortableLibrary with NativeMemoryContex
 
   override type SharedData[Value] = Ptr[CField]
 
-  override given [Value](using arena: ArenaCtx): Iso[SharedData[Value], language.SharedData[Value]] = Iso(
+  override given [Value](using arena: Arena): Iso[SharedData[Value], language.SharedData[Value]] = Iso(
     cFieldPtr =>
       val field = language.sharedDataApplicative.pure((!cFieldPtr).default_value.asInstanceOf[Value])
       val scalaNValues = CMap.of((!cFieldPtr).neighbor_values).toMap
       scalaNValues.foldLeft(field)((f, n) => f.set(n._1, n._2))
     ,
-    scalaField =>
-      of(
-        scalaField.default.asInstanceOf[Ptr[CBinaryCodable]],
-        scalaField.neighborValues.map: (id, v) =>
-          arena.track(v.asInstanceOf[Ptr[CBinaryCodable]])(o => (!o.asInstanceOf[Ptr[CBinaryCodable]]).free(o))
-          (id, v),
-      ),
+    scalaField => of(scalaField.default.asInstanceOf[Ptr[CBinaryCodable]], scalaField.neighborValues),
   )
 
-  def of(default: Ptr[CBinaryCodable], neighborValues: Ptr[Byte])(using arena: ArenaCtx): Ptr[CField] =
+  def of(default: Ptr[CBinaryCodable], neighborValues: Ptr[Byte])(using arena: Arena): Ptr[CField] =
     arena.track(default)(o => (!o.asInstanceOf[Ptr[CBinaryCodable]]).free(o))
+    val neighborValuesMap: collection.Map[language.DeviceId, Ptr[CBinaryCodable]] = neighborValues
+    neighborValuesMap.values.foreach(v => arena.track(v)(o => (!o.asInstanceOf[Ptr[CBinaryCodable]]).free(o)))
     allocateTracking[CField].tap: cFieldPtr =>
       (!cFieldPtr).default_value = default
       (!cFieldPtr).neighbor_values = neighborValues
 
-  def withoutSelf[Value](field: Ptr[CField])(using ArenaCtx): Seq[Ptr[CBinaryCodable]] =
+  def withoutSelf[Value](field: Ptr[CField])(using Arena): Seq[Ptr[CBinaryCodable]] =
     val scalaField = given_Iso_SharedData_SharedData.to(field)
     scalaField.withoutSelf.toSeq
 end NativeFieldBasedSharedData
