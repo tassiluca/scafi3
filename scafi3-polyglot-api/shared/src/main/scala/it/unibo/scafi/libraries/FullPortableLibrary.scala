@@ -23,8 +23,7 @@ trait FullPortableLibrary[Lang <: AggregateFoundation & BranchingSyntax & FieldC
 
   inline override def branch[Value](condition: Boolean)(trueBranch: Function0[Value])(
       falseBranch: Function0[Value],
-  ): Value =
-    language.branch(condition)(trueBranch())(falseBranch())
+  ): Value = language.branch(condition)(trueBranch())(falseBranch())
 
   inline override def evolve[Value](initial: Value)(evolution: Function1[Value, Value]): Value =
     language.evolve(initial)(evolution)

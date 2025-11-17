@@ -7,6 +7,9 @@ import scala.language.unsafeNulls
 import scala.scalanative.unsafe.{ exported, CFuncPtr1, CSize, CVoidPtr, Ptr, UnsafeRichLong }
 import scala.scalanative.unsafe.Size.intToSize
 
+import it.unibo.scafi.message.HashInstances.{ cEqHash, catsSyntaxEq }
+import it.unibo.scafi.nativebindings.structs.Eq as CEq
+
 /**
  * A facade around a mutable map to be used in C/C++ code via Scala Native. From the C/C++ side, the map is represented
  * as an opaque pointer (`void*`) that acts as a handle to identify the map instance.
@@ -30,17 +33,25 @@ object CMap:
   def empty: Ptr[Byte] = apply(mutable.Map.empty[CVoidPtr, CVoidPtr])
 
   @exported("map_put")
-  def put(handle: Ptr[Byte], key: CVoidPtr, value: CVoidPtr): CVoidPtr =
-    val scalaMap = of[CVoidPtr, CVoidPtr](handle)
-    scalaMap.put(key, value).orNull
+  def put(handle: Ptr[Byte], key: Ptr[CEq], value: CVoidPtr): CVoidPtr =
+    val scalaMap = of[Ptr[CEq], CVoidPtr](handle)
+    val (keyToUpdate, oldValue) = scalaMap.find { case (k, _) => k === key }.fold(key -> null)(identity)
+    scalaMap.update(keyToUpdate, value)
+    oldValue
+
+  @exported("map_int_put")
+  def put_int(handle: Ptr[Byte], key: Int, value: CVoidPtr): CVoidPtr = of[Int, CVoidPtr](handle).put(key, value).orNull
 
   @exported("map_get")
-  def get(handle: Ptr[Byte], key: CVoidPtr): CVoidPtr =
-    of[CVoidPtr, CVoidPtr](handle).get(key).orNull
+  def get(handle: Ptr[Byte], key: Ptr[CEq]): CVoidPtr =
+    of[Ptr[CEq], CVoidPtr](handle).find { case (k, _) => k === key }.map(_._2).orNull
+
+  @exported("map_int_get")
+  def get_int(handle: Ptr[Byte], key: Int): CVoidPtr = of[Int, CVoidPtr](handle).get(key).orNull
 
   @exported("map_foreach")
   def foreach(handle: Ptr[Byte], f: CFuncPtr1[CVoidPtr, Unit]): Unit =
-    of[CVoidPtr, CVoidPtr](handle).foreach { case (_, v) => f(v) }
+    of[Any, CVoidPtr](handle).foreach { case (_, v) => f(v) }
 
   @exported("map_size")
   def size(handle: Ptr[Byte]): CSize = of(handle).size.toCSize
