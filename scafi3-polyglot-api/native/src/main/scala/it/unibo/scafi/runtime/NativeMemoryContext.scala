@@ -7,9 +7,9 @@ import it.unibo.scafi.types.{ Arena, MemorySafeContext }
 import it.unibo.scafi.utils.CUtils.freshPointer
 
 class ZoneBasedArena extends Arena:
-  override type Object = CVoidPtr
+  override type ManagedObject = CVoidPtr
 
-  inline override def defaultFree(obj: Object): Unit = stdlib.free(obj)
+  inline override def dispose(obj: ManagedObject): Unit = stdlib.free(obj)
 
 /**
  * A memory-safe context implementation for native platforms using `Zone` for scoped memory management.
@@ -22,5 +22,5 @@ trait NativeMemoryContext extends MemorySafeContext:
 
   inline def allocateTracking[T](using arena: ArenaCtx): Ptr[T] =
     val ptr = freshPointer[T]
-    arena.track(ptr)(arena.defaultFree)
+    arena.track(ptr)(arena.dispose)
     ptr

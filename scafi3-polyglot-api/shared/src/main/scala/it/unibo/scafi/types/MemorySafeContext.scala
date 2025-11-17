@@ -1,26 +1,39 @@
 package it.unibo.scafi.types
 
-import java.util.concurrent.atomic.AtomicReference
-
 /**
  * Represents a memory-safe allocation scope for the platform in use guaranteeing automatic memory management.
  */
 trait Arena:
 
-  type Object
+  /** The type of managed objects tracked by this arena. */
+  type ManagedObject
 
-  type FreeFn = Object => Unit
+  /** The type of disposer functions for managed objects. */
+  type Disposer = ManagedObject => Unit
 
-  private val trackedObjects: AtomicReference[Map[Object, Option[FreeFn]]] = new AtomicReference(Map.empty)
+  private var trackedObjects: Map[ManagedObject, Option[Disposer]] = Map.empty
 
-  def track(obj: Object)(freeFn: FreeFn): Unit =
-    val _ = trackedObjects.updateAndGet(_ + (obj -> Some(freeFn)))
+  /**
+   * Tracks a managed object for automatic disposal when the arena is collected.
+   * @param obj
+   *   the managed object to track
+   * @param disposer
+   *   a custom disposer to use when disposing the object
+   */
+  def track(obj: ManagedObject)(disposer: Disposer): Unit = synchronized:
+    trackedObjects += (obj -> Some(disposer))
 
-  def collect(): Unit =
-    val current = trackedObjects.getAndSet(Map.empty)
-    current.foreach((o, f) => f.fold(defaultFree)(_(o)))
+  /** Collects and disposes all managed objects tracked by this arena. */
+  def collect(): Unit = synchronized:
+    trackedObjects.foreach((o, d) => d.fold(dispose)(_(o)))
+    trackedObjects = Map.empty
 
-  def defaultFree(obj: Object): Unit
+  /**
+   * Default disposal action for managed objects.
+   * @param obj
+   *   the managed object to dispose
+   */
+  def dispose(obj: ManagedObject): Unit
 end Arena
 
 /**
@@ -39,6 +52,11 @@ trait MemorySafeContext:
    */
   def safelyRun[T](block: ArenaCtx ?=> T): T
 
+  /**
+   * Collects and disposes all managed objects tracked by the current arena.
+   * @param arena
+   *   the current arena context
+   */
   inline def collect()(using arena: ArenaCtx): Unit = arena.collect()
 
 end MemorySafeContext

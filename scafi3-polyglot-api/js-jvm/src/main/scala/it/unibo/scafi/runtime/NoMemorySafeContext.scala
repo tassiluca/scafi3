@@ -3,8 +3,8 @@ package it.unibo.scafi.runtime
 import it.unibo.scafi.types.{ Arena, MemorySafeContext }
 
 class NoArena extends Arena:
-  override type Object = Any
-  inline override def defaultFree(obj: Any): Unit = ()
+  override type ManagedObject = Any
+  inline override def dispose(obj: Any): Unit = ()
 
 /**
  * A context where memory safety is enforced by construction by the underlying platform (e.g., JVM, JavaScript).
