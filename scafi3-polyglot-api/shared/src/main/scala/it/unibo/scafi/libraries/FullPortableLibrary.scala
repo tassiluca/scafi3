@@ -3,7 +3,7 @@ package it.unibo.scafi.libraries
 import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
-import it.unibo.scafi.types.{ MemorySafeContext, PortableTypes }
+import it.unibo.scafi.types.PortableTypes
 
 /**
  * Aggregates all the portable libraries in a singe entry point trait.
@@ -15,7 +15,7 @@ trait FullPortableLibrary[Lang <: AggregateFoundation & BranchingSyntax & FieldC
 ) extends PortableCommonLibrary
     with PortableBranchingLibrary
     with PortableFieldCalculusLibrary:
-  self: PortableTypes & MemorySafeContext =>
+  self: PortableTypes =>
 
   override type Language = Lang
 
@@ -28,11 +28,11 @@ trait FullPortableLibrary[Lang <: AggregateFoundation & BranchingSyntax & FieldC
   inline override def evolve[Value](initial: Value)(evolution: Function1[Value, Value]): Value =
     language.evolve(initial)(evolution)
 
-  inline override def neighborValues[Value](expr: Value)(using Arena): SharedData[Value] =
-    language.neighborValues(expr)(using valueCodable(expr))
+  inline override def neighborValues[Format, Value <: Codec[Value, Format]](expr: Value): SharedData[Value] =
+    language.neighborValues(expr)(using codecOf(expr))
 
-  inline override def share[Value](
+  inline override def share[Format, Value <: Codec[Value, Format]](
       initial: Value,
-  )(shareAndReturning: Function1[SharedData[Value], Value])(using Arena): Value =
-    language.share(initial)(shareAndReturning(_))(using valueCodable(initial))
+  )(shareAndReturning: Function1[SharedData[Value], Value]): Value =
+    language.share(initial)(shareAndReturning(_))(using codecOf(initial))
 end FullPortableLibrary

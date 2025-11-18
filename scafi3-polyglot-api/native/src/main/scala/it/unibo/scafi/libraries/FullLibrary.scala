@@ -8,8 +8,7 @@ import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
 import it.unibo.scafi.language.xc.FieldBasedSharedData
-import it.unibo.scafi.libraries.FullLibrary.{ arenaRef, libraryRef }
-import it.unibo.scafi.message.Codable
+import it.unibo.scafi.libraries.FullLibrary.libraryRef
 import it.unibo.scafi.message.NativeCodable.nativeCodable
 import it.unibo.scafi.nativebindings.all.{
   AggregateLibrary as CAggregateLibrary,
@@ -25,20 +24,22 @@ import it.unibo.scafi.types.{ CMap, NativeTypes }
 @SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf"))
 class FullLibrary(using
     lang: AggregateFoundation & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax & { type DeviceId = Int },
+    allocator: NativeAllocator,
 ) extends FullPortableLibrary
     with NativeFieldBasedSharedData
     with NativeTypes
     with NativeMemoryContext:
 
-  override given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] =
-    nativeCodable.asInstanceOf[Conversion[Value, Codable[Value, Format]]]
+  override type Codec[Value, Format] = Ptr[CBinaryCodable]
 
-  def asNative(using Arena): Ptr[CAggregateLibrary] =
+  override given codecOf[Format, Value <: Codec[Value, Format]]: Conversion[Value, Codable[Value, Format]] =
+    v => nativeCodable(v).asInstanceOf[Codable[Value, Format]]
+
+  def asNative: Ptr[CAggregateLibrary] =
     libraryRef.set(this)
-    arenaRef.set(summon[Arena])
     val lib = allocateTracking[CAggregateLibrary]
     val ptr = allocateTracking[CFieldBasedSharedData]
-    (!ptr).of = (default: Ptr[CBinaryCodable]) => libraryRef.get().of(default, CMap.empty)(using arenaRef.get())
+    (!ptr).of = (default: Ptr[CBinaryCodable]) => libraryRef.get().of(default, CMap.empty)
     (!lib).Field = !ptr
     (!lib).local_id = () => CDeviceId(libraryRef.get().localId)
     (!lib).branch = (condition: Boolean, trueBranch: Function0[Ptr[Byte]], falseBranch: Function0[Ptr[Byte]]) =>
@@ -46,9 +47,8 @@ class FullLibrary(using
     (!lib).evolve = (initial: Ptr[Byte], evolution: Function1[Ptr[Byte], Ptr[Byte]]) =>
       libraryRef.get().evolve(initial)(evolution)
     (!lib).share = (initial: Ptr[CBinaryCodable], f: Function1[Ptr[CField], Ptr[CBinaryCodable]]) =>
-      libraryRef.get().share(initial)(f)(using arenaRef.get())
-    (!lib).neighbor_values = (value: Ptr[CBinaryCodable]) =>
-      libraryRef.get().neighborValues(value)(using arenaRef.get())
+      libraryRef.get().share(initial)(f)
+    (!lib).neighbor_values = (value: Ptr[CBinaryCodable]) => libraryRef.get().neighborValues(value)
     lib
   end asNative
 end FullLibrary
@@ -62,7 +62,6 @@ object FullLibrary:
    * This is not ideal, but does not cause issues in practice since rounds are executed sequentially and independently.
    */
   private[FullLibrary] val libraryRef = new AtomicReference[FullLibrary]()
-  private[FullLibrary] val arenaRef = new AtomicReference[NativeAllocator]()
 
   @exported("without_self")
-  def withoutSelf(field: Ptr[CField]): Ptr[CArray] = libraryRef.get().withoutSelf(field)(using arenaRef.get())
+  def withoutSelf(field: Ptr[CField]): Ptr[CArray] = libraryRef.get().withoutSelf(field)

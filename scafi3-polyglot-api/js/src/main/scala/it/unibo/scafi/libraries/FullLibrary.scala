@@ -6,9 +6,8 @@ import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
 import it.unibo.scafi.language.xc.FieldBasedSharedData
-import it.unibo.scafi.message.Codable
+import it.unibo.scafi.message.JSCodable
 import it.unibo.scafi.message.JSCodable.jsAnyCodable
-import it.unibo.scafi.runtime.NoMemorySafeContext
 import it.unibo.scafi.types.JSTypes
 
 /**
@@ -22,8 +21,9 @@ class FullLibrary(using
     lang: AggregateFoundation & BranchingSyntax & FieldBasedSharedData & FieldCalculusSyntax & { type DeviceId = Int },
 ) extends FullPortableLibrary
     with JSFieldBasedSharedData
-    with JSTypes
-    with NoMemorySafeContext:
+    with JSTypes:
 
-  override given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] =
-    jsAnyCodable.asInstanceOf[Conversion[Value, Codable[Value, Format]]]
+  override type Codec[Value, Format] = JSCodable
+
+  override given codecOf[Format, Value <: Codec[Value, Format]]: Conversion[Value, Codable[Value, Format]] =
+    v => jsAnyCodable(v).asInstanceOf[Codable[Value, Format]]

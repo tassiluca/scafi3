@@ -1,14 +1,14 @@
 package it.unibo.scafi.libraries
 
-import it.unibo.scafi.message.Codable
-import it.unibo.scafi.types.{ MemorySafeContext, PortableTypes }
+import it.unibo.scafi.types.PortableTypes
 
 /**
  * The root base trait for all portable libraries.
  */
 trait PortableLibrary:
-  self: PortableTypes & MemorySafeContext =>
+  self: PortableTypes =>
   export it.unibo.scafi.language.AggregateFoundation
+  export it.unibo.scafi.message.Codable
 
   /**
    * The language type comprising all the needed syntaxes needed to implement the library functionalities.
@@ -28,10 +28,15 @@ trait PortableLibrary:
   /**
    * [[SharedData]] is isomorphic to [[language.SharedData]].
    */
-  given [Value](using Arena): Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
+  given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = compiletime.deferred
 
   /**
-   * The conversion from a value of type `Value` to a codable representation of it in format `Format`.
+   * A codec defining how to convert a value of type `Value` to/from a codable representation in format `Format`.
    */
-  given valueCodable[Value, Format]: Conversion[Value, Codable[Value, Format]] = compiletime.deferred
+  type Codec[Value, Format]
+
+  /**
+   * Values subtyping [[Codec]] can be automatically converted to [[Codable]] values.
+   */
+  given codecOf[Format, Value <: Codec[Value, Format]]: Conversion[Value, Codable[Value, Format]] = compiletime.deferred
 end PortableLibrary

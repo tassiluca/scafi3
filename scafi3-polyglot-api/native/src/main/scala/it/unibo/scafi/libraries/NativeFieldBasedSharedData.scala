@@ -20,11 +20,13 @@ import it.unibo.scafi.utils.libraries.Iso.given
 trait NativeFieldBasedSharedData extends PortableLibrary with NativeMemoryContext:
   self: PortableTypes & NativeTypes =>
 
+  given arena: Arena = compiletime.deferred
+
   override type Language <: AggregateFoundation & FieldBasedSharedData
 
   override type SharedData[Value] = Ptr[CField]
 
-  override given [Value](using arena: Arena): Iso[SharedData[Value], language.SharedData[Value]] = Iso(
+  override given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = Iso(
     cFieldPtr =>
       val field = language.sharedDataApplicative.pure((!cFieldPtr).default_value.asInstanceOf[Value])
       val scalaNValues = CMap.of((!cFieldPtr).neighbor_values).toMap
@@ -33,7 +35,7 @@ trait NativeFieldBasedSharedData extends PortableLibrary with NativeMemoryContex
     scalaField => of(scalaField.default.asInstanceOf[Ptr[CBinaryCodable]], scalaField.neighborValues),
   )
 
-  def of(default: Ptr[CBinaryCodable], neighborValues: Ptr[Byte])(using arena: Arena): Ptr[CField] =
+  def of(default: Ptr[CBinaryCodable], neighborValues: Ptr[Byte]): Ptr[CField] =
     arena.track(default)(o => (!o.asInstanceOf[Ptr[CBinaryCodable]]).free(o))
     val neighborValuesMap: collection.Map[language.DeviceId, Ptr[CBinaryCodable]] = neighborValues
     neighborValuesMap.values.foreach(v => arena.track(v)(o => (!o.asInstanceOf[Ptr[CBinaryCodable]]).free(o)))
@@ -41,7 +43,7 @@ trait NativeFieldBasedSharedData extends PortableLibrary with NativeMemoryContex
       (!cFieldPtr).default_value = default
       (!cFieldPtr).neighbor_values = neighborValues
 
-  def withoutSelf[Value](field: Ptr[CField])(using Arena): Seq[Ptr[CBinaryCodable]] =
+  def withoutSelf[Value](field: Ptr[CField]): Seq[Ptr[CBinaryCodable]] =
     val scalaField = given_Iso_SharedData_SharedData.to(field)
     scalaField.withoutSelf.toSeq
 end NativeFieldBasedSharedData

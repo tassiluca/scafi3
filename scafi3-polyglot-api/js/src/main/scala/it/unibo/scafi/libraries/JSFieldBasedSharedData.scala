@@ -1,14 +1,13 @@
 package it.unibo.scafi.libraries
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
-import it.unibo.scafi.runtime.NoMemorySafeContext
 import it.unibo.scafi.types.PortableTypes
 
 /**
  * A custom portable definition of a field-based `SharedData` structure for js platform.
  */
 trait JSFieldBasedSharedData extends PortableLibrary:
-  self: PortableTypes & NoMemorySafeContext =>
+  self: PortableTypes =>
 
   override type Language <: AggregateFoundation & FieldBasedSharedData & { type DeviceId = Int }
 
@@ -26,7 +25,7 @@ trait JSFieldBasedSharedData extends PortableLibrary:
   case class Field[Value](default: Value, neighborValues: Map[language.DeviceId, Value]):
 
     @JSExport("withoutSelf")
-    def jsWithoutSelf(using Arena): Seq[Value] = given_Iso_SharedData_SharedData.to(this).withoutSelf.toSeq
+    def jsWithoutSelf: Seq[Value] = given_Iso_SharedData_SharedData.to(this).withoutSelf.toSeq
 
     override def toString(): String = s"Field($default, ${neighborValues.toMap.toSeq.sortBy(_._1.toString).toMap})"
 
@@ -41,7 +40,7 @@ trait JSFieldBasedSharedData extends PortableLibrary:
      */
     def of[Value](default: Value): Field[Value] = Field(default, Map.empty)
 
-  override given [Value](using Arena): Iso[SharedData[Value], language.SharedData[Value]] = Iso(
+  override given [Value]: Iso[SharedData[Value], language.SharedData[Value]] = Iso(
     jsField =>
       val field = language.sharedDataApplicative.pure(jsField.default)
       jsField.neighborValues.foldLeft(field)((f, n) => f.set(n._1, n._2))
