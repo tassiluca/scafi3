@@ -29,7 +29,7 @@ trait ExchangeAggregateContext[ID](
       f: SharedData[Value] => (SharedData[Value], SharedData[Value]),
   ): SharedData[Value] =
     alignmentScope("exchange"): () =>
-      val messages = alignedMessages.map { case (id, value) => id -> value }
+      val messages = alignedMessages
       val field = Field(init(localId), messages)
       val (ret, send) = f(field)
       writeValue(send.default, send.alignedValues)
