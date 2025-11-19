@@ -1,3 +1,13 @@
+## [3.0.0](https://github.com/scafi/scafi3/compare/v2.1.0...v3.0.0) (2025-11-19)
+
+### ⚠ BREAKING CHANGES
+
+* consistently separate `ShareDataOps` from `NeighborValuesOps` (#164)
+
+### Refactoring
+
+* consistently separate `ShareDataOps` from `NeighborValuesOps` ([#164](https://github.com/scafi/scafi3/issues/164)) ([3c0db03](https://github.com/scafi/scafi3/commit/3c0db030c1a7e131ea853ad82b15fec95dc56de0))
+
 ## [2.1.0](https://github.com/scafi/scafi3/compare/v2.0.1...v2.1.0) (2025-11-19)
 
 ### Features
