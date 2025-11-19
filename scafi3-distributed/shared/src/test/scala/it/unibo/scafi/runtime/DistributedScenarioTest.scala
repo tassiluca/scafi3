@@ -3,7 +3,7 @@ package it.unibo.scafi.runtime
 import java.nio.charset.StandardCharsets
 
 import scala.concurrent.Future
-import scala.concurrent.duration.{ DurationInt, FiniteDuration }
+import scala.concurrent.duration.{ Duration, DurationInt, FiniteDuration, SECONDS }
 import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
@@ -34,7 +34,7 @@ trait DistributedScenarioTest extends AsyncSpec with Programs:
     override val inactivityTimeout: FiniteDuration = 2.seconds
     override val maxMessageSize: Int = 65_536
 
-  given ExpirationConfiguration = ExpirationConfiguration.basic
+  given ExpirationConfiguration = ExpirationConfiguration(Duration(5, SECONDS))
 
   "Evolve program" should "make single nodes evolve as expected" in
     socketBasedDistributedEnvironment(evolveProgram)

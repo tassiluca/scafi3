@@ -1,6 +1,6 @@
 package it.unibo.scafi.runtime.network
 
-import scala.concurrent.duration.{ Duration, MILLISECONDS, SECONDS }
+import scala.concurrent.duration.{ Duration, MILLISECONDS }
 
 /**
  * An expiration policy that drops received neighbor data after a certain time limit.
@@ -18,8 +18,3 @@ trait TimeRetention(using config: ExpirationConfiguration) extends ExpirationPol
 
 /** Configuration for expiration policies based on time retention. */
 case class ExpirationConfiguration(limit: Duration)
-
-object ExpirationConfiguration:
-
-  /** A basic expiration configuration with a limit of 5 seconds. */
-  val basic: ExpirationConfiguration = ExpirationConfiguration(Duration(5, SECONDS))
