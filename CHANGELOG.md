@@ -1,3 +1,35 @@
+## [2.1.0](https://github.com/scafi/scafi3/compare/v2.0.1...v2.1.0) (2025-11-19)
+
+### Features
+
+* add network time retention policy ([#185](https://github.com/scafi/scafi3/issues/185)) ([5554c4a](https://github.com/scafi/scafi3/commit/5554c4a33ff5c60e451c9c331b55275acfa687e1))
+
+### Dependency updates
+
+* **deps:** update alchemistversion to v42.3.16 ([a48a950](https://github.com/scafi/scafi3/commit/a48a9507f265bdddd15da62983ed829906af1779))
+* **deps:** update alchemistversion to v42.3.17 ([0f9081a](https://github.com/scafi/scafi3/commit/0f9081ac13145bdd3f06f9fa6f7a5b93af439146))
+* **deps:** update alchemistversion to v42.3.18 ([8c68612](https://github.com/scafi/scafi3/commit/8c6861232acb207f73a0c0894c610afade6a0d24))
+* **deps:** update dependency io.bullet:borer-core to v1.16.2 ([2886efd](https://github.com/scafi/scafi3/commit/2886efdcb0bd80ab6d261e4a4e64833bd9009907))
+* **deps:** update dependency io.bullet:borer-derivation to v1.16.2 ([e60efe3](https://github.com/scafi/scafi3/commit/e60efe3dfaa4bfbd59af6afe3d3c610e722049ef))
+* **deps:** update dependency io.github.iltotore:iron to v3.2.1 ([ac03de3](https://github.com/scafi/scafi3/commit/ac03de381e0f6df2a3ae0a1331abb27359aa5af7))
+* **deps:** update dependency org.scala-native:sbt-scala-native to v0.5.9 ([92eadb7](https://github.com/scafi/scafi3/commit/92eadb7deb93eeb47ea8995a80632c0db4310b83))
+* **deps:** update dependency org.scalameta:sbt-scalafmt to v2.5.6 ([244b3fe](https://github.com/scafi/scafi3/commit/244b3fe107380cd42d2f7b9699104e6cc7896565))
+* **deps:** update dependency org.scoverage:sbt-scoverage to v2.4.1 ([db72652](https://github.com/scafi/scafi3/commit/db72652d228d3b128cbfb4fd351ee8ec042a5405))
+* **deps:** update dependency org.scoverage:sbt-scoverage to v2.4.2 ([729b373](https://github.com/scafi/scafi3/commit/729b373d495ce80744556dac905a1f7818741498))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.153 ([79bfefe](https://github.com/scafi/scafi3/commit/79bfefe1968c6a31ece6566494dda938f2edb60f))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.154 ([13c0a5b](https://github.com/scafi/scafi3/commit/13c0a5b831f7078d9e81fa1b96ffc5e1f6cca648))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.155 ([062583a](https://github.com/scafi/scafi3/commit/062583abaa3a9c5a8e6f160f7c8bbdf9f371bcb9))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.156 ([c59579e](https://github.com/scafi/scafi3/commit/c59579e192c48ae9543003c690618f61c6ddf964))
+* **deps:** update node.js to v24 ([b6de10d](https://github.com/scafi/scafi3/commit/b6de10defa63d91c94f2bfa7ca014084accf4717))
+
+### Build and continuous integration
+
+* **deps:** update actions/checkout action to v5.0.1 ([8b65dfc](https://github.com/scafi/scafi3/commit/8b65dfc1c450baa1ffd10600c844ba38049261a4))
+
+### Refactoring
+
+* **core:** remove unnecessary map traversal in `alignedMessages` ([#192](https://github.com/scafi/scafi3/issues/192)) ([68f4e58](https://github.com/scafi/scafi3/commit/68f4e58131f304e7a7a77541bb1801499eeb4fe6))
+
 ## [2.0.1](https://github.com/scafi/scafi3/compare/v2.0.0...v2.0.1) (2025-10-28)
 
 ### Documentation
