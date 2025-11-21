@@ -1,11 +1,13 @@
 package it.unibo.scafi.runtime.bindings
 
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.duration.{ Duration, SECONDS }
 import scala.util.{ Failure, Try }
 
 import it.unibo.scafi.context.xc.ExchangeAggregateContext
 import it.unibo.scafi.context.xc.ExchangeAggregateContext.exchangeContextFactory
 import it.unibo.scafi.runtime.{ PortableRuntime, ScafiEngine }
+import it.unibo.scafi.runtime.network.ExpirationConfiguration
 import it.unibo.scafi.runtime.network.sockets.{
   ConnectionConfiguration,
   ConnectionOrientedNetworkManager,
@@ -30,6 +32,8 @@ trait ScafiEngineBinding extends PortableRuntime:
       ConnectionOrientedNetworkManager[DeviceId],
       Result,
     ]
+
+    given ExpirationConfiguration = ExpirationConfiguration(Duration(5, SECONDS))
 
     /* WARNING: Inline is needed here for native platform to ensure function pointers are correctly handled at
      * call site. Removing it does not lead to compilation errors but to runtime segfaults! */

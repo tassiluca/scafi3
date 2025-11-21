@@ -1,6 +1,7 @@
-package it.unibo.scafi.libraries
+package it.unibo.scafi.language.xc
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
+import it.unibo.scafi.libraries.PortableLibrary
 import it.unibo.scafi.types.PortableTypes
 
 /**
@@ -46,7 +47,7 @@ trait JSFieldBasedSharedData extends PortableLibrary:
       jsField.neighborValues.foldLeft(field)((f, n) => f.set(n._1, n._2))
     ,
     scalaField =>
-      val nvalues: Map[language.DeviceId, Value] = scalaField.neighborValues.map((id, v) => (id, v))
+      val nvalues: Map[language.DeviceId, Value] = scalaField.values.map((id, v) => (id, v))
       Field(scalaField.default, nvalues),
   )
 

@@ -5,7 +5,7 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 import it.unibo.scafi.language.AggregateFoundation
 import it.unibo.scafi.language.common.syntax.BranchingSyntax
 import it.unibo.scafi.language.fc.syntax.FieldCalculusSyntax
-import it.unibo.scafi.language.xc.FieldBasedSharedData
+import it.unibo.scafi.language.xc.{ FieldBasedSharedData, JSFieldBasedSharedData }
 import it.unibo.scafi.message.JSCodable
 import it.unibo.scafi.message.JSCodable.jsAnyCodable
 import it.unibo.scafi.types.JSTypes

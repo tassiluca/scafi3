@@ -1,10 +1,11 @@
-package it.unibo.scafi.libraries
+package it.unibo.scafi.language.xc
 
 import scala.scalanative.unsafe.{ exported, CString, Ptr }
 import scala.util.chaining.scalaUtilChainingOps
 
 import it.unibo.scafi.language.xc.FieldBasedSharedData
-import it.unibo.scafi.libraries.NativeFieldBasedSharedData.given
+import it.unibo.scafi.language.xc.NativeFieldBasedSharedData.given
+import it.unibo.scafi.libraries.PortableLibrary
 import it.unibo.scafi.nativebindings.aliases.NValues
 import it.unibo.scafi.nativebindings.structs.{ BinaryCodable as CBinaryCodable, Field as CField }
 import it.unibo.scafi.runtime.NativeMemoryContext
@@ -32,7 +33,7 @@ trait NativeFieldBasedSharedData extends PortableLibrary with NativeMemoryContex
       val scalaNValues = CMap.of((!cFieldPtr).neighbor_values).toMap
       scalaNValues.foldLeft(field)((f, n) => f.set(n._1, n._2))
     ,
-    scalaField => of(scalaField.default.asInstanceOf[Ptr[CBinaryCodable]], scalaField.neighborValues),
+    scalaField => of(scalaField.default.asInstanceOf[Ptr[CBinaryCodable]], scalaField.values),
   )
 
   def of(default: Ptr[CBinaryCodable], neighborValues: Ptr[Byte]): Ptr[CField] =
