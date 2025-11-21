@@ -47,8 +47,8 @@ trait InboundMessage:
     def dataAt[Format, Value: DecodableFrom[Format]](tokens: IndexedSeq[InvocationCoordinate]): Map[DeviceId, Value] =
       val path = Path(tokens*)
       val selfValueAtPath = selfMessagesFromPreviousRound
-        .get[Value](path)
-        .map(localId -> _)
+        .get[Format](path)
+        .map(localId -> decode(_))
       val importedValuesAtPath = cachedPaths
         .get(path)
         .map(_.view.mapValues(_.asInstanceOf[Format]).mapValues(decode).toMap)

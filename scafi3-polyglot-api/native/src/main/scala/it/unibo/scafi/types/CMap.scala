@@ -1,0 +1,69 @@
+package it.unibo.scafi.types
+
+import java.util.concurrent.atomic.AtomicLong
+
+import scala.collection.mutable
+import scala.language.unsafeNulls
+import scala.scalanative.unsafe.{ exported, CFuncPtr1, CSize, CVoidPtr, Ptr, UnsafeRichLong }
+import scala.scalanative.unsafe.Size.intToSize
+
+import it.unibo.scafi.nativebindings.structs.Eq as CEq
+import it.unibo.scafi.utils.CUtils.asVoidPtr
+
+import cats.implicits.catsSyntaxEq
+import cats.kernel.Hash
+
+/**
+ * A facade around a mutable map to be used in C/C++ code via Scala Native. From the C/C++ side, the map is represented
+ * as an opaque pointer (`void*`) that acts as a handle to identify the map instance.
+ */
+@SuppressWarnings(Array("scalafix:DisableSyntax.asInstanceOf", "scalafix:DisableSyntax.null"))
+object CMap:
+
+  private val activeRefs = mutable.Map.empty[Long, mutable.Map[?, ?]]
+  private val nextHandle = AtomicLong(0L)
+
+  def apply[Key, Value](map: mutable.Map[Key, Value]): Ptr[Byte] =
+    val handle = nextHandle.incrementAndGet()
+    synchronized(activeRefs.update(handle, map))
+    handle.toPtr[Byte]
+
+  def of[Key, Value](ptr: Ptr[Byte]): mutable.Map[Key, Value] =
+    val handle = ptr.toLong
+    synchronized(activeRefs(handle)).asInstanceOf[mutable.Map[Key, Value]]
+
+  @exported("map_empty")
+  def empty: Ptr[Byte] = apply(mutable.Map.empty[CVoidPtr, CVoidPtr])
+
+  @exported("map_put")
+  def put(handle: Ptr[Byte], key: Ptr[CEq], value: CVoidPtr): CVoidPtr =
+    val scalaMap = of[Ptr[CEq], CVoidPtr](handle)
+    val (keyToUpdate, oldValue) = scalaMap.find { case (k, _) => k === key }.fold(key -> null)(identity)
+    scalaMap.update(keyToUpdate, value)
+    oldValue
+
+  @exported("map_int_put")
+  def put_int(handle: Ptr[Byte], key: Int, value: CVoidPtr): CVoidPtr = of[Int, CVoidPtr](handle).put(key, value).orNull
+
+  @exported("map_get")
+  def get(handle: Ptr[Byte], key: Ptr[CEq]): CVoidPtr =
+    of[Ptr[CEq], CVoidPtr](handle).find { case (k, _) => k === key }.map(_._2).orNull
+
+  @exported("map_int_get")
+  def get_int(handle: Ptr[Byte], key: Int): CVoidPtr = of[Int, CVoidPtr](handle).get(key).orNull
+
+  @exported("map_foreach")
+  def foreach(handle: Ptr[Byte], f: CFuncPtr1[CVoidPtr, Unit]): Unit =
+    of[Any, CVoidPtr](handle).foreach { case (_, v) => f(v) }
+
+  @exported("map_size")
+  def size(handle: Ptr[Byte]): CSize = of(handle).size.toCSize
+
+  @exported("map_free")
+  def free(handle: Ptr[Byte]): Unit = synchronized(activeRefs.remove(handle.toLong)): Unit
+
+  /** An instance of [[Hash]] for [[CEq]]. */
+  given cEqHash: Hash[Ptr[CEq]] = new Hash[Ptr[CEq]]:
+    override def hash(x: Ptr[CEq]): Int = (!x).hash(x).toInt
+    override def eqv(x: Ptr[CEq], y: Ptr[CEq]): Boolean = (!x).cmp(x, y)
+end CMap

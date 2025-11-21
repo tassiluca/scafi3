@@ -24,7 +24,7 @@ trait OutboundMessage:
    */
   protected def writeValue[Format, Value: EncodableTo[Format]](default: Value, overrides: Map[DeviceId, Value]): Unit =
     val path = Path(currentPath*)
-    registeredSelfMessages.update(path, overrides.getOrElse(localId, default))
+    registeredSelfMessages.update(path, encode(overrides.getOrElse(localId, default)))
     registeredMessages.update(path, MapWithDefault(overrides.view.mapValues(encode).toMap, encode(default)))
 
   override def selfMessagesForNextRound: ValueTree = ValueTree(registeredSelfMessages.toMap)
