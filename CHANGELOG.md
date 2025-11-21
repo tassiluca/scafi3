@@ -1,3 +1,13 @@
+## [3.1.0](https://github.com/scafi/scafi3/compare/v3.0.0...v3.1.0) (2025-11-21)
+
+### Features
+
+* add polyglot fc and branching libraries ([#147](https://github.com/scafi/scafi3/issues/147)) ([c72248c](https://github.com/scafi/scafi3/commit/c72248c52bf2bfe04cd3c0b725a9863d62aa408a))
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.157 ([dbee4ea](https://github.com/scafi/scafi3/commit/dbee4ea05069449674c4b366f3917653478763d9))
+
 ## [3.0.0](https://github.com/scafi/scafi3/compare/v2.1.0...v3.0.0) (2025-11-19)
 
 ### ⚠ BREAKING CHANGES
