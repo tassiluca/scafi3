@@ -1,3 +1,22 @@
+## [3.2.0](https://github.com/scafi/scafi3/compare/v3.1.0...v3.2.0) (2025-11-24)
+
+### Features
+
+* add a default `Monoid` implementation for shared data of T where T has itself a `Monoid` ([#202](https://github.com/scafi/scafi3/issues/202)) ([fc502b1](https://github.com/scafi/scafi3/commit/fc502b16126dee4814753cfd596e2428da77eb4a))
+
+### Dependency updates
+
+* **deps:** update dependency com.indoorvivants:bindgen-sbt-plugin to v0.3.1 ([11b4c20](https://github.com/scafi/scafi3/commit/11b4c202e0b80aca31df11b26afc044264aec55f))
+
+### Build and continuous integration
+
+* **deps:** update actions/checkout action to v5.0.1 ([bc09c04](https://github.com/scafi/scafi3/commit/bc09c0490851eb0c9032485f11a76d1926db3261))
+* **deps:** update actions/checkout action to v6 ([cba7968](https://github.com/scafi/scafi3/commit/cba79688950d8a16c7d79b444a81ce05f17b71ab))
+* **deps:** update actions/download-artifact action to v6 ([2f86cec](https://github.com/scafi/scafi3/commit/2f86cec4b30f6fd8ea516b93e0f0f4caf53904b5))
+* **deps:** update github artifact actions to v5 ([aee7550](https://github.com/scafi/scafi3/commit/aee755026e20373e2cd0c0ac7752452a4f0341f7))
+* **deps:** update nicolasfara/build-check-deploy-sbt-action action to v1.0.32 ([ec32a0a](https://github.com/scafi/scafi3/commit/ec32a0acab9814f125ef843a1010b6ceb0b1a2b3))
+* support native bindings generation on windows ([#199](https://github.com/scafi/scafi3/issues/199)) ([0457051](https://github.com/scafi/scafi3/commit/045705130bc7aa5d578aefb6c87fce32e6d79cca))
+
 ## [3.1.0](https://github.com/scafi/scafi3/compare/v3.0.0...v3.1.0) (2025-11-21)
 
 ### Features
