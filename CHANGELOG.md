@@ -1,3 +1,19 @@
+## [3.2.1](https://github.com/scafi/scafi3/compare/v3.2.0...v3.2.1) (2025-12-10)
+
+### Dependency updates
+
+* **deps:** update dependency scalafmt to v3.10.2 ([6c39e55](https://github.com/scafi/scafi3/commit/6c39e55527d8393fc7bfc4a472d9f679f8300edb))
+
+### Bug Fixes
+
+* fix `mapN` behavior considering aligned devices when performing the operation ([#200](https://github.com/scafi/scafi3/issues/200)) ([8167853](https://github.com/scafi/scafi3/commit/816785337ccf24a40cd2ff019876c1a66e581938))
+
+### Build and continuous integration
+
+* **deps:** update actions/checkout action to v6.0.1 ([e2a7f53](https://github.com/scafi/scafi3/commit/e2a7f53f98a81f37b0525cb23b4b6772f34b34ff))
+* **deps:** update actions/setup-node action to v6.1.0 ([347430a](https://github.com/scafi/scafi3/commit/347430a5e6bdb2d37fa973a825677169d9a5bd81))
+* **deps:** update nicolasfara/build-check-deploy-sbt-action action to v1.0.33 ([e48dbb0](https://github.com/scafi/scafi3/commit/e48dbb0ee9f00554ba4fcebf221df3cc6d13ad08))
+
 ## [3.2.0](https://github.com/scafi/scafi3/compare/v3.1.0...v3.2.0) (2025-11-24)
 
 ### Features
