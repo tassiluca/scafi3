@@ -1,3 +1,28 @@
+## [3.2.2](https://github.com/scafi/scafi3/compare/v3.2.1...v3.2.2) (2025-12-26)
+
+### Dependency updates
+
+* **deps:** update alchemistversion to v42.3.20 ([7a3e7a0](https://github.com/scafi/scafi3/commit/7a3e7a0a9a4d9abf5994d3cefd3bd4ad21f0bd9f))
+* **deps:** update alchemistversion to v42.3.21 ([23c1936](https://github.com/scafi/scafi3/commit/23c19363b6172134862cb9ba8aa0d57372f1028d))
+* **deps:** update alchemistversion to v42.3.22 ([5b16fc0](https://github.com/scafi/scafi3/commit/5b16fc0942cd8d7218e361db1ded3d6076de9914))
+* **deps:** update alchemistversion to v42.3.23 ([16b3340](https://github.com/scafi/scafi3/commit/16b3340b01c5f0787a8ec01c3913268c7f80a943))
+* **deps:** update alchemistversion to v42.3.24 ([8106b11](https://github.com/scafi/scafi3/commit/8106b111d7e35729b7bc4fac86535946a4480617))
+* **deps:** update dependency io.github.iltotore:iron to v3.2.2 ([9cc8f24](https://github.com/scafi/scafi3/commit/9cc8f2454a3048aa992f81932fbda575fe642160))
+* **deps:** update dependency scalafmt to v3.10.3 ([fec2405](https://github.com/scafi/scafi3/commit/fec24054d1e3c71905058f1a6fee2250ecad4b1c))
+* **deps:** update node.js to 24.12 ([e8326b1](https://github.com/scafi/scafi3/commit/e8326b1070b7326d010813d2616d633a263efb06))
+
+### Documentation
+
+* **example:** adapt example with new NeighborValuesOps design ([#198](https://github.com/scafi/scafi3/issues/198)) ([4fcbaf2](https://github.com/scafi/scafi3/commit/4fcbaf2cfac0a2bb4be94e4809e32d1769a8eed8))
+
+### Build and continuous integration
+
+* **deps:** update actions/download-artifact action to v7 ([97c6359](https://github.com/scafi/scafi3/commit/97c6359b551d1fa1fd2c9aa26ed449698a3893c2))
+* **deps:** update actions/upload-artifact action to v6 ([4a29c64](https://github.com/scafi/scafi3/commit/4a29c649d4378378b6bcc33724e74c6247fee13e))
+* **deps:** update nicolasfara/build-check-deploy-sbt-action action to v1.0.34 ([53454de](https://github.com/scafi/scafi3/commit/53454de072275a315cb0ecd6b7e20c616cfcf9df))
+* **deps:** update nicolasfara/build-check-deploy-sbt-action action to v1.0.35 ([316d4da](https://github.com/scafi/scafi3/commit/316d4daf82d2ade889d4afd605426761e0ebd12e))
+* **deps:** update nicolasfara/build-check-deploy-sbt-action action to v1.0.36 ([6251815](https://github.com/scafi/scafi3/commit/6251815f4f90d4528850aac97ae8f9570045302b))
+
 ## [3.2.1](https://github.com/scafi/scafi3/compare/v3.2.0...v3.2.1) (2025-12-10)
 
 ### Dependency updates
