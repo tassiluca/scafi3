@@ -38,7 +38,9 @@ trait ValueTree:
    *   an Option containing the value associated to the given [[Path]] if it exists, otherwise None.
    */
   def get[Value](path: Path): Option[Value] =
-    try Some(apply(path))
+    try
+      val value: Value = apply(path)
+      Some(value)
     catch case _: NoPathFoundException => None
 
   /**
@@ -74,18 +76,26 @@ object ValueTree:
    *   a new [[ValueTree]] created from the given map of [[Path]]s and [[Value]]s.
    */
   def apply[Value](from: Map[Path, Value]): ValueTree = new ValueTree:
+    given CanEqual[Value, Value] = CanEqual.derived
+
     override def paths: Iterable[Path] = from.keys
+
     @SuppressWarnings(Array("DisableSyntax.asInstanceOf"))
     override def apply[V](path: Path): V throws NoPathFoundException =
       from.get(path) match
         case Some(value) => value.asInstanceOf[V]
         case None => throw new NoPathFoundException(path)
+
     override def update[V](path: Path, value: V): ValueTree = ValueTree.apply(from + (path -> value))
 
     override def equals(obj: Any): Boolean =
       obj match
         case that: ValueTree =>
-          try this.paths == that.paths && this.paths.forall(path => this(path) == that(path))
+          try
+            this.paths == that.paths && this.paths.forall: path =>
+              val p1: Value = this(path)
+              val p2: Value = that(path)
+              p1 == p2
           catch case _: NoPathFoundException => false
         case _ => false
 
